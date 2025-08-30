@@ -30,13 +30,13 @@ function FeatureCard({ icon, title, description }: any) {
       data-aos="fade-up"
       className="sm:w-[35rem] w-[20rem] border border-border shadow-sm rounded-xl hover:shadow-md transition"
     >
-      <CardContent className="flex items-center p-5 space-x-5">
+      <CardContent className="flex items-center p-2 sm:p-5 space-x-1 sm:space-x-5">
         <Image
           width={100}
           height={100}
           src={icon}
           alt={title}
-          className="xs:w-32 w-20 sm:h-32 h-20 text-accent"
+          className="sm:w-32 w-18 sm:h-32 h-18 text-accent"
         />
         <div className="text-left space-y-1">
           <h3 className="text-2xl text-title font-semibold">{title}</h3>
@@ -49,7 +49,7 @@ function FeatureCard({ icon, title, description }: any) {
 
 export default function FeaturesSection() {
   return (
-    <div className="text-center">
+    <div className="text-center" id="features">
       <h2 className="text-4xl font-bold text-title mb-3">Features</h2>
       <p className="title-description">
         Built-in features that make your portfolio stand out.

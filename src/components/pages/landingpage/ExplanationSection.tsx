@@ -52,14 +52,14 @@ export default function ExplanationSection() {
             try for free
           </Button>
         </div>
-        <div className="flex justify-center items-center bg-secondary sm:w-82 h-72 sm:h-82 h-72 rounded-full ">
+        <div className="flex justify-center items-center bg-secondary sm:w-82 w-72 sm:h-82 h-72 rounded-full ">
           <Image
             src={"/assets/images/Drag.png"}
             alt="Drag Preview"
             property="true"
             width={500}
             height={500}
-            className="w-[18rem] sm:w-[25rem] relative top-3"
+            className="w-[18rem] sm:w-[25rem] relative top-3 hover:scale-95 duration-300"
           />
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function ExplanationSection() {
             alt="Categories"
             width={500}
             height={500}
-            className="absolute right-5 -bottom-1"
+            className="absolute right-5 -bottom-1 hover:scale-95 duration-300"
           />
         </div>
       </div>

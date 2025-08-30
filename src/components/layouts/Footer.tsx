@@ -25,14 +25,14 @@ export default function Footer() {
           <a href="#" className="hover:opacity-60 transition">
             Home
           </a>
-          <a href="#" className="hover:opacity-60 transition">
+          <a href="#features" className="hover:opacity-60 transition">
             Features
           </a>
           <a href="#" className="hover:opacity-60 transition">
-            Pricing
+            Privacy Policy
           </a>
           <a href="#" className="hover:opacity-60 transition">
-            Contact
+            Terms & Conditions
           </a>
         </div>
 

@@ -35,14 +35,14 @@ export default function HeroSection() {
           Get started
         </Button>
       </div>
-      <div data-aos="fade-up">
+      <div data-aos="fade-up" className="">
         <Image
           src={"/assets/images/dashboard.png"}
           alt="Jeddah Albalad Logo"
           property="true"
           width={500}
           height={500}
-          className="w-[30rem]"
+          className="w-[30rem] hover:scale-95 duration-300"
         />
       </div>
     </div>
