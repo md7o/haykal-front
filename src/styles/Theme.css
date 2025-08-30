@@ -1,0 +1,41 @@
+@theme {
+  /* Base Colors */
+  --color-base-bg: #ffffff;
+  --color-primary: #fff7f4;
+  --color-secondary: #fee9e1;
+  --color-gradient-primary: #fa6b77;
+  --color-gradient-secondary: #fe9171;
+
+  /* Text Colors */
+  --color-title: black;
+  --color-description: #565656;
+
+  /* State Colors */
+  --color-border: #e5e5e5;
+  --color-overlay-strong: rgba(0, 0, 0, 0.7);
+  --color-hover-light: #ffffff6e;
+
+  /* Accent */
+  --color-accent: #fa6b77;
+
+  /* Font */
+  --font-lato: "Lato", sans-serif;
+  --font-IBMPlexSans: "IBM Plex Sans", sans-serif;
+
+  /* Rounded */
+  --radius-soft: 10px;
+  --radius-base: 16px;
+  --radius-strong: 20px;
+  --radius-full: 999px;
+
+  /* SideBar */
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+}
+
+body {
+  font-family: var(--font-IBMPlexSansArabic);
+  color: var(--color-title);
+  background: var(--color-base-bg);
+}
