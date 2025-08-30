@@ -19,23 +19,17 @@
   --color-accent: #fa6b77;
 
   /* Font */
-  --font-lato: "Lato", sans-serif;
-  --font-IBMPlexSans: "IBM Plex Sans", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
 
   /* Rounded */
   --radius-soft: 10px;
   --radius-base: 16px;
   --radius-strong: 20px;
   --radius-full: 999px;
-
-  /* SideBar */
-  --sidebar-background: 0 0% 98%;
-  --sidebar-foreground: 240 5.3% 26.1%;
-  --sidebar-primary: 240 5.9% 10%;
 }
 
 body {
-  font-family: var(--font-IBMPlexSansArabic);
+  font-family: var(--font-montserrat);
   color: var(--color-title);
   background: var(--color-base-bg);
 }

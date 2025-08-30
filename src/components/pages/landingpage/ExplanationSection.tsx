@@ -28,11 +28,11 @@ const featuresList = [
 
 export default function ExplanationSection() {
   return (
-    <div className="bg-primary w-full">
+    <section className="bg-primary w-full">
       {/* === Part One === */}
       <div
         data-aos="fade-up"
-        className="  flex flex-col xl:flex-row items-center justify-center gap-14 px-6 text-center xl:text-left py-10"
+        className="flex flex-col xl:flex-row items-center justify-center gap-14 px-6 text-center xl:text-left py-10"
       >
         <div className="relative max-w-lg space-y-5">
           <h1 className="text-title sm:text-5xl text-4xl font-bold relative">
@@ -46,7 +46,7 @@ export default function ExplanationSection() {
             alt="Jeddah Albalad Logo"
             width={500}
             height={500}
-            className="w-14 absolute right-25 xl:left-50 bottom-18 hidden sm:block"
+            className="w-14 absolute right-23 xl:left-55 bottom-18 hidden sm:block"
           />
           <Button variant="fill" size={"base"} className="uppercase">
             try for free
@@ -94,7 +94,7 @@ export default function ExplanationSection() {
             alt="Jeddah Albalad Logo"
             width={500}
             height={500}
-            className="w-14 absolute right-10 xl:left-62 top-24 hidden sm:block"
+            className="w-14 absolute right-7 xl:left-70 top-24 hidden sm:block"
           />
         </div>
         <div className="relative bg-secondary sm:w-82 w-72 sm:h-82 h-72 rounded-full overflow-visible">
@@ -107,6 +107,6 @@ export default function ExplanationSection() {
           />
         </div>
       </div>
-    </div>
+    </section>
   );
 }

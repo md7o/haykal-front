@@ -34,7 +34,7 @@ const features = [
 
 export default function AdvantagesSection() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-6 max-w-5xl mx-auto">
+    <section className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-6 max-w-5xl mx-auto">
       {features.map((feature, index) => {
         const Icon = feature.icon;
         return (
@@ -59,6 +59,6 @@ export default function AdvantagesSection() {
           </Card>
         );
       })}
-    </div>
+    </section>
   );
 }

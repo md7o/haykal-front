@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function HeroSection() {
   return (
-    <div className="flex flex-col xl:flex-row items-center justify-center gap-24 px-6 2xl:mx-36 text-center xl:text-left">
+    <section className="flex flex-col xl:flex-row items-center justify-center gap-24 px-6 2xl:mx-36 text-center xl:text-left">
       <div
         data-aos="fade-up"
         data-aos-duration="800"
@@ -15,7 +15,7 @@ export default function HeroSection() {
           width={500}
           height={500}
           priority
-          className="w-20 absolute -top-2 xl:top-0 right-13 xl:right-28"
+          className="w-20 absolute -top-1 xl:top-0 right-8 xl:right-15"
         />
         <h1 className="text-title sm:text-7xl text-6xl font-bold relative">
           Design Your Portfolio With Pick-and Click
@@ -29,7 +29,7 @@ export default function HeroSection() {
           alt="Jeddah Albalad Logo"
           width={500}
           height={500}
-          className="w-20 absolute -right-15 xl:-right-10 bottom-25 hidden sm:block"
+          className="w-20 absolute -right-0 xl:right-20 bottom-30 hidden sm:block"
         />
         <Button variant="fill" size={"small"} className="uppercase">
           Get started
@@ -45,6 +45,6 @@ export default function HeroSection() {
           className="w-[30rem] hover:scale-95 duration-300"
         />
       </div>
-    </div>
+    </section>
   );
 }

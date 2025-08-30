@@ -20,7 +20,7 @@ const previews: PreviewConfig[] = [
     type: "desktop",
     width: "sm:w-[28rem] w-[19rem]",
     height: "sm:h-[22rem] h-[15rem]",
-    cardLayout: { top: 1, bottom: { base: 2, sm: 4 }, cols: 2 }, // 👈 2 in base, 4 in sm+
+    cardLayout: { top: 1, bottom: { base: 2, sm: 4 }, cols: 2 },
   },
 ];
 
@@ -52,27 +52,27 @@ function BrowserFrame({
         </div>
 
         {/* Bottom cards */}
-        {/* Base = 2, sm+ = 4 */}
-        <div className={`grid grid-cols-${cardLayout.cols} gap-3`}>
+        <div
+          className={`grid gap-3`}
+          style={{ gridTemplateColumns: `repeat(${cardLayout.cols}, 1fr)` }}
+        >
           {/* base */}
-          <div className="sm:hidden contents">
-            {Array.from({ length: cardLayout.bottom.base }).map((_, i) => (
+          {cardLayout.bottom.base > 0 &&
+            Array.from({ length: cardLayout.bottom.base }).map((_, i) => (
               <div
                 key={`bottom-base-${i}`}
-                className="bg-primary h-20 rounded-lg"
+                className="bg-primary h-20 rounded-lg sm:hidden"
               ></div>
             ))}
-          </div>
 
           {/* sm+ */}
-          <div className="hidden sm:contents">
-            {Array.from({ length: cardLayout.bottom.sm }).map((_, i) => (
+          {cardLayout.bottom.sm > 0 &&
+            Array.from({ length: cardLayout.bottom.sm }).map((_, i) => (
               <div
                 key={`bottom-sm-${i}`}
-                className="bg-primary h-20 rounded-lg"
+                className="bg-primary h-20 rounded-lg hidden sm:block"
               ></div>
             ))}
-          </div>
         </div>
       </div>
     </div>
