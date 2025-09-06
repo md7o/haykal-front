@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { AOSInit } from "@/styles/Aos";
+import { AuthProvider } from "@/context/AuthContext";
+import { RecoveryPasswordProvider } from "@/context/RecoveryPasswordContext";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -19,9 +21,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <AOSInit />
-      <body className={`${montserrat.variable}`}>{children}</body>
+      <body className={`${montserrat.variable}`}>
+        <AuthProvider>
+          <RecoveryPasswordProvider>{children}</RecoveryPasswordProvider>
+        </AuthProvider>
+      </body>
     </html>
   );
 }

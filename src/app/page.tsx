@@ -1,13 +1,11 @@
 import Footer from "@/components/layouts/Footer";
 import Navbar from "@/components/layouts/Header";
 import AdvantagesSection from "@/components/pages/landingpage/AdvantagesSection";
-import AdvantagesSectins from "@/components/pages/landingpage/AdvantagesSection";
 import ExplanationSection from "@/components/pages/landingpage/ExplanationSection";
 import FeaturesSection from "@/components/pages/landingpage/FeaturesSection";
 import GetStartedSection from "@/components/pages/landingpage/GetstartedSection";
 import HeroSection from "@/components/pages/landingpage/HeroSection";
 import ResponsiveSection from "@/components/pages/landingpage/ResponsiveSection";
-import Image from "next/image";
 
 export default function Home() {
   return (

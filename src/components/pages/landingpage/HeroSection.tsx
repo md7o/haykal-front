@@ -39,7 +39,7 @@ export default function HeroSection() {
         <Image
           src={"/assets/images/dashboard.png"}
           alt="Jeddah Albalad Logo"
-          property="true"
+          priority
           width={500}
           height={500}
           className="w-[30rem] hover:scale-95 duration-300"
