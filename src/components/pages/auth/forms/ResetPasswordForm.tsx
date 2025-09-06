@@ -16,6 +16,7 @@ export default function ResetPasswordForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Handle password reset form submission
   const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -37,7 +38,6 @@ export default function ResetPasswordForm() {
     }
     setIsSubmitting(true);
     try {
-      // The OTP is now handled in the previous step; just reset password here
       await resetPassword(email, code, password, confirmPassword);
       setSuccess(true);
       setCode(""); // Clear code after successful reset

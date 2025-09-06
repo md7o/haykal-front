@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 export default function ForgotPasswordForm() {
-  // Helper to format resend timer text
   function getResendTimerText(timer: number) {
     if (timer > 0) {
       const minutes = Math.floor(timer / 60);
@@ -30,10 +29,8 @@ export default function ForgotPasswordForm() {
   const { email, setEmail, setCode } = useRecoveryPassword();
   const router = useRouter();
 
-  // Timer for resend during OTP step
   useEffect(() => {
-    if (step !== "otp") return;
-    if (resendTimer <= 0) return;
+    if (step !== "otp" || resendTimer <= 0) return;
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setResendTimer((prev) => {
@@ -53,6 +50,7 @@ export default function ForgotPasswordForm() {
     e.preventDefault();
     setError(null);
     setSuccess(false);
+
     if (!email) {
       setError("Please enter your email address.");
       return;
@@ -61,6 +59,7 @@ export default function ForgotPasswordForm() {
       setError("Please enter a valid email address.");
       return;
     }
+
     setIsSubmitting(true);
     try {
       await forgotPassword(email);
@@ -102,17 +101,22 @@ export default function ForgotPasswordForm() {
   const handleVerify = async () => {
     setVerifying(true);
     setError(null);
+
     if (!email) {
       setError("Missing email. Please start again.");
       setStep("email");
       setVerifying(false);
       return;
     }
+
+    if (otp.length < 6) {
+      setError("Please enter the 6-digit code.");
+      setVerifying(false);
+      return;
+    }
+
     try {
-      if (otp.length < 6) {
-        setError("Please enter the 6-digit code.");
-        return;
-      }
+      // Save OTP and go to reset password step
       setCode(otp);
       router.push("/reset-password");
     } catch (err) {

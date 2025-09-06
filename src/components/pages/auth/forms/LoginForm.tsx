@@ -30,6 +30,7 @@ export default function LoginForm() {
     reValidateMode: "onChange",
   });
 
+  // Handle login form submission
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsSubmitting(true);
@@ -57,9 +58,7 @@ export default function LoginForm() {
 
   return (
     <>
-      {/* Login Form */}
       <form onSubmit={handleFormSubmit} className="space-y-6" noValidate>
-        {/* Email Field */}
         <FormField
           label="Email"
           type="email"
@@ -68,8 +67,6 @@ export default function LoginForm() {
           touched={touchedFields.email || submitAttempted}
           {...register("email")}
         />
-
-        {/* Password Field */}
         <FormField
           label="Password"
           type="password"
@@ -78,15 +75,11 @@ export default function LoginForm() {
           touched={touchedFields.password || submitAttempted}
           {...register("password")}
         />
-
-        {/* Forgot Password Link */}
         <div className="flex justify-end">
           <Link href="/forgot-password" className="text-sm text-accent font-medium hover:underline transition-all">
             Forgot Password?
           </Link>
         </div>
-
-        {/* Submit Error */}
         {submitError && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-md">
             <p className="text-sm text-red-600 flex items-center gap-2">
@@ -95,8 +88,6 @@ export default function LoginForm() {
             </p>
           </div>
         )}
-
-        {/* Submit Button */}
         <Button type="submit" disabled={!isValid || isSubmitting} size="huge">
           {isSubmitting ? (
             <div className="flex items-center gap-2">
@@ -108,8 +99,6 @@ export default function LoginForm() {
           )}
         </Button>
       </form>
-
-      {/* Sign Up Link */}
       <div className="mt-6 text-center">
         <p className="text-sm text-description">
           Don't have an account?{" "}
@@ -118,8 +107,7 @@ export default function LoginForm() {
           </Link>
         </p>
       </div>
-
-      {/* Additional Links */}
+      {/* Legal links */}
       <div className="mt-6 text-center">
         <p className="text-xs text-description">
           By logging in, you agree to our{" "}

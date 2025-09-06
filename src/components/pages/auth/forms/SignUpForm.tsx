@@ -72,7 +72,6 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
     reValidateMode: "onChange",
   });
 
-  // Watch password field for strength indicator
   const passwordValue = watch("password", "");
 
   const onSubmit = async (data: SignUpFormData) => {
@@ -121,28 +120,40 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
   const handleVerify = async () => {
     setVerifying(true);
     setSubmitError(null);
+
+    // Guard: Email must be present
     if (!emailForOtp) {
       setSubmitError("Missing email. Please start again.");
       setStep("form");
       setVerifying(false);
       return;
     }
+
+    // Guard: OTP must be 6 digits
+    if (otp.length < 6) {
+      setSubmitError("Please enter the 6-digit code.");
+      setVerifying(false);
+      return;
+    }
+
     try {
-      if (otp.length < 6) {
-        setSubmitError("Please enter the 6-digit code.");
-        setVerifying(false);
-        return;
-      }
+      // 1. Verify OTP
       await verifySignup(emailForOtp, otp);
-      // Automatically sign in the user after successful verification
+
+      // 2. Auto sign in the user
       if (emailForOtp && passwordForOtp) {
         await signIn({ email: emailForOtp, password: passwordForOtp });
-        // Fetch user and update auth context
+
+        // 3. Fetch user and update auth context
         const userData = await me();
         setIsLogged(true);
         setUser(userData);
       }
+
+      // 4. Optional success callback
       onSuccess?.(emailForOtp);
+
+      // 5. Redirect to home
       router.push("/");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Verification failed");
