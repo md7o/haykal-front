@@ -1,10 +1,12 @@
+/* Category card gradient background */
+.category-gradient {
+  background: linear-gradient(180deg, #fa6b77, #fe9171);
+}
 @theme {
   /* Base Colors */
   --color-base-bg: #ffffff;
   --color-primary: #fff7f4;
   --color-secondary: #fee9e1;
-  --color-gradient-primary: #fa6b77;
-  --color-gradient-secondary: #fe9171;
 
   /* Text Colors */
   --color-title: black;
@@ -33,4 +35,15 @@ body {
   font-family: var(--font-montserrat);
   color: var(--color-title);
   background: var(--color-base-bg);
+}
+
+/* Animation */
+@keyframes lightpulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }

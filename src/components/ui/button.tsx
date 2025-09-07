@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        fill: "bg-gradient-to-t from-gradient-primary to-gradient-secondary hover:opacity-80 ",
+        fill: "category-gradient hover:opacity-80 ",
         outline: "border-2 border-gradient-primary hover:bg-gradient-primary hover:text-white text-black",
         transparent: "bg-transparent hover:bg-gradient-primary hover:text-white text-black",
       },
       size: {
-        small: "h-9 px-4 py-5 ",
-        base: "h-9 px-8 py-5 ",
-        large: "h-9 px-14 py-5 ",
+        small: "h-12 px-4 py-5 ",
+        base: "h-12 px-8 py-5 ",
+        large: "h-12 px-20 py-5 ",
         huge: "h-12 px-20 py-5 w-full",
 
         icon: "size-9",

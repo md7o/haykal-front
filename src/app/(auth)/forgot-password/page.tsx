@@ -4,7 +4,7 @@ import AuthLeftSection from "@/components/pages/auth/AuthLeftSection";
 import AuthRightSection from "@/components/pages/auth/AuthRightSection";
 import ForgotPasswordForm from "@/components/pages/auth/forms/ForgotPasswordForm";
 
-export default function ForgotPasswordPage() {
+export default function ForgotPassword() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       <AuthLeftSection
