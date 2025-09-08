@@ -2,6 +2,9 @@
 .category-gradient {
   background: linear-gradient(180deg, #fa6b77, #fe9171);
 }
+.border-gradient {
+  border: linear-gradient(180deg, #fa6b77, #fe9171);
+}
 @theme {
   /* Base Colors */
   --color-base-bg: #ffffff;

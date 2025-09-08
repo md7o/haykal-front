@@ -1,7 +1,9 @@
+import StudioPage from "@/components/pages/structure/studio-page/StudioPage";
+
 export default function Studio() {
   return (
     <div>
-      <h1>Studio Page</h1>
+      <StudioPage />
     </div>
   );
 }
