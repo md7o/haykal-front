@@ -4,6 +4,14 @@ import { useStudio } from "@/context/StudioContext";
 import { useState, useEffect } from "react";
 import { MonitorSmartphone, Share, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { sectionsRegistry } from "@/components/pages/sections-design/registry/sections-registry";
 import { createCustomDesign, updateCustomDesign } from "@/api/studio-endpoints";
 import { createPortfolio, Category } from "@/api/portfolio-endpoints";
@@ -17,18 +25,18 @@ export default function DisplayPage() {
   const [view, setView] = useState<"desktop" | "mobile">("desktop");
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1280px)");
 
-    const handleChange = (e: MediaQueryListEvent) => setView(e.matches ? "mobile" : "desktop");
+    const handleChange = (e: MediaQueryListEvent) => setView(e.matches ? "desktop" : "mobile");
 
     // initialize
     setView(mq.matches ? "mobile" : "desktop");
 
-    // some older browsers expose addListener/removeListener
     const mql = mq as MediaQueryList & {
       addListener?: (l: (e: MediaQueryListEvent) => void) => void;
       removeListener?: (l: (e: MediaQueryListEvent) => void) => void;
@@ -106,9 +114,36 @@ export default function DisplayPage() {
         </div>
         <div className="flex items-center gap-3">
           {publishError && <div className="text-sm text-red-600">{publishError}</div>}
-          <Button onClick={publicPortfolio} disabled={isPublishing || !used.length}>
-            <Share className="inline w-4 h-4 mr-1" /> {isPublishing ? "Publishing..." : "Public"}
-          </Button>
+          <>
+            <Button onClick={() => setIsConfirmOpen(true)} disabled={isPublishing || !used.length}>
+              <Share className="inline w-4 h-4 mr-1" /> {isPublishing ? "Publishing..." : "Public"}
+            </Button>
+
+            <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Confirm Publish</DialogTitle>
+                </DialogHeader>
+                <DialogDescription>
+                  Are you sure you want to publish your portfolio? This action will make it public.
+                </DialogDescription>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsConfirmOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      setIsConfirmOpen(false);
+                      await publicPortfolio();
+                    }}
+                    disabled={isPublishing || !used.length}
+                  >
+                    Confirm
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
         </div>
       </div>
       <div

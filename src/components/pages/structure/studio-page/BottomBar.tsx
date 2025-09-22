@@ -4,12 +4,8 @@ import React from "react";
 import { ResponsiveBar } from "@/components/layouts/ResponsiveBar";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Sidebar, Upload } from "lucide-react";
-
 import { useStudio } from "@/context/StudioContext";
-import { useState, useEffect } from "react";
-import { MonitorSmartphone, Share, Smartphone } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { sectionsRegistry } from "@/components/pages/sections-design/registry/sections-registry";
+import { useState } from "react";
 import { createCustomDesign, updateCustomDesign } from "@/api/studio-endpoints";
 import { createPortfolio, Category } from "@/api/portfolio-endpoints";
 import { useAuth } from "@/context/AuthContext";
@@ -72,19 +68,19 @@ export default function BottomBar() {
     {
       id: "StudioSidebar",
       label: "Sections",
-      icon: <Sidebar size={20} />,
+      icon: <Sidebar size={25} />,
       onClick: () => {
-        setActive("StudioSidebar");
+        // setActive("StudioSidebar");
         setOpenMobile(true);
       },
     },
     {
       id: "publish",
       label: "Publish",
-      icon: <Upload size={20} />,
+      icon: <Upload size={25} />,
       onClick: publicPortfolio,
     },
   ];
 
-  return <ResponsiveBar items={items} activeItem={active} onItemClick={setActive} />;
+  return <ResponsiveBar items={items} onItemClick={setActive} />;
 }

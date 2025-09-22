@@ -9,9 +9,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const responsiveBarVariants = cva("fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out md:hidden", {
   variants: {
     variant: {
-      default: "bg-base-bg border-t border-card-border shadow-lg",
+      default: "bg-card-bg shadow-lg",
       dark: "bg-gray-900 border-gray-700",
-      accent: "bg-gradient-to-r from-blue-500 to-purple-600 border-none",
     },
     size: {
       small: "h-16 px-2",
@@ -26,12 +25,12 @@ const responsiveBarVariants = cva("fixed bottom-0 left-0 right-0 z-50 transition
 });
 
 const responsiveBarItemVariants = cva(
-  "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer select-none",
+  "flex flex-col items-center justify-center h-full w-full rounded-lg transition-all duration-200 cursor-pointer select-none",
   {
     variants: {
       variant: {
         default: "text-description hover:text-accent hover:bg-secondary-card",
-        active: "text-accent bg-secondary-card",
+        active: "text-accent",
         dark: "text-gray-400 hover:text-white hover:bg-gray-800",
         "dark-active": "text-white bg-gray-800",
       },
@@ -119,7 +118,7 @@ const ResponsiveBarItem = React.forwardRef<HTMLDivElement, ResponsiveBarItemProp
             </span>
           )}
         </div>
-        {showLabel && <span className="text-xs font-medium truncate max-w-full">{item.label}</span>}
+        {showLabel && <span className="text-xs pt-1 font-medium truncate max-w-full">{item.label}</span>}
       </div>
     );
   }
@@ -188,7 +187,7 @@ const ResponsiveBar = React.forwardRef<HTMLDivElement, ResponsiveBarProps>(
         className={cn(responsiveBarVariants({ variant, size }), !isVisible && "translate-y-full", className)}
         {...props}
       >
-        <div className="flex items-center justify-around h-full max-w-md mx-auto">
+        <div className="flex items-center justify-around h-full  mx-auto">
           {items.map((item) => (
             <ResponsiveBarItem
               key={item.id}
