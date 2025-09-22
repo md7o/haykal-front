@@ -1,44 +1,89 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
-
-export interface StudioSection {
-  id: string;
-  name: string;
-  type: string; // e.g. hero, footer etc.
-}
-
-interface StudioContextValue {
-  used: StudioSection[];
-  available: StudioSection[];
-  addSection: (id: string) => void;
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
+import { AnySectionInstance } from "@/types/sections";
+import { createSectionInstance, SectionType } from "@/components/pages/sections-design/registry/sections-registry";
+import { sectionsRegistry } from "@/components/pages/sections-design/registry/sections-registry";
+export interface StudioContextShape {
+  used: AnySectionInstance[];
+  available: { type: string; label: string }[];
+  addSection: (type: SectionType) => void;
   removeSection: (id: string) => void;
   reorderUsed: (from: number, to: number) => void;
-  setSections: (payload: { used: StudioSection[]; available: StudioSection[] }) => void;
+  updateSectionConfig: (id: string, partial: any) => void;
+  selectedSectionId: string | null;
+  selectSection: (id: string | null) => void;
+  portfolioId: string | null;
+  setPortfolioId: (id: string | null) => void;
+  customDesignId: string | null;
+  setCustomDesignId: (id: string | null) => void;
 }
 
-const StudioContext = createContext<StudioContextValue | undefined>(undefined);
+const StudioContext = createContext<StudioContextShape | undefined>(undefined);
 
-export function StudioProvider({ children, initial }: { children: ReactNode; initial?: { used: StudioSection[]; available: StudioSection[] } }) {
-  const [used, setUsed] = useState<StudioSection[]>(initial?.used || []);
-  const [available, setAvailable] = useState<StudioSection[]>(initial?.available || []);
+export function StudioProvider({ children }: { children: ReactNode }) {
+  const [used, setUsed] = useState<AnySectionInstance[]>([]);
+  const [available, setAvailable] = useState<{ type: string; label: string }[]>([]);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [portfolioId, _setPortfolioId] = useState<string | null>(null);
+  const [customDesignId, _setCustomDesignId] = useState<string | null>(null);
 
-  const addSection = useCallback((id: string) => {
-    setAvailable((prev) => {
-      const found = prev.find((p) => p.id === id);
-      if (!found) return prev;
-      setUsed((u) => [...u, found]);
-      return prev.filter((p) => p.id !== id);
-    });
+  // Initialize available sections once registry is available
+  useEffect(() => {
+    try {
+      if (sectionsRegistry && typeof sectionsRegistry === "object") {
+        const list = Object.values(sectionsRegistry).map((d: any) => ({ type: d.type, label: d.label }));
+        setAvailable(list);
+      }
+    } catch (e) {
+      // noop: keep empty to avoid crashing
+    }
+  }, []);
+
+  // Hydrate IDs from sessionStorage on mount (if present)
+  useEffect(() => {
+    try {
+      const p = typeof window !== "undefined" ? sessionStorage.getItem("portfolioId") : null;
+      const c = typeof window !== "undefined" ? sessionStorage.getItem("customDesignId") : null;
+      if (p) _setPortfolioId(p);
+      if (c) _setCustomDesignId(c);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const setPortfolioId = useCallback((id: string | null) => {
+    _setPortfolioId(id);
+    try {
+      if (typeof window !== "undefined") {
+        if (id) sessionStorage.setItem("portfolioId", id);
+        else sessionStorage.removeItem("portfolioId");
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const setCustomDesignId = useCallback((id: string | null) => {
+    _setCustomDesignId(id);
+    try {
+      if (typeof window !== "undefined") {
+        if (id) sessionStorage.setItem("customDesignId", id);
+        else sessionStorage.removeItem("customDesignId");
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const addSection = useCallback((type: SectionType) => {
+    const instance = createSectionInstance(type);
+    setUsed((prev) => [...prev, instance]);
   }, []);
 
   const removeSection = useCallback((id: string) => {
-    setUsed((prev) => {
-      const found = prev.find((p) => p.id === id);
-      if (!found) return prev;
-      setAvailable((a) => [...a, found]);
-      return prev.filter((p) => p.id !== id);
-    });
+    setUsed((prev) => prev.filter((s) => s.id !== id));
+    setSelectedSectionId((curr) => (curr === id ? null : curr));
   }, []);
 
   const reorderUsed = useCallback((from: number, to: number) => {
@@ -51,13 +96,29 @@ export function StudioProvider({ children, initial }: { children: ReactNode; ini
     });
   }, []);
 
-  const setSections = useCallback((payload: { used: StudioSection[]; available: StudioSection[] }) => {
-    setUsed(payload.used);
-    setAvailable(payload.available);
+  const updateSectionConfig = useCallback((id: string, partial: any) => {
+    setUsed((prev) => prev.map((s) => (s.id === id ? { ...s, config: { ...s.config, ...partial } } : s)));
   }, []);
 
+  const selectSection = useCallback((id: string | null) => setSelectedSectionId(id), []);
+
   return (
-    <StudioContext.Provider value={{ used, available, addSection, removeSection, reorderUsed, setSections }}>
+    <StudioContext.Provider
+      value={{
+        used,
+        available,
+        addSection,
+        removeSection,
+        reorderUsed,
+        updateSectionConfig,
+        selectedSectionId,
+        selectSection,
+        portfolioId,
+        setPortfolioId,
+        customDesignId,
+        setCustomDesignId,
+      }}
+    >
       {children}
     </StudioContext.Provider>
   );

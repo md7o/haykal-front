@@ -16,10 +16,7 @@ export default function Navbar() {
     <header className="py-4 px-4 md:px-6 relative z-50">
       {/* Desktop Navigation */}
       <nav className="flex justify-between items-center lg:mx-60">
-        <Link
-          href={"/"}
-          className="hover:scale-95 hover:opacity-70 duration-200"
-        >
+        <Link href={"/"} className="hover:scale-95 hover:opacity-70 duration-200">
           <Image
             src={"/assets/images/Haykal-Logo.png"}
             alt="Jeddah Albalad Logo"
@@ -38,9 +35,7 @@ export default function Navbar() {
             </div>
           ) : isLogged ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-foreground/70">
-                Welcome{user?.username ? `, ${user.username}` : ""}
-              </span>
+              <span className="text-sm text-foreground/70">Welcome{user?.username ? `, ${user.username}` : ""}</span>
               <Button
                 variant="transparent"
                 size="base"

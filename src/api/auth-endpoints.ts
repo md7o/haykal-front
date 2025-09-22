@@ -19,8 +19,7 @@ const failedQueue: Array<{
 }> = [];
 
 // ---------- tiny helpers ----------
-const isExpired = () =>
-  !!accessToken && !!accessTokenExpiry && Date.now() >= accessTokenExpiry!;
+const isExpired = () => !!accessToken && !!accessTokenExpiry && Date.now() >= accessTokenExpiry!;
 const persist = (token: string | null, exp: number | null) => {
   if (!isBrowser) return;
   if (token && exp) {
@@ -60,8 +59,7 @@ const msg = (err: unknown, fallback: string) => {
 };
 const errorWithStatus = (err: unknown, fallback: string) => {
   const e = new Error(msg(err, fallback)) as Error & { status?: number };
-  if (axios.isAxiosError(err) && err.response?.status)
-    e.status = err.response.status;
+  if (axios.isAxiosError(err) && err.response?.status) e.status = err.response.status;
   return e;
 };
 
@@ -78,9 +76,7 @@ function processQueue(error: unknown | null, token: string | null = null) {
     if (error) return reject(error);
     if (token) {
       config.headers = config.headers ?? {};
-      (config.headers as Record<string, string>)[
-        "Authorization"
-      ] = `Bearer ${token}`;
+      (config.headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
     }
     resolve(api(config));
   });
@@ -113,9 +109,7 @@ api.interceptors.request.use(async (config) => {
   }
   if (accessToken) {
     config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)[
-      "Authorization"
-    ] = `Bearer ${accessToken}`;
+    (config.headers as Record<string, string>)["Authorization"] = `Bearer ${accessToken}`;
   }
   return config;
 });
@@ -127,13 +121,7 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
     const isRefreshCall = (original?.url || "").includes(REFRESH_PATH);
-    if (
-      error?.response?.status === 401 &&
-      !original._retry &&
-      !isRefreshCall &&
-      accessToken &&
-      isExpired()
-    ) {
+    if (error?.response?.status === 401 && !original._retry && !isRefreshCall && accessToken && isExpired()) {
       original._retry = true;
       return new Promise(async (resolve, reject) => {
         failedQueue.push({ resolve, reject, config: original });
@@ -154,8 +142,7 @@ export async function me() {
     const { data } = await api.get(`/auth/me`);
     return data;
   } catch (error: unknown) {
-    if (axios.isAxiosError(error) && error?.response?.status === 401)
-      clearToken();
+    if (axios.isAxiosError(error) && error?.response?.status === 401) clearToken();
     throw new Error(msg(error, "Not authenticated"));
   }
 }
@@ -166,11 +153,7 @@ export async function refresh() {
   return refreshSession();
 }
 
-export async function requestSignup(input: {
-  username: string;
-  email: string;
-  password: string;
-}) {
+export async function requestSignup(input: { username: string; email: string; password: string }) {
   try {
     const { data } = await api.post(`/auth/request-signup`, input);
     return data;
@@ -218,12 +201,7 @@ export async function forgotPassword(email: string) {
   }
 }
 
-export async function resetPassword(
-  email: string,
-  code: string,
-  password: string,
-  confirmPassword: string
-) {
+export async function resetPassword(email: string, code: string, password: string, confirmPassword: string) {
   try {
     const { data } = await api.post(`/auth/reset-password`, {
       email,

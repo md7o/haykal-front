@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
+  label?: string;
   error?: string;
   touched?: boolean;
   helperText?: string;
@@ -18,13 +18,7 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
 
     return (
       <div className="space-y-2">
-        <Label
-          htmlFor={id}
-          className={cn(
-            "text-sm font-medium transition-colors",
-            hasError ? "text-red-500" : "text-title"
-          )}
-        >
+        <Label htmlFor={id} className={cn("text-sm font-medium transition-colors", hasError ? "text-red-500" : "text-title")}>
           {label}
         </Label>
         <div className="relative">
@@ -32,9 +26,8 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
             ref={ref}
             id={id}
             className={cn(
-              "transition-all duration-200",
-              hasError &&
-                "border-red-500 focus:border-red-500 focus:ring-red-500",
+              "transition-all duration-200 bg-white",
+              hasError && "border-red-500 focus:border-red-500 focus:ring-red-500",
               isFocused && !hasError && "border-accent focus:border-accent",
               className
             )}
@@ -57,9 +50,7 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
                 {error}
               </p>
             ) : (
-              helperText && (
-                <p className="text-sm text-description">{helperText}</p>
-              )
+              helperText && <p className="text-sm text-description">{helperText}</p>
             )}
           </div>
         )}

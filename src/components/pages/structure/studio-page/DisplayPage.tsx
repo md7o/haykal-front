@@ -1,103 +1,144 @@
 "use client";
 
 import { useStudio } from "@/context/StudioContext";
-import { useEffect, useState } from "react";
-import { api } from "@/api/auth-endpoints";
-import { MonitorSmartphone, Smartphone, RefreshCcw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { MonitorSmartphone, Share, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-type SectionData = { id: string; type: string; html?: string; data?: any };
+import { sectionsRegistry } from "@/components/pages/sections-design/registry/sections-registry";
+import { createCustomDesign, updateCustomDesign } from "@/api/studio-endpoints";
+import { createPortfolio, Category } from "@/api/portfolio-endpoints";
+import { useAuth } from "@/context/AuthContext";
+import { useStructureContext } from "@/context/StructureContext";
+import { useRouter } from "next/navigation";
 
 export default function DisplayPage() {
-  const { used } = useStudio();
+  const { used, selectedSectionId } = useStudio();
+  const { selectedCategory, selectedLayout } = useStructureContext();
   const [view, setView] = useState<"desktop" | "mobile">("desktop");
-  const [loading, setLoading] = useState(false);
-  const [sectionsData, setSectionsData] = useState<Record<string, SectionData>>({});
-  const [error, setError] = useState<string | null>(null);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const router = useRouter();
 
-  // fetch data for used sections (mocked pattern – endpoint TBD)
-  //   useEffect(() => {
-  //     if (!used.length) return;
-  //     let cancelled = false;
-  //     (async () => {
-  //       setLoading(true);
-  //       setError(null);
-  //       try {
-  //         // Placeholder: assume endpoint /builder/sections?ids=... returns array
-  //         const ids = used.map((u) => u.id).join(",");
-  //         const { data } = await api.get(`/builder/sections`, { params: { ids } });
-  //         if (cancelled) return;
-  //         const map: Record<string, SectionData> = {};
-  //         (data || []).forEach((d: any) => {
-  //           map[d.id] = d;
-  //         });
-  //         setSectionsData(map);
-  //       } catch (e: any) {
-  //         if (!cancelled) setError(e?.message || "Failed to load sections");
-  //       } finally {
-  //         if (!cancelled) setLoading(false);
-  //       }
-  //     })();
-  //     return () => {
-  //       cancelled = true;
-  //     };
-  //   }, [used]);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1280px)");
 
-  const reload = () => {
-    // trigger effect by resetting used clone
-    setSectionsData({});
-    setError(null);
-    if (used.length) {
-      // re-run by creating a new array reference (context unchanged) – simplest: force state via a dummy set
-      // In absence of direct refetch hook, toggle view twice
-      setView((v) => (v === "desktop" ? "mobile" : "desktop"));
-      setTimeout(() => setView((v) => (v === "desktop" ? "mobile" : "desktop")), 0);
+    const handleChange = (e: MediaQueryListEvent) => setView(e.matches ? "mobile" : "desktop");
+
+    // initialize
+    setView(mq.matches ? "mobile" : "desktop");
+
+    // some older browsers expose addListener/removeListener
+    const mql = mq as MediaQueryList & {
+      addListener?: (l: (e: MediaQueryListEvent) => void) => void;
+      removeListener?: (l: (e: MediaQueryListEvent) => void) => void;
+    };
+
+    if (typeof mql.addEventListener === "function") {
+      mql.addEventListener("change", handleChange);
+    } else if (typeof mql.addListener === "function") {
+      mql.addListener(handleChange);
+    }
+
+    return () => {
+      if (typeof mql.removeEventListener === "function") {
+        mql.removeEventListener("change", handleChange);
+      } else if (typeof mql.removeListener === "function") {
+        mql.removeListener(handleChange);
+      }
+    };
+  }, []);
+
+  const publicPortfolio = async () => {
+    if (!used.length) return;
+    setIsPublishing(true);
+    setPublishError(null);
+    try {
+      let portfolioId = typeof window !== "undefined" ? sessionStorage.getItem("portfolioId") : null;
+      if (!portfolioId) {
+        if (!selectedCategory || !selectedLayout) throw new Error("Missing category or layout selection to create a portfolio.");
+        const layoutStr = typeof selectedLayout === "string" ? selectedLayout : String(selectedLayout ?? "");
+        const normalizedLayout: "Landingpage" | "Sections" =
+          layoutStr === "Landing Page type" || layoutStr === "Landingpage" ? "Landingpage" : "Sections";
+        // require userId
+        if (!user?.userId) throw new Error("User must be logged in to publish a portfolio.");
+
+        const createdPortfolio = await createPortfolio({
+          userId: user.userId,
+          category_type: selectedCategory as Category,
+          layout_type: normalizedLayout,
+        });
+        portfolioId = createdPortfolio.id;
+        if (typeof window !== "undefined") sessionStorage.setItem("portfolioId", portfolioId);
+      }
+
+      const sectionsPayload = used.map((s) => ({ type: s.type, config: s.config } as { type: string; config: unknown }));
+      const existingId = typeof window !== "undefined" ? sessionStorage.getItem("customDesignId") : null;
+      if (existingId) {
+        await updateCustomDesign(existingId, { sections: sectionsPayload });
+      } else {
+        const created = await createCustomDesign({ portfolioId, sections: sectionsPayload });
+        if (created?.id && typeof window !== "undefined") {
+          sessionStorage.setItem("customDesignId", String(created.id));
+        }
+      }
+
+      router.push("/own");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setPublishError(msg || "Failed to publish portfolio");
+    } finally {
+      setIsPublishing(false);
     }
   };
 
   return (
-    <div className="h-full flex flex-col gap-4 p-5">
-      <div className="flex items-center gap-2">
-        <Button variant={view === "desktop" ? "fill" : "outline"} onClick={() => setView("desktop")}>
-          <MonitorSmartphone className="inline w-4 h-4 mr-1" /> Desktop
-        </Button>
-        <Button variant={view === "mobile" ? "fill" : "outline"} onClick={() => setView("mobile")}>
-          <Smartphone className="inline w-4 h-4 mr-1" /> Mobile
-        </Button>
-        <Button variant="outline" onClick={reload} className="ml-auto ">
-          <RefreshCcw className="w-4 h-4" /> Reload
-        </Button>
+    <div className=" h-full flex flex-col gap-4 xl:p-5 p-2 bg-card-bg">
+      {/* AppBar */}
+      <div className="hidden xl:flex justify-between items-center">
+        <div className="space-x-2">
+          <Button variant={view === "desktop" ? "fill" : "outline"} onClick={() => setView("desktop")}>
+            <MonitorSmartphone className="inline w-4 h-4 mr-1" /> Desktop
+          </Button>
+          <Button variant={view === "mobile" ? "fill" : "outline"} onClick={() => setView("mobile")}>
+            <Smartphone className="inline w-4 h-4 mr-1" /> Mobile
+          </Button>
+        </div>
+        <div className="flex items-center gap-3">
+          {publishError && <div className="text-sm text-red-600">{publishError}</div>}
+          <Button onClick={publicPortfolio} disabled={isPublishing || !used.length}>
+            <Share className="inline w-4 h-4 mr-1" /> {isPublishing ? "Publishing..." : "Public"}
+          </Button>
+        </div>
       </div>
-      <div className="flex-1 overflow-auto p-4 border rounded bg-white">
-        {loading && <div className="text-sm text-gray-500">Loading sections...</div>}
-        {error && <div className="text-sm text-red-500">{error}</div>}
-        {!loading && !error && !used.length && (
-          <div className="text-sm text-gray-400 text-center py-10">Add sections from the sidebar to preview them.</div>
+      <div
+        className={`preview-theme flex-1 py-5 bg-white rounded-2xl ${
+          view === "desktop" ? "w-full" : "xl:w-[28rem] w-full"
+        } mx-auto transition-all `}
+      >
+        {!used.length && (
+          <div className="text-sm text-description text-center py-10">Add sections from the sidebar to preview them.</div>
         )}
-        <div
-          className={`mx-auto ${
-            view === "desktop" ? "w-full max-w-5xl" : "w-[390px] border shadow-md rounded-lg"
-          } transition-all`}
-        >
+        <div className={`mx-auto ${view === "desktop" ? "w-full " : "w-[28rem] "} transition-all `}>
           {used.map((sec) => {
-            const secData = sectionsData[sec.id];
+            const def = sectionsRegistry[sec.type];
+            if (!def) {
+              return (
+                <div key={sec.id} className="border mb-4 rounded p-4 bg-red-50 text-sm text-red-600">
+                  Unknown section type: {sec.type}
+                </div>
+              );
+            }
             return (
-              <div key={sec.id} className="border mb-4 rounded overflow-hidden">
-                <div className="px-3 py-2 bg-gray-50 text-xs font-medium flex justify-between">
-                  <span>
-                    {sec.name} ({view})
-                  </span>
-                  {!secData && <span className="italic text-gray-400">fetching...</span>}
-                </div>
-                <div className="p-4 text-sm">
-                  {secData?.html ? (
-                    <div dangerouslySetInnerHTML={{ __html: secData.html }} />
-                  ) : (
-                    <pre className="text-xs text-gray-500 whitespace-pre-wrap">
-                      {JSON.stringify(secData || { id: sec.id, placeholder: true }, null, 2)}
-                    </pre>
-                  )}
-                </div>
+              <div
+                key={sec.id}
+                className={`my-28 mt-10 rounded-xl transition-all duration-200 ${
+                  sec.id === selectedSectionId
+                    ? "border-2 border-dashed mx-5 py-3 border-accent shadow-sm"
+                    : "border border-transparent"
+                }`}
+              >
+                <def.Design config={sec.config} view={view} />
               </div>
             );
           })}

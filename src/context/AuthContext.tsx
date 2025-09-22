@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { checkAuthStatus, logout } from "@/api/auth-endpoints";
 
 interface AuthContextType {
@@ -58,9 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider
-      value={{ isLogged, user, isCheckingAuth, logoutUser, setIsLogged, setUser }}
-    >
+    <AuthContext.Provider value={{ isLogged, user, isCheckingAuth, logoutUser, setIsLogged, setUser }}>
       {children}
     </AuthContext.Provider>
   );

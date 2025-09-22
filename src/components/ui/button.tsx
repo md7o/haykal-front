@@ -12,6 +12,8 @@ const buttonVariants = cva(
         fill: "category-gradient hover:opacity-80 ",
         outline: "border hover:text-accent text-black",
         transparent: "bg-transparent hover:bg-category-gradient hover:text-white text-black",
+        link: "hover:opacity-80 underline text-accent text-lg bg-transparent",
+        block: "hover:opacity-80",
       },
       size: {
         small: "h-12 px-4 py-5 ",

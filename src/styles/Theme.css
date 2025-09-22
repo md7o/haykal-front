@@ -1,9 +1,7 @@
+/* stylelint-disable at-rule-no-unknown */
 /* Category card gradient background */
 .category-gradient {
   background: linear-gradient(180deg, #fa6b77, #fe9171);
-}
-.border-gradient {
-  border: linear-gradient(180deg, #fa6b77, #fe9171);
 }
 @theme {
   /* Base Colors */
@@ -16,9 +14,9 @@
   --color-description: #565656;
 
   /* State Colors */
-  --color-border: #e5e5e5;
-  --color-overlay-strong: rgba(0, 0, 0, 0.7);
-  --color-hover-light: #ffffff6e;
+  --color-card-border: #808080;
+  --color-card-bg: #eeeeee;
+  --color-secondary-card: #dddddd;
 
   /* Accent */
   --color-accent: #fa6b77;
