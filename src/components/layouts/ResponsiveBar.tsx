@@ -33,6 +33,8 @@ const responsiveBarItemVariants = cva(
         active: "text-accent",
         dark: "text-gray-400 hover:text-white hover:bg-gray-800",
         "dark-active": "text-white bg-gray-800",
+        disabled: "text-description opacity-60 pointer-events-none",
+        "dark-disabled": "text-gray-500 opacity-60 pointer-events-none",
       },
       size: {
         small: "min-w-12",
@@ -54,6 +56,7 @@ interface ResponsiveBarItem {
   onClick?: () => void;
   href?: string;
   badge?: string | number;
+  disabled?: boolean;
 }
 
 interface ResponsiveBarProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof responsiveBarVariants> {
@@ -67,6 +70,7 @@ interface ResponsiveBarItemProps extends React.HTMLAttributes<HTMLDivElement>, V
   item: ResponsiveBarItem;
   isActive?: boolean;
   showLabel?: boolean;
+  isDisabled?: boolean;
 }
 
 // Default items if none provided
@@ -84,8 +88,11 @@ const defaultItems: ResponsiveBarItem[] = [
 ];
 
 const ResponsiveBarItem = React.forwardRef<HTMLDivElement, ResponsiveBarItemProps>(
-  ({ className, variant, size, item, isActive, showLabel = true, onClick, ...props }, ref) => {
+  ({ className, variant, size, item, isActive, showLabel = true, onClick, isDisabled: forcedDisabled, ...props }, ref) => {
+    const isDisabled = forcedDisabled || item.disabled;
+
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isDisabled) return;
       if (onClick) {
         onClick(e);
       }
@@ -102,12 +109,18 @@ const ResponsiveBarItem = React.forwardRef<HTMLDivElement, ResponsiveBarItemProp
         ref={ref}
         className={cn(
           responsiveBarItemVariants({
-            variant: isActive ? "active" : variant,
+            variant: (() => {
+              if (isActive) return variant === "dark" ? "dark-active" : "active";
+              if (isDisabled) return variant === "dark" ? "dark-disabled" : "disabled";
+              return variant;
+            })(),
             size,
             className,
           })
         )}
         onClick={handleClick}
+        role="button"
+        aria-disabled={isDisabled}
         {...props}
       >
         <div className="relative">
@@ -195,6 +208,7 @@ const ResponsiveBar = React.forwardRef<HTMLDivElement, ResponsiveBarProps>(
               variant={variant === "dark" ? "dark" : "default"}
               size={size}
               isActive={activeItem === item.id}
+              isDisabled={item.disabled}
               showLabel={showLabels}
               onClick={() => handleItemClick(item.id)}
             />

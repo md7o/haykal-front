@@ -9,7 +9,6 @@ export default function LayoutPage() {
   const duration = "duration-200";
   const router = useRouter();
   const { selectedLayout, setSelectedLayout } = useStructureContext();
-  const { selectedCategory } = useStructureContext();
   const layoutType = [
     {
       name: "Landing Page type",
@@ -49,7 +48,7 @@ export default function LayoutPage() {
               aria-pressed={selectedLayout === layout.name}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedLayout(layout.name as any);
+                setSelectedLayout(layout.name === "Landing Page type" ? ("Landingpage" as const) : ("Sections" as const));
               }}
               className={`group relative w-full max-w-[360px] sm:w-[360px] h-[400px] rounded-strong shadow-lg p-6 transition-all ${duration} ease-in-out hover:shadow-2xl category-gradient flex flex-col items-center justify-start mx-auto outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent focus-visible:ring-white/80 cursor-pointer ${
                 selectedLayout === layout.name

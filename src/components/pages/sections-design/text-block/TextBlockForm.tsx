@@ -70,7 +70,10 @@ export default function TextBlockForm({ config, onChange }: Props) {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-title">Alignment</label>
-                <Select value={config.alignment || "center"} onValueChange={(v) => onChange({ alignment: v as any })}>
+                <Select
+                  value={config.alignment || "center"}
+                  onValueChange={(v) => onChange({ alignment: v as "left" | "center" | "right" })}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -84,7 +87,10 @@ export default function TextBlockForm({ config, onChange }: Props) {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-title">Background</label>
-                <Select value={config.style || "without-background"} onValueChange={(v) => onChange({ style: v as any })}>
+                <Select
+                  value={config.style || "without-background"}
+                  onValueChange={(v) => onChange({ style: v as "with-background" | "without-background" })}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>

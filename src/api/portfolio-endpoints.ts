@@ -25,8 +25,24 @@ function toError(err: unknown): Error {
   if (axios.isAxiosError(err)) {
     const e = err as AxiosError;
     const status = e.response?.status;
-    const data: any = e.response?.data;
-    const message = data?.message ?? (typeof data === "string" ? data : JSON.stringify(data)) ?? e.message;
+    const data: unknown = e.response?.data;
+
+    let message = e.message;
+    if (typeof data === "string") {
+      message = data;
+    } else if (data && typeof data === "object") {
+      const maybeMessage = (data as { message?: unknown }).message;
+      if (typeof maybeMessage === "string") {
+        message = maybeMessage;
+      } else {
+        try {
+          message = JSON.stringify(data);
+        } catch {
+          message = e.message;
+        }
+      }
+    }
+
     return new Error(`Request failed${status ? ` (status ${status})` : ""}: ${message}`);
   }
   return err instanceof Error ? err : new Error(String(err));

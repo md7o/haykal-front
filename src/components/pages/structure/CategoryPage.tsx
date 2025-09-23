@@ -30,7 +30,6 @@ export default function CategoryPage() {
   ];
 
   const [isSaving] = useState(false);
-  const [saveError] = useState<string | null>(null);
 
   const handleContinue = () => {
     if (!selectedCategory) return;
@@ -58,7 +57,7 @@ export default function CategoryPage() {
               aria-pressed={selectedCategory === cat.name}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedCategory(cat.name as any);
+                setSelectedCategory(cat.name as "Personal" | "Business" | "Creator");
               }}
               className={`group relative w-full max-w-[280px] sm:w-[280px] h-[280px] rounded-strong shadow-lg p-6 transition-all ${duration} ease-in-out  hover:shadow-2xl category-gradient flex flex-col justify-end mx-auto outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent focus-visible:ring-white/80 cursor-pointer ${
                 selectedCategory === cat.name

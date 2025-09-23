@@ -50,8 +50,15 @@ export default function Own() {
         const data = await getCustomDesignById(idFromContext);
         const payload = Array.isArray(data?.sections) ? data!.sections : [];
         if (mounted) setSections(payload);
-      } catch (e: any) {
-        if (mounted) setError(e?.message || "Failed to load portfolio");
+      } catch (e: unknown) {
+        if (!mounted) return;
+        if (e instanceof Error) setError(e.message);
+        else if (typeof e === "object" && e !== null && "message" in e) {
+          const msg = (e as { message?: unknown }).message;
+          setError(typeof msg === "string" ? msg : "Failed to load portfolio");
+        } else {
+          setError("Failed to load portfolio");
+        }
       } finally {
         if (mounted) setLoading(false);
       }

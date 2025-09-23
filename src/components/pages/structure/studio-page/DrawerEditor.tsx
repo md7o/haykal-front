@@ -22,7 +22,10 @@ export default function DrawerEditor({ open, setOpen }: DrawerEditorProps) {
         {section && def && (
           <div className="flex flex-col xl:flex-row gap-6">
             {def.Form ? (
-              <def.Form config={section.config} onChange={(p) => updateSectionConfig(section.id, p)} />
+              <def.Form
+                config={section.config as Record<string, unknown>}
+                onChange={(p) => updateSectionConfig(section.id, p as Record<string, unknown>)}
+              />
             ) : (
               <div className="p-6 text-sm text-description">No form for this section.</div>
             )}

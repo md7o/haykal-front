@@ -25,7 +25,6 @@ export default function HeroBlock({ config, view = "desktop" }: HeroDesignProps)
     ctaLabel,
     backgroundImage,
     alignment = "left",
-    color = "#fa6b77",
     size = "medium",
     layoutDirection = "dir-right",
     ctaLink,

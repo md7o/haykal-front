@@ -16,8 +16,24 @@ function toError(err: unknown): Error {
   if (axios.isAxiosError(err)) {
     const ae = err as AxiosError;
     const status = ae.response?.status;
-    const data: any = ae.response?.data;
-    const message = data?.message ?? (typeof data === "string" ? data : JSON.stringify(data)) ?? ae.message;
+    const data: unknown = ae.response?.data;
+
+    let message = ae.message;
+    if (typeof data === "string") {
+      message = data;
+    } else if (data && typeof data === "object") {
+      const maybeMessage = (data as { message?: unknown }).message;
+      if (typeof maybeMessage === "string") {
+        message = maybeMessage;
+      } else {
+        try {
+          message = JSON.stringify(data);
+        } catch {
+          message = ae.message;
+        }
+      }
+    }
+
     return new Error(`Request failed${status ? ` (status ${status})` : ""}: ${message}`);
   }
   return err instanceof Error ? err : new Error(String(err));
@@ -94,10 +110,12 @@ export const deleteCustomDesign = async (id: string): Promise<boolean> => {
   }
 };
 
-export default {
+const studioEndpoints = {
   createCustomDesign,
   getAllCustomDesigns,
   getCustomDesignById,
   updateCustomDesign,
   deleteCustomDesign,
 };
+
+export default studioEndpoints;

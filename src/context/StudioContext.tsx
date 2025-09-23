@@ -10,7 +10,7 @@ export interface StudioContextShape {
   addSection: (type: SectionType) => void;
   removeSection: (id: string) => void;
   reorderUsed: (from: number, to: number) => void;
-  updateSectionConfig: (id: string, partial: any) => void;
+  updateSectionConfig: (id: string, partial: Record<string, unknown>) => void;
   selectedSectionId: string | null;
   selectSection: (id: string | null) => void;
   portfolioId: string | null;
@@ -32,10 +32,16 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       if (sectionsRegistry && typeof sectionsRegistry === "object") {
-        const list = Object.values(sectionsRegistry).map((d: any) => ({ type: d.type, label: d.label }));
+        const list = Object.values(sectionsRegistry).map((d) => {
+          const dd = d as { type?: unknown; label?: unknown };
+          return {
+            type: typeof dd.type === "string" ? dd.type : "unknown",
+            label: typeof dd.label === "string" ? dd.label : "Unknown",
+          };
+        });
         setAvailable(list);
       }
-    } catch (e) {
+    } catch {
       // noop: keep empty to avoid crashing
     }
   }, []);
@@ -96,8 +102,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const updateSectionConfig = useCallback((id: string, partial: any) => {
-    setUsed((prev) => prev.map((s) => (s.id === id ? { ...s, config: { ...s.config, ...partial } } : s)));
+  const updateSectionConfig = useCallback((id: string, partial: Record<string, unknown>) => {
+    setUsed((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, config: { ...s.config, ...(partial as Record<string, unknown>) } } : s))
+    );
   }, []);
 
   const selectSection = useCallback((id: string | null) => setSelectedSectionId(id), []);

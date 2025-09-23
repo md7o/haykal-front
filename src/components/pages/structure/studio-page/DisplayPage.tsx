@@ -4,14 +4,7 @@ import { useStudio } from "@/context/StudioContext";
 import { useState, useEffect } from "react";
 import { MonitorSmartphone, Share, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { sectionsRegistry } from "@/components/pages/sections-design/registry/sections-registry";
 import { createCustomDesign, updateCustomDesign } from "@/api/studio-endpoints";
 import { createPortfolio, Category } from "@/api/portfolio-endpoints";
@@ -30,12 +23,12 @@ export default function DisplayPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1280px)");
+    const mq = window.matchMedia("(min-width: 1200px)");
 
     const handleChange = (e: MediaQueryListEvent) => setView(e.matches ? "desktop" : "mobile");
 
     // initialize
-    setView(mq.matches ? "mobile" : "desktop");
+    setView(mq.matches ? "desktop" : "mobile");
 
     const mql = mq as MediaQueryList & {
       addListener?: (l: (e: MediaQueryListEvent) => void) => void;
@@ -148,13 +141,13 @@ export default function DisplayPage() {
       </div>
       <div
         className={`preview-theme flex-1 py-5 bg-white rounded-2xl ${
-          view === "desktop" ? "w-full" : "xl:w-[28rem] w-full"
+          view === "desktop" ? "w-full" : "xl:w-[26rem] w-full"
         } mx-auto transition-all `}
       >
         {!used.length && (
           <div className="text-sm text-description text-center py-10">Add sections from the sidebar to preview them.</div>
         )}
-        <div className={`mx-auto ${view === "desktop" ? "w-full " : "w-[28rem] "} transition-all `}>
+        <div className={`mx-auto ${view === "desktop" ? "w-full" : "xl:w-[25rem] w-full"} transition-all `}>
           {used.map((sec) => {
             const def = sectionsRegistry[sec.type];
             if (!def) {

@@ -35,7 +35,9 @@ export default function Navbar() {
             </div>
           ) : isLogged ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-foreground/70">Welcome{user?.username ? `, ${user.username}` : ""}</span>
+              <span className="text-sm text-foreground/70">
+                Welcome{user?.username ? `, ${user.username}` : ""}
+              </span>
               <Button
                 variant="transparent"
                 size="base"

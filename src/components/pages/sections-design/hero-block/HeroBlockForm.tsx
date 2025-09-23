@@ -1,8 +1,8 @@
 import { FormField } from "@/components/ui/form-field";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Palette, Type, Image, Layout } from "lucide-react";
+import { Type, Image as ImageIcon, Layout } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export interface HeroConfig {
@@ -124,7 +124,7 @@ export default function HeroBlockForm({ config, onChange }: Props) {
           <Card>
             <CardHeader className="flex-row items-center ">
               <div className="flex items-center gap-2">
-                <Image className="w-4 h-4 text-accent" />
+                <ImageIcon className="w-4 h-4 text-accent" aria-hidden="true" focusable={false} />
                 <CardTitle className="text-sm">Background</CardTitle>
               </div>
             </CardHeader>

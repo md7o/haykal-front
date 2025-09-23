@@ -23,8 +23,6 @@ interface Props {
 }
 
 export default function CareerBlockForm({ config, onChange }: Props) {
-  const links = config.socialLinks || ["", "", ""];
-
   return (
     <div className="h-full bg-white border-r border-gray-100 w-[25rem]">
       <div className="h-full flex flex-col">

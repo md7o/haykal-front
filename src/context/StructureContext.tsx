@@ -1,13 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useMemo, ReactNode } from "react";
-
-// type LayoutType = {
-//   id: number;
-//   name: string;
-//   description?: string;
-//   img?: string;
-// };
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 type LayoutType = "Landingpage" | "Sections";
 

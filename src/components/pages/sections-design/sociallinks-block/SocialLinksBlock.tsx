@@ -111,12 +111,16 @@ export default function SocialLinksBlock({
               target={url ? "_blank" : undefined}
               rel={url ? "noopener noreferrer" : undefined}
               className={`flex items-center justify-center ${
-                view === "desktop" ? "w-32 h-32" : "w-20 h-20"
+                view === "desktop" ? "xl:w-32 xl:h-32 w-20 h-20" : "w-20 h-20"
               } flex flex-col rounded-base bg-card-bg hover:scale-[97%] duration-200`}
             >
               <Icon className={iconClass} />
 
-              <span className={`${view === "desktop" ? "text-lg font-semibold" : "text-sm font-medium"} break-words text-center`}>
+              <span
+                className={`${
+                  view === "desktop" ? "xl:text-lg xl:font-semibold text-sm font-medium" : "text-sm font-medium"
+                } break-words text-center`}
+              >
                 {url
                   ? url
                       .replace(/^https?:\/\//, "")

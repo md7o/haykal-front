@@ -6,21 +6,24 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { Sidebar, Upload } from "lucide-react";
 import { useStudio } from "@/context/StudioContext";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { createCustomDesign, updateCustomDesign } from "@/api/studio-endpoints";
 import { createPortfolio, Category } from "@/api/portfolio-endpoints";
 import { useAuth } from "@/context/AuthContext";
 import { useStructureContext } from "@/context/StructureContext";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function BottomBar() {
   const { setOpenMobile } = useSidebar();
-  const [active, setActive] = React.useState<string>("StudioSidebar");
+  const [, setActive] = React.useState<string>("StudioSidebar");
   const { used } = useStudio();
   const { selectedCategory, selectedLayout } = useStructureContext();
-  const [, setIsPublishing] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [, setPublishError] = useState<string | null>(null);
   const { user } = useAuth();
   const router = useRouter();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const publicPortfolio = async () => {
     if (!used.length) return;
@@ -70,7 +73,6 @@ export default function BottomBar() {
       label: "Sections",
       icon: <Sidebar size={25} />,
       onClick: () => {
-        // setActive("StudioSidebar");
         setOpenMobile(true);
       },
     },
@@ -78,9 +80,38 @@ export default function BottomBar() {
       id: "publish",
       label: "Publish",
       icon: <Upload size={25} />,
-      onClick: publicPortfolio,
+      disabled: isPublishing || !used.length,
+      onClick: () => setIsConfirmOpen(true),
     },
   ];
 
-  return <ResponsiveBar items={items} onItemClick={setActive} />;
+  return (
+    <>
+      <ResponsiveBar items={items} onItemClick={setActive} />
+
+      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Publish</DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-base text-center my-3">
+            Are you sure you want to publish your portfolio? This action will make it public.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant={"outline"} onClick={() => setIsConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                setIsConfirmOpen(false);
+                await publicPortfolio();
+              }}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }

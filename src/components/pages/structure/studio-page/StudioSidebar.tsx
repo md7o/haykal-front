@@ -26,7 +26,7 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
 import DrawerEditor from "./DrawerEditor";
 
-type IconComponent = React.ComponentType<any>;
+type IconComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
 const ICON_MAP: Record<string, IconComponent> = {
   hero: Star,
@@ -141,7 +141,7 @@ export default function StudioSidebar() {
   const { used, available, addSection, removeSection, reorderUsed, selectSection, selectedSectionId } = useStudio();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedFont, setSelectedFont] = useState<string>("");
+  const [, setSelectedFont] = useState<string>("");
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

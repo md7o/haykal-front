@@ -8,7 +8,7 @@ import { StudioProvider } from "@/context/StudioContext";
 import BottomBar from "./BottomBar";
 
 export default function StudioPage() {
-  const { selectedCategory, selectedLayout } = useStructureContext();
+  useStructureContext();
 
   return (
     <StudioProvider>

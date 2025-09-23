@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
 import { Label } from "@/components/ui/label";
-import { Image, Text, Link as LinkIcon, DicesIcon } from "lucide-react";
+import { Image as ImageIcon, Text, Link as LinkIcon, DicesIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
@@ -32,7 +32,7 @@ export default function AchievementsBlockForm({
           <Card>
             <CardHeader className="flex-row items-center ">
               <div className="flex items-center gap-2">
-                <Image className="w-4 h-4 text-accent" />
+                <ImageIcon className="w-4 h-4 text-accent" aria-hidden="true" focusable={false} />
                 <CardTitle className="text-sm">Background</CardTitle>
               </div>
             </CardHeader>
