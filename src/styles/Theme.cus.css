@@ -1,0 +1,100 @@
+/* Custom theme variables (suffix: -cus) mirroring Theme.css */
+
+:root {
+  /* Base Colors */
+  --color-base-bg-cus: var(--color-base-bg);
+  --color-primary-cus: var(--color-primary);
+  --color-secondary-cus: var(--color-secondary);
+
+  /* Text Colors */
+  --color-title-cus: var(--color-title);
+  --color-description-cus: var(--color-description);
+
+  /* State Colors */
+  --color-card-border-cus: var(--color-card-border);
+  --color-card-bg-cus: var(--color-card-bg);
+  --color-secondary-card-cus: var(--color-secondary-card);
+
+  /* Accent */
+  --color-accent-cus: var(--color-accent);
+
+  /* Font */
+  --font-montserrat-cus: var(--font-montserrat);
+
+  /* Rounded */
+  --radius-soft-cus: var(--radius-soft);
+  --radius-base-cus: var(--radius-base);
+  --radius-strong-cus: var(--radius-strong);
+  --radius-curvey-cus: var(--radius-curvey);
+  --radius-full-cus: var(--radius-full);
+
+  /* Bridge/UI tokens defined in Theme.css (@theme) */
+  --color-background-cus: var(--color-background);
+  --color-foreground-cus: var(--color-foreground);
+  --color-muted-cus: var(--color-muted);
+  --color-muted-foreground-cus: var(--color-muted-foreground);
+  --color-card-cus: var(--color-card);
+  --color-card-foreground-cus: var(--color-card-foreground);
+  --color-border-cus: var(--color-border);
+  --color-input-cus: var(--color-input);
+  --color-secondary-foreground-cus: var(--color-secondary-foreground);
+  --color-ring-cus: var(--color-ring);
+  --color-destructive-cus: var(--color-destructive);
+  --color-destructive-foreground-cus: var(--color-destructive-foreground);
+
+  /* Tailwind v4/shadcn root tokens (from :root in Theme.css) */
+  --background-cus: var(--background);
+  --foreground-cus: var(--foreground);
+  --muted-cus: var(--muted);
+  --muted-foreground-cus: var(--muted-foreground);
+  --card-cus: var(--card);
+  --card-foreground-cus: var(--card-foreground);
+  --border-cus: var(--border);
+  --input-cus: var(--input);
+  --primary-cus: var(--primary);
+  --primary-foreground-cus: var(--primary-foreground);
+  --accent-cus: var(--accent);
+  --accent-foreground-cus: var(--accent-foreground);
+  --ring-cus: var(--ring);
+  --destructive-cus: var(--destructive);
+  --destructive-foreground-cus: var(--destructive-foreground);
+  --radius-cus: var(--radius);
+}
+
+/* Scope: Only apply custom theme inside preview containers */
+.preview-theme {
+  /* Ensure font resolves to the scoped variable */
+  font-family: var(--font-montserrat-cus);
+  color: var(--color-title-cus);
+  background: var(--color-base-bg-cus);
+
+  /* Map original design tokens to custom ones within scope */
+  --font-montserrat: var(--font-montserrat-cus);
+  --color-base-bg: var(--color-base-bg-cus);
+  --color-primary: var(--color-primary-cus);
+  --color-secondary: var(--color-secondary-cus);
+  --color-title: var(--color-title-cus);
+  --color-description: var(--color-description-cus);
+  --color-card-border: var(--color-card-border-cus);
+  --color-card-bg: var(--color-card-bg-cus);
+  --color-secondary-card: var(--color-secondary-card-cus);
+  --color-accent: var(--color-accent-cus);
+
+  /* Map Tailwind v4/shadcn UI tokens inside scope */
+  --background: var(--color-base-bg-cus);
+  --foreground: var(--color-title-cus);
+  --muted: var(--color-secondary-card-cus);
+  --muted-foreground: var(--color-description-cus);
+  --card: var(--color-card-bg-cus);
+  --card-foreground: var(--color-title-cus);
+  --border: var(--color-card-border-cus);
+  --input: var(--color-card-border-cus);
+  --primary: var(--color-accent-cus);
+  --primary-foreground: #ffffff;
+  --accent: var(--color-accent-cus);
+  --accent-foreground: #ffffff;
+  --ring: var(--color-accent-cus);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --radius: var(--radius-base-cus);
+}

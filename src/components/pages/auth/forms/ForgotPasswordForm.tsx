@@ -66,10 +66,12 @@ export default function ForgotPasswordForm() {
       setSuccess(true);
       setStep("otp");
       setResendTimer(90);
-    } catch (err: any) {
-      if (err?.response?.status === 404) {
+    } catch (err: unknown) {
+      // Narrow unknown to find useful messages/status
+      const axiosStatus = (err as { response?: { status?: unknown } }).response?.status;
+      if (axiosStatus === 404) {
         setError("No account found with this email address.");
-      } else if (err?.response?.status === 429) {
+      } else if (axiosStatus === 429) {
         setError("Too many requests. Please wait before trying again.");
       } else if (err instanceof Error) {
         setError(err.message);
@@ -93,8 +95,12 @@ export default function ForgotPasswordForm() {
       if (timerRef.current) clearInterval(timerRef.current);
       setResendTimer(90);
       window.localStorage.setItem("reset-otp-timer", JSON.stringify({ expiresAt: Date.now() + 90 * 1000 }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to resend code");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to resend code");
+      }
     }
   };
 
@@ -119,8 +125,12 @@ export default function ForgotPasswordForm() {
       // Save OTP and go to reset password step
       setCode(otp);
       router.push("/reset-password");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Verification failed");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Verification failed");
+      }
     } finally {
       setVerifying(false);
     }
@@ -154,9 +164,7 @@ export default function ForgotPasswordForm() {
         </form>
       ) : (
         <div className="space-y-6 w-full max-w-sm">
-          <p className="text-sm text-muted-foreground">
-            We sent a 6-digit code to {email}. Enter it below to continue.
-          </p>
+          <p className="text-sm text-muted-foreground">We sent a 6-digit code to {email}. Enter it below to continue.</p>
           <div className="w-full flex flex-col items-center justify-center gap-4">
             <InputOTP maxLength={6} value={otp} onChange={setOtp}>
               <InputOTPGroup>
@@ -177,9 +185,7 @@ export default function ForgotPasswordForm() {
             <button
               type="button"
               onClick={handleResend}
-              className={`w-full text-sm ${
-                resendTimer > 0 ? "text-gray-400" : "text-accent hover:underline cursor-pointer"
-              }`}
+              className={`w-full text-sm ${resendTimer > 0 ? "text-gray-400" : "text-accent hover:underline cursor-pointer"}`}
               disabled={resendTimer > 0}
             >
               {getResendTimerText(resendTimer)}

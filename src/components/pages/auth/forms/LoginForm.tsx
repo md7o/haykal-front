@@ -10,13 +10,14 @@ import { FormField } from "@/components/ui/form-field";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
 import { signIn, me } from "@/api/auth-endpoints";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const router = useRouter();
+  const search = useSearchParams();
   const { setIsLogged, setUser } = useAuth();
 
   const {
@@ -39,7 +40,8 @@ export default function LoginForm() {
       const userData = await me();
       setIsLogged(true);
       setUser(userData);
-      router.push("/");
+      const redirect = search?.get("redirect");
+      router.push(redirect || "/");
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "An error occurred during login. Please try again.");
     } finally {
@@ -101,7 +103,7 @@ export default function LoginForm() {
       </form>
       <div className="mt-6 text-center">
         <p className="text-sm text-description">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/signup" className="text-accent font-medium hover:underline transition-all">
             Sign Up
           </Link>

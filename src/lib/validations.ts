@@ -1,15 +1,9 @@
 import { z } from "zod";
 
-// Common validation patterns
-const passwordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
 const usernameRegex = /^[a-zA-Z0-9_-]+$/;
 
 // Reusable field schemas
-export const emailSchema = z
-  .string()
-  .min(1, "Email is required")
-  .email("Please enter a valid email address");
+export const emailSchema = z.string().min(1, "Email is required").email("Please enter a valid email address");
 
 export const passwordSchema = z
   .string()
@@ -24,10 +18,7 @@ export const usernameSchema = z
   .string()
   .min(3, "Username must be at least 3 characters long")
   .max(20, "Username must be less than 20 characters")
-  .regex(
-    usernameRegex,
-    "Username can only contain letters, numbers, underscores, and hyphens"
-  );
+  .regex(usernameRegex, "Username can only contain letters, numbers, underscores, and hyphens");
 
 // Login form schema
 export const loginSchema = z.object({
@@ -47,10 +38,7 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 export type SignUpFormData = z.infer<typeof signUpSchema>;
 
 // Validation helper functions
-export const validateField = <T>(
-  schema: z.ZodSchema<T>,
-  value: T
-): { isValid: boolean; error?: string } => {
+export const validateField = <T>(schema: z.ZodSchema<T>, value: T): { isValid: boolean; error?: string } => {
   try {
     schema.parse(value);
     return { isValid: true };

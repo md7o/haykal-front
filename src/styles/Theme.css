@@ -1,19 +1,22 @@
+/* stylelint-disable at-rule-no-unknown */
+/* Category card gradient background */
+.category-gradient {
+  background: linear-gradient(180deg, #fa6b77, #fe9171);
+}
 @theme {
   /* Base Colors */
   --color-base-bg: #ffffff;
   --color-primary: #fff7f4;
   --color-secondary: #fee9e1;
-  --color-gradient-primary: #fa6b77;
-  --color-gradient-secondary: #fe9171;
 
   /* Text Colors */
   --color-title: black;
   --color-description: #565656;
 
   /* State Colors */
-  --color-border: #e5e5e5;
-  --color-overlay-strong: rgba(0, 0, 0, 0.7);
-  --color-hover-light: #ffffff6e;
+  --color-card-border: #808080;
+  --color-card-bg: #eeeeee;
+  --color-secondary-card: #dddddd;
 
   /* Accent */
   --color-accent: #fa6b77;
@@ -33,4 +36,15 @@ body {
   font-family: var(--font-montserrat);
   color: var(--color-title);
   background: var(--color-base-bg);
+}
+
+/* Animation */
+@keyframes lightpulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }

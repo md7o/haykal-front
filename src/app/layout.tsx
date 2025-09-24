@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Montserrat, Lobster, Inconsolata, Tagesschrift, Caveat } from "next/font/google";
 import "./globals.css";
 import { AOSInit } from "@/styles/Aos";
 import { AuthProvider } from "@/context/AuthContext";
@@ -8,6 +8,29 @@ import { RecoveryPasswordProvider } from "@/context/RecoveryPasswordContext";
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
+});
+
+const lobster = Lobster({
+  variable: "--font-lobster",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+const inconsolata = Inconsolata({
+  variable: "--font-inconsolata",
+  subsets: ["latin"],
+  weight: ["400", "600"],
+});
+
+const tagesschrift = Tagesschrift({
+  variable: "--font-tagesschrift",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -23,7 +46,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <AOSInit />
-      <body className={`${montserrat.variable}`}>
+      <body
+        className={`${montserrat.variable} ${lobster.variable} ${inconsolata.variable} ${tagesschrift.variable} ${caveat.variable}`}
+      >
         <AuthProvider>
           <RecoveryPasswordProvider>{children}</RecoveryPasswordProvider>
         </AuthProvider>
