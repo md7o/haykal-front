@@ -46,6 +46,32 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Hydrate used sections from sessionStorage (draft) on mount
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+      const raw = sessionStorage.getItem("studioUsed");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        setUsed(parsed as AnySectionInstance[]);
+      }
+    } catch {
+      // ignore hydration errors
+    }
+  }, []);
+
+  // Persist used sections as a draft in sessionStorage
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+      if (used && used.length) sessionStorage.setItem("studioUsed", JSON.stringify(used));
+      else sessionStorage.removeItem("studioUsed");
+    } catch {
+      // ignore persistence errors
+    }
+  }, [used]);
+
   // Hydrate IDs from sessionStorage on mount (if present)
   useEffect(() => {
     try {

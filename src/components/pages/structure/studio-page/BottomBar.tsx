@@ -24,19 +24,24 @@ export default function BottomBar() {
   const { user } = useAuth();
   const router = useRouter();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
   const publicPortfolio = async () => {
     if (!used.length) return;
     setIsPublishing(true);
     setPublishError(null);
     try {
+      if (!user?.userId) {
+        setIsPublishing(false);
+        setIsAuthDialogOpen(true);
+        return;
+      }
       let portfolioId = typeof window !== "undefined" ? sessionStorage.getItem("portfolioId") : null;
       if (!portfolioId) {
         if (!selectedCategory || !selectedLayout) throw new Error("Missing category or layout selection to create a portfolio.");
         const layoutStr = typeof selectedLayout === "string" ? selectedLayout : String(selectedLayout ?? "");
         const normalizedLayout: "Landingpage" | "Sections" =
           layoutStr === "Landing Page type" || layoutStr === "Landingpage" ? "Landingpage" : "Sections";
-        if (!user?.userId) throw new Error("User must be logged in to publish a portfolio.");
 
         const createdPortfolio = await createPortfolio({
           userId: user.userId,
@@ -61,7 +66,7 @@ export default function BottomBar() {
       router.push("/own");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setPublishError(msg || "Failed to publish portfolio");
+      setPublishError(msg || "Failed to create portfolio");
     } finally {
       setIsPublishing(false);
     }
@@ -77,11 +82,11 @@ export default function BottomBar() {
       },
     },
     {
-      id: "publish",
-      label: "Publish",
+      id: "create",
+      label: "Create",
       icon: <Upload size={25} />,
       disabled: isPublishing || !used.length,
-      onClick: () => setIsConfirmOpen(true),
+      onClick: () => (user?.userId ? setIsConfirmOpen(true) : setIsAuthDialogOpen(true)),
     },
   ];
 
@@ -92,10 +97,10 @@ export default function BottomBar() {
       <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Publish</DialogTitle>
+            <DialogTitle>Confirm Create</DialogTitle>
           </DialogHeader>
           <DialogDescription className="text-base text-center my-3">
-            Are you sure you want to publish your portfolio? This action will make it public.
+            Confirming to create your portfolio with the current sections? you can edit them later.
           </DialogDescription>
           <DialogFooter>
             <Button variant={"outline"} onClick={() => setIsConfirmOpen(false)}>
@@ -107,7 +112,32 @@ export default function BottomBar() {
                 await publicPortfolio();
               }}
             >
-              Confirm
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sign In Required</DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-base text-center my-3">
+            You need to sign in before creating a portfolio. Your current work is saved locally.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant={"outline"} onClick={() => setIsAuthDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setIsAuthDialogOpen(false);
+                const redirect = encodeURIComponent("/studio");
+                router.push(`/login?redirect=${redirect}`);
+              }}
+            >
+              Go to Sign In
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -19,6 +19,7 @@ export default function DisplayPage() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -55,14 +56,17 @@ export default function DisplayPage() {
     setIsPublishing(true);
     setPublishError(null);
     try {
+      if (!user?.userId) {
+        setIsPublishing(false);
+        setIsAuthDialogOpen(true);
+        return;
+      }
       let portfolioId = typeof window !== "undefined" ? sessionStorage.getItem("portfolioId") : null;
       if (!portfolioId) {
         if (!selectedCategory || !selectedLayout) throw new Error("Missing category or layout selection to create a portfolio.");
         const layoutStr = typeof selectedLayout === "string" ? selectedLayout : String(selectedLayout ?? "");
         const normalizedLayout: "Landingpage" | "Sections" =
           layoutStr === "Landing Page type" || layoutStr === "Landingpage" ? "Landingpage" : "Sections";
-        // require userId
-        if (!user?.userId) throw new Error("User must be logged in to publish a portfolio.");
 
         const createdPortfolio = await createPortfolio({
           userId: user.userId,
@@ -87,7 +91,7 @@ export default function DisplayPage() {
       router.push("/own");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setPublishError(msg || "Failed to publish portfolio");
+      setPublishError(msg || "Failed to create portfolio");
     } finally {
       setIsPublishing(false);
     }
@@ -108,17 +112,20 @@ export default function DisplayPage() {
         <div className="flex items-center gap-3">
           {publishError && <div className="text-sm text-red-600">{publishError}</div>}
           <>
-            <Button onClick={() => setIsConfirmOpen(true)} disabled={isPublishing || !used.length}>
-              <Share className="inline w-4 h-4 mr-1" /> {isPublishing ? "Publishing..." : "Public"}
+            <Button
+              onClick={() => (user?.userId ? setIsConfirmOpen(true) : setIsAuthDialogOpen(true))}
+              disabled={isPublishing || !used.length}
+            >
+              <Share className="inline w-4 h-4 mr-1" /> {isPublishing ? "Creating..." : "Create"}
             </Button>
 
             <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Confirm Publish</DialogTitle>
+                  <DialogTitle>Confirm Create</DialogTitle>
                 </DialogHeader>
                 <DialogDescription>
-                  Are you sure you want to publish your portfolio? This action will make it public.
+                  Confirming to create your portfolio with the current sections? you can edit them later.
                 </DialogDescription>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsConfirmOpen(false)}>
@@ -131,7 +138,32 @@ export default function DisplayPage() {
                     }}
                     disabled={isPublishing || !used.length}
                   >
-                    Confirm
+                    Create
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Sign In Required</DialogTitle>
+                </DialogHeader>
+                <DialogDescription>
+                  You need to sign in before creating a portfolio. Your current work is saved locally.
+                </DialogDescription>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsAuthDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setIsAuthDialogOpen(false);
+                      const redirect = encodeURIComponent("/studio");
+                      router.push(`/login?redirect=${redirect}`);
+                    }}
+                  >
+                    Go to Sign In
                   </Button>
                 </DialogFooter>
               </DialogContent>
