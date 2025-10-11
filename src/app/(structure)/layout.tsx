@@ -1,6 +1,6 @@
 import React from "react";
-import { StructureProvider } from "@/context/StructureContext";
+// import { StructureProvider } from "@/context/StructureContext";
 
 export default function StructureLayout({ children }: { children: React.ReactNode }) {
-  return <StructureProvider>{children}</StructureProvider>;
+  return <div>{children}</div>;
 }

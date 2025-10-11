@@ -40,8 +40,9 @@ export default function LoginForm() {
       const userData = await me();
       setIsLogged(true);
       setUser(userData);
-      const redirect = search?.get("redirect");
-      router.push(redirect || "/");
+      // Support middleware-provided ?next=... param
+      const next = search?.get("next");
+      router.push(next || "/dashboard/sections");
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "An error occurred during login. Please try again.");
     } finally {

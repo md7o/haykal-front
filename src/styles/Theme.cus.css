@@ -42,7 +42,6 @@
   --color-destructive-cus: var(--color-destructive);
   --color-destructive-foreground-cus: var(--color-destructive-foreground);
 
-  /* Tailwind v4/shadcn root tokens (from :root in Theme.css) */
   --background-cus: var(--background);
   --foreground-cus: var(--foreground);
   --muted-cus: var(--muted);
@@ -59,42 +58,25 @@
   --destructive-cus: var(--destructive);
   --destructive-foreground-cus: var(--destructive-foreground);
   --radius-cus: var(--radius);
+
+  /* Portfolio specific (isolated from global base bg to avoid corrupting rest of site) */
+  --portfolio-background-cus: #ffffff; /* default portfolio surface background */
+  --portfolio-accent-cus: var(--color-accent-cus);
+  --portfolio-title-cus: var(--color-title-cus);
+  --portfolio-description-cus: var(--color-description-cus);
+  --portfolio-card-bg-cus: var(--color-card-bg-cus);
+  --portfolio-card-border-cus: var(--color-card-border-cus);
+  --portfolio-secondary-card-cus: var(--color-secondary-card-cus);
 }
 
-/* Scope: Only apply custom theme inside preview containers */
+/* Studio sidebar fixed surface (insulated from portfolio background overrides) */
+.studio-sidebar-fixed {
+  background-color: #ffffff;
+  color: var(--color-title-cus, #000000);
+}
+
+/* The heavy variable mapping moved to the dynamic PortfolioTheme component.
+   Keep preview-theme minimal so runtime injection stays lean. */
 .preview-theme {
-  /* Ensure font resolves to the scoped variable */
-  font-family: var(--font-montserrat-cus);
-  color: var(--color-title-cus);
-  background: var(--color-base-bg-cus);
-
-  /* Map original design tokens to custom ones within scope */
-  --font-montserrat: var(--font-montserrat-cus);
-  --color-base-bg: var(--color-base-bg-cus);
-  --color-primary: var(--color-primary-cus);
-  --color-secondary: var(--color-secondary-cus);
-  --color-title: var(--color-title-cus);
-  --color-description: var(--color-description-cus);
-  --color-card-border: var(--color-card-border-cus);
-  --color-card-bg: var(--color-card-bg-cus);
-  --color-secondary-card: var(--color-secondary-card-cus);
-  --color-accent: var(--color-accent-cus);
-
-  /* Map Tailwind v4/shadcn UI tokens inside scope */
-  --background: var(--color-base-bg-cus);
-  --foreground: var(--color-title-cus);
-  --muted: var(--color-secondary-card-cus);
-  --muted-foreground: var(--color-description-cus);
-  --card: var(--color-card-bg-cus);
-  --card-foreground: var(--color-title-cus);
-  --border: var(--color-card-border-cus);
-  --input: var(--color-card-border-cus);
-  --primary: var(--color-accent-cus);
-  --primary-foreground: #ffffff;
-  --accent: var(--color-accent-cus);
-  --accent-foreground: #ffffff;
-  --ring: var(--color-accent-cus);
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --radius: var(--radius-base-cus);
+  position: relative;
 }

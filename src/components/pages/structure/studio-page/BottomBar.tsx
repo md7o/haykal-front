@@ -7,18 +7,16 @@ import { Sidebar, Upload } from "lucide-react";
 import { useStudio } from "@/context/StudioContext";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { createCustomDesign, updateCustomDesign } from "@/api/studio-endpoints";
-import { createPortfolio, Category } from "@/api/portfolio-endpoints";
+import { createCustomDesign, updatePortfolio, getAllPortfolios, createPortfolio } from "@/api/portfolio-endpoints";
 import { useAuth } from "@/context/AuthContext";
-import { useStructureContext } from "@/context/StructureContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 export default function BottomBar() {
   const { setOpenMobile } = useSidebar();
   const [, setActive] = React.useState<string>("StudioSidebar");
-  const { used } = useStudio();
-  const { selectedCategory, selectedLayout } = useStructureContext();
+  const { used, customDesignId } = useStudio();
+  // structure selection removed; portfolios no longer require category/layout
   const [isPublishing, setIsPublishing] = useState(false);
   const [, setPublishError] = useState<string | null>(null);
   const { user } = useAuth();
@@ -36,34 +34,32 @@ export default function BottomBar() {
         setIsAuthDialogOpen(true);
         return;
       }
-      let portfolioId = typeof window !== "undefined" ? sessionStorage.getItem("portfolioId") : null;
-      if (!portfolioId) {
-        if (!selectedCategory || !selectedLayout) throw new Error("Missing category or layout selection to create a portfolio.");
-        const layoutStr = typeof selectedLayout === "string" ? selectedLayout : String(selectedLayout ?? "");
-        const normalizedLayout: "Landingpage" | "Sections" =
-          layoutStr === "Landing Page type" || layoutStr === "Landingpage" ? "Landingpage" : "Sections";
-
-        const createdPortfolio = await createPortfolio({
-          userId: user.userId,
-          category_type: selectedCategory as Category,
-          layout_type: normalizedLayout,
+      let portfolioId: string | null = null;
+      try {
+        const all = await getAllPortfolios();
+        const mine = all.filter((p: any) => {
+          const uid = typeof p.userId === "string" ? p.userId : typeof p.user === "string" ? p.user : p.user?.id;
+          return String(uid) === String(user.userId);
         });
+        if (mine.length) {
+          mine.sort(
+            (a: any, b: any) =>
+              new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime()
+          );
+          portfolioId = mine[0].id;
+        }
+      } catch {}
+      if (!portfolioId) {
+        const createdPortfolio = await createPortfolio({ userId: user.userId });
         portfolioId = createdPortfolio.id;
-        if (typeof window !== "undefined") sessionStorage.setItem("portfolioId", portfolioId);
       }
 
       const sectionsPayload = used.map((s) => ({ type: s.type, config: s.config } as { type: string; config: unknown }));
-      const existingId = typeof window !== "undefined" ? sessionStorage.getItem("customDesignId") : null;
-      if (existingId) {
-        await updateCustomDesign(existingId, { sections: sectionsPayload });
-      } else {
-        const created = await createCustomDesign({ portfolioId, sections: sectionsPayload });
-        if (created?.id && typeof window !== "undefined") {
-          sessionStorage.setItem("customDesignId", String(created.id));
-        }
-      }
+      const existingId = customDesignId || portfolioId;
+      if (existingId) await updatePortfolio(existingId, { sections: sectionsPayload });
+      else await createCustomDesign({ portfolioId, sections: sectionsPayload });
 
-      router.push("/own");
+      router.push("/dashboard/sections");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setPublishError(msg || "Failed to create portfolio");
@@ -83,7 +79,7 @@ export default function BottomBar() {
     },
     {
       id: "create",
-      label: "Create",
+      label: customDesignId ? "Update" : "Create",
       icon: <Upload size={25} />,
       disabled: isPublishing || !used.length,
       onClick: () => (user?.userId ? setIsConfirmOpen(true) : setIsAuthDialogOpen(true)),
@@ -97,10 +93,12 @@ export default function BottomBar() {
       <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Create</DialogTitle>
+            <DialogTitle>{customDesignId ? "Confirm Update" : "Confirm Create"}</DialogTitle>
           </DialogHeader>
           <DialogDescription className="text-base text-center my-3">
-            Confirming to create your portfolio with the current sections? you can edit them later.
+            {customDesignId
+              ? "Apply the latest changes to your existing portfolio design?"
+              : "Confirm creating your portfolio with the current sections. You can edit them later."}
           </DialogDescription>
           <DialogFooter>
             <Button variant={"outline"} onClick={() => setIsConfirmOpen(false)}>
@@ -112,7 +110,7 @@ export default function BottomBar() {
                 await publicPortfolio();
               }}
             >
-              Create
+              {customDesignId ? "Update" : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>

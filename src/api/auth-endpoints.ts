@@ -216,8 +216,15 @@ export async function resetPassword(email: string, code: string, password: strin
 }
 
 export async function checkAuthStatus() {
-  if (!accessToken) return { isAuthenticated: false } as const;
   try {
+    if (!accessToken) {
+      try {
+        await refreshSession();
+      } catch {}
+    }
+
+    if (!accessToken) return { isAuthenticated: false } as const;
+
     if (isExpired()) await refreshSession();
     const user = await me();
     return { isAuthenticated: true, user } as const;

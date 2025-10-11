@@ -4,6 +4,7 @@ import "./globals.css";
 import { AOSInit } from "@/styles/Aos";
 import { AuthProvider } from "@/context/AuthContext";
 import { RecoveryPasswordProvider } from "@/context/RecoveryPasswordContext";
+import { PublishedDesignProvider } from "@/context/PublishedDesignContext";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -50,7 +51,9 @@ export default function RootLayout({
         className={`${montserrat.variable} ${lobster.variable} ${inconsolata.variable} ${tagesschrift.variable} ${caveat.variable}`}
       >
         <AuthProvider>
-          <RecoveryPasswordProvider>{children}</RecoveryPasswordProvider>
+          <RecoveryPasswordProvider>
+            <PublishedDesignProvider>{children}</PublishedDesignProvider>
+          </RecoveryPasswordProvider>
         </AuthProvider>
       </body>
     </html>

@@ -1,4 +1,5 @@
 /* stylelint-disable at-rule-no-unknown */
+/* NOTE: @theme is a framework-specific at-rule (Tailwind / design token pipeline). */
 /* Category card gradient background */
 .category-gradient {
   background: linear-gradient(180deg, #fa6b77, #fe9171);
@@ -8,6 +9,8 @@
   --color-base-bg: #ffffff;
   --color-primary: #fff7f4;
   --color-secondary: #fee9e1;
+  /* Portfolio isolated surface color (decoupled from system base) */
+  --portfolio-background: #ffffff;
 
   /* Text Colors */
   --color-title: black;

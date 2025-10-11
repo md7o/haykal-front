@@ -28,7 +28,7 @@ export default function HeroSection() {
         />
         {/* use route navigate to /category-type */}
         <Button asChild variant="fill" size={"small"} className="uppercase">
-          <Link href={"/category-type"} aria-label="Get started with Haykal">
+          <Link href={"/studio"} aria-label="Get started with Haykal">
             Get started
           </Link>
         </Button>

@@ -12,6 +12,8 @@ import EventsBlock from "../events-block/EventsBlock";
 import EventsBlockForm, { EventsConfig } from "../events-block/EventsBlockForm";
 import BusinessServicesBlock from "../business-services-block/BusinessServicesBlock";
 import BusinessServicesBlockForm, { BusinessServicesConfig } from "../business-services-block/BusinessServicesBlockForm";
+import HeaderBlock from "../header-block/HeaderBlock";
+import HeaderBlockForm, { HeaderConfig } from "../header-block/HeaderBlockForm";
 
 export interface SectionDefinition {
   type: string;
@@ -23,6 +25,25 @@ export interface SectionDefinition {
 }
 
 export const sectionsRegistry: Record<string, SectionDefinition> = {
+  header: {
+    type: "header",
+    label: "Header",
+    defaultConfig: {
+      siteName: "My Portfolio",
+      logoSrc: undefined,
+      fixed: true,
+      active: false,
+      backgroundType: "normal",
+    } satisfies HeaderConfig,
+    Design: HeaderBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile" }>,
+    Form: HeaderBlockForm as unknown as React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>,
+    validate: (c: unknown) => {
+      const cfg = c as HeaderConfig;
+      const errs: string[] = [];
+      if (!cfg.siteName) errs.push("Site name is required");
+      return errs;
+    },
+  },
   hero: {
     type: "hero",
     label: "Hero",
