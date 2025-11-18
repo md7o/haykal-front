@@ -2,9 +2,9 @@ import axios, { AxiosRequestConfig } from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const REFRESH_PATH = "/auth/refresh";
-const STORAGE_TOKEN_KEY = "auth.accessToken";
-const STORAGE_EXP_KEY = "auth.accessTokenExpiry";
-const isBrowser = typeof window !== "undefined";
+// const STORAGE_TOKEN_KEY = "auth.accessToken";
+// const STORAGE_EXP_KEY = "auth.accessTokenExpiry";
+// const isBrowser = typeof window !== "undefined";
 
 export const api = axios.create({ baseURL: API_URL, withCredentials: true });
 
@@ -20,16 +20,19 @@ const failedQueue: Array<{
 
 // ---------- tiny helpers ----------
 const isExpired = () => !!accessToken && !!accessTokenExpiry && Date.now() >= accessTokenExpiry!;
-const persist = (token: string | null, exp: number | null) => {
-  if (!isBrowser) return;
-  if (token && exp) {
-    sessionStorage.setItem(STORAGE_TOKEN_KEY, token);
-    sessionStorage.setItem(STORAGE_EXP_KEY, String(exp));
-  } else {
-    sessionStorage.removeItem(STORAGE_TOKEN_KEY);
-    sessionStorage.removeItem(STORAGE_EXP_KEY);
-  }
-};
+
+const persist = (_token: string | null, _exp: number | null) => {};
+// const persist = (token: string | null, exp: number | null) => {
+//   if (!isBrowser) return;
+//   if (token && exp) {
+//     sessionStorage.setItem(STORAGE_TOKEN_KEY, token);
+//     sessionStorage.setItem(STORAGE_EXP_KEY, String(exp));
+//   } else {
+//     sessionStorage.removeItem(STORAGE_TOKEN_KEY);
+//     sessionStorage.removeItem(STORAGE_EXP_KEY);
+//   }
+// };
+
 const scheduleRefresh = () => {
   if (refreshTimeout) clearTimeout(refreshTimeout);
   if (!accessTokenExpiry) return;
@@ -63,12 +66,12 @@ const errorWithStatus = (err: unknown, fallback: string) => {
   return e;
 };
 
-// restore token on import (client only)
-if (isBrowser) {
-  const token = sessionStorage.getItem(STORAGE_TOKEN_KEY);
-  const exp = sessionStorage.getItem(STORAGE_EXP_KEY);
-  if (token && exp) setToken(token, Number(exp));
-}
+// restore access token on import (client only)
+// if (isBrowser) {
+//   const token = sessionStorage.getItem(STORAGE_TOKEN_KEY);
+//   const exp = sessionStorage.getItem(STORAGE_EXP_KEY);
+//   if (token && exp) setToken(token, Number(exp));
+// }
 
 // ---------- refresh flow ----------
 function processQueue(error: unknown | null, token: string | null = null) {

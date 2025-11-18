@@ -1,16 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { sectionsRegistry } from "@/components/pages/sections-design/registry/sections-registry";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { sectionsRegistry } from "@/components/pages/portfolio-feature/sections-design/registry/sections-registry";
 import { useStudio } from "@/context/StudioContext";
-import { getCustomDesignById, getPortfolioBySlug, getPortfolioById } from "@/api/portfolio-endpoints";
-import { IconButton } from "@/components/ui/button";
+import { getCustomDesignById, getPortfolioBySlug, getPortfolioById, getPages, type Page } from "@/api/portfolio-endpoints";
+import { IconButton } from "@/components/ui-tools/ui/button";
 import { RefreshCw, MonitorSmartphone, Smartphone, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui-tools/ui/button";
 import PortfolioTheme from "@/components/theme/PortfolioTheme";
 import { useAuth } from "@/context/AuthContext";
 import { resolveUserPortfolioId } from "@/lib/portfolio-helpers";
-import { Spinner } from "@/components/ui/spinner";
+import { getDraftsMap as getDraftsMapCentral } from "@/lib/studio-storage";
+import { Spinner } from "@/components/ui-tools/ui/spinner";
 
 type SectionItem = { id?: string; type: string; config: unknown };
 
@@ -55,9 +56,12 @@ export default function PreviewDashboard() {
   const [sections, setSections] = useState<SectionItem[]>([]);
   const [assets, setAssets] = useState<any | null>(null);
   const [resolvedId, setResolvedId] = useState<string | null>(null);
+  const [pages, setPages] = useState<Page[]>([]);
+  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [lastLoadedAt, setLastLoadedAt] = useState<Date | null>(null);
   const [themeInfo, setThemeInfo] = useState<{ paletteName?: string; primary?: string; secondary?: string; font?: string }>({});
   const [view, setView] = useState<"desktop" | "mobile">("desktop");
+  const headerContainerRef = useRef<HTMLDivElement | null>(null);
 
   const normalizeSections = useCallback((raw: unknown): SectionItem[] => {
     let arr: unknown = raw;
@@ -94,10 +98,22 @@ export default function PreviewDashboard() {
         if (!id) throw new Error("No portfolio found for this user.");
       }
       setResolvedId(id);
-      const data = await getCustomDesignById(id);
-      const normalized = normalizeSections(data?.sections);
-      setSections(normalized);
+      // fetch custom design and pages for this portfolio
+      const [data, remotePages] = await Promise.all([getCustomDesignById(id), getPages(id).catch(() => [])]);
+      // assets live at portfolio level
       setAssets(data?.assets ?? null);
+      setPages(remotePages || []);
+
+      // choose default selected page: prefer Home, else first remote page
+      const home = (remotePages || []).find(
+        (p) => (p.slug || "").toLowerCase() === "home" || p.title === "Home" || p.id === "home"
+      );
+      const defaultPageId = home ? home.id : (remotePages || [])[0]?.id ?? null;
+      setSelectedPageId(defaultPageId);
+      // set initial sections from chosen page
+      const initialPage = (remotePages || []).find((p) => p.id === defaultPageId) || null;
+      const normalized = normalizeSections(initialPage?.sections ?? []);
+      setSections(normalized);
       setLastLoadedAt(new Date());
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load design";
@@ -110,10 +126,94 @@ export default function PreviewDashboard() {
     }
   }, [portfolioId, normalizeSections, user]);
 
+  // When selectedPageId changes, load that page's sections into preview
+  useEffect(() => {
+    if (!resolvedId || !selectedPageId) return;
+    (async () => {
+      try {
+        const all = await getPages(resolvedId);
+        const p = all.find((pg) => pg.id === selectedPageId) ?? all.find((pg) => (pg.slug || "").toLowerCase() === "home");
+        const normalized = normalizeSections(p?.sections ?? []);
+        setSections(normalized);
+      } catch {
+        // ignore
+      }
+    })();
+  }, [selectedPageId, resolvedId, normalizeSections]);
+
   useEffect(() => {
     if (isCheckingAuth) return;
     load();
   }, [load, isCheckingAuth]);
+
+  // Intercept header nav clicks (anchors) and map them to page selection
+  useEffect(() => {
+    const el = headerContainerRef.current;
+    if (!el) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      // find anchor element
+      const anchor = target.closest && (target.closest("a") as HTMLAnchorElement | null);
+      if (!anchor) return;
+      const href = anchor.getAttribute("href") || "";
+      if (!href.startsWith("#")) return; // only handle fragment links
+      e.preventDefault();
+      const slug = href.slice(1);
+
+      // try find page by slug or title locally first
+      const foundLocal = pages.find(
+        (p) => (p.slug || "").toLowerCase() === slug.toLowerCase() || String(p.title || "").toLowerCase() === slug.toLowerCase()
+      );
+      if (foundLocal) {
+        setSelectedPageId(foundLocal.id);
+        return;
+      }
+
+      // If not found locally, try to fetch latest pages from the network (use resolvedId)
+      if (!resolvedId) return;
+      (async () => {
+        try {
+          const remote = await getPages(resolvedId);
+          if (!remote || !Array.isArray(remote)) return;
+          // update local pages list with fresh remote data
+          setPages(remote || []);
+          const foundRemote = remote.find(
+            (p) =>
+              (p.slug || "").toLowerCase() === slug.toLowerCase() || String(p.title || "").toLowerCase() === slug.toLowerCase()
+          );
+          if (foundRemote) setSelectedPageId(foundRemote.id);
+        } catch {
+          // ignore network errors
+        }
+      })();
+    };
+    el.addEventListener("click", handler as EventListener);
+    return () => el.removeEventListener("click", handler as EventListener);
+  }, [pages, sections, setSelectedPageId, resolvedId]);
+
+  // If a header section exists but we have no pages yet, try to fetch remote pages once
+  useEffect(() => {
+    // only attempt when we have resolvedId, no pages, and header section present
+    const hasHeader = sections.some((s) => s.type === "header");
+    if (!hasHeader) return;
+    if (!resolvedId) return;
+    if (pages && pages.length > 0) return;
+
+    let mounted = true;
+    (async () => {
+      try {
+        const remote = await getPages(resolvedId);
+        if (!mounted) return;
+        if (remote && Array.isArray(remote) && remote.length > 0) setPages(remote);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [sections, resolvedId, pages]);
 
   // Apply theme when assets change
   useEffect(() => {
@@ -216,6 +316,7 @@ export default function PreviewDashboard() {
             <span className="text-xs">Mobile</span>
           </Button>
         </div>
+        {/* pages are rendered inside the portfolio header (if present) */}
         <div className="flex items-center gap-4">
           {themeInfo && (
             <div className="hidden md:flex items-center gap-3 px-5 py-3 bg-white rounded-soft">
@@ -280,17 +381,73 @@ export default function PreviewDashboard() {
               className={`${view === "mobile" ? "md:max-w-[430px] md:mx-auto w-full h-full" : "w-full h-full"}`}
             >
               <div className="relative flex flex-col overflow-hidden w-full h-full">
-                {!sections.length && (
+                {/* Render header design if present and active (header is part of the sections array) */}
+                {(() => {
+                  const headerDef = sectionsRegistry["header"];
+                  if (!headerDef) return null;
+                  // find header section from normalized sections
+                  const headerInst = sections.find((s) => s.type === "header");
+                  if (!headerInst) return null;
+                  const cfg = { ...(headerInst.config as any) };
+                  const isActive = cfg?.active !== false;
+                  if (!isActive) return null;
+                  // Build pages list for header nav: merge server pages with local drafts (map-aware)
+                  // Prefer remote pages when slug/title collide, and avoid duplicate nav entries
+                  let draftsForHeader: Array<{ id: string; title: string; slug?: string | null; order?: number }> = [];
+                  try {
+                    const map = getDraftsMapCentral();
+                    draftsForHeader = Object.values(map || {}).map((p: any) => ({
+                      id: String(p.id),
+                      title: p.title || "New Page",
+                      slug: p.slug ?? "",
+                      order: p.order,
+                    }));
+                  } catch {
+                    /* ignore */
+                  }
+
+                  // Build a key that prefers slug if present, else title, else id
+                  const keyFor = (p: { id: string; title?: string | null; slug?: string | null }) => {
+                    const s = (p.slug || "").trim();
+                    if (s) return s.toLowerCase();
+                    const t = String(p.title || "").trim();
+                    if (t) return t.toLowerCase();
+                    return p.id;
+                  };
+
+                  // First add remote pages (authoritative), then add drafts only if their key isn't present
+                  const mergedByKey = new Map<string, { id: string; title: string; slug?: string | null; order?: number }>();
+                  for (const p of pages) {
+                    const key = keyFor({ id: p.id, title: p.title, slug: p.slug });
+                    mergedByKey.set(key, { id: p.id, title: p.title, slug: p.slug, order: p.order });
+                  }
+                  for (const p of draftsForHeader) {
+                    const key = keyFor(p);
+                    if (!mergedByKey.has(key)) mergedByKey.set(key, p);
+                  }
+
+                  const mergedList = Array.from(mergedByKey.values()).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+                  const cfgWithPages = { ...cfg, pages: mergedList };
+                  return (
+                    <div ref={headerContainerRef} className="">
+                      <headerDef.Design config={cfgWithPages} view={view} />
+                    </div>
+                  );
+                })()}
+
+                {/* Main content (exclude header sections from list) */}
+                {sections.filter((s) => s.type !== "header").length === 0 && (
                   <div className="flex-1 flex items-center justify-center p-6 text-sm text-description text-center">
                     No sections published yet.
                   </div>
                 )}
-                {!!sections.length &&
+
+                {!!sections.filter((s) => s.type !== "header").length &&
                   (() => {
-                    const headerIsFirst = sections[0]?.type === "header";
+                    const bodySections = sections.filter((s) => s.type !== "header");
                     return (
-                      <div className={`${headerIsFirst ? "first:mt-0" : "first:mt-24"} last:mb-10 space-y-24`}>
-                        {sections.map((sec, idx) => (
+                      <div className={` ${view === "desktop" ? "first:mt-0" : "first:mt-24"} last:mb-10 space-y-24`}>
+                        {bodySections.map((sec, idx) => (
                           <SectionRenderer key={sec.id || idx} sec={sec} idx={idx} view={view} />
                         ))}
                       </div>

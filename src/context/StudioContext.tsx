@@ -2,8 +2,23 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
 import { AnySectionInstance } from "@/types/sections";
-import { createSectionInstance, SectionType } from "@/components/pages/sections-design/registry/sections-registry";
-import { sectionsRegistry } from "@/components/pages/sections-design/registry/sections-registry";
+import {
+  createSectionInstance,
+  SectionType,
+} from "@/components/pages/portfolio-feature/sections-design/registry/sections-registry";
+import type { Page } from "@/api/portfolio-endpoints";
+import {
+  getSelectedPageId as readSelMem,
+  setSelectedPageIdMemory as writeSelMem,
+  getStudioState,
+  patchStudioState,
+  getAssetsDraft as getAssetsDraftCentral,
+  setAssetsDraft as setAssetsDraftCentral,
+  getSlugDraft as getSlugDraftCentral,
+  setSlugDraft as setSlugDraftCentral,
+  DraftPage,
+} from "@/lib/studio-storage";
+import { sectionsRegistry } from "@/components/pages/portfolio-feature/sections-design/registry/sections-registry";
 
 export interface StudioContextShape {
   used: AnySectionInstance[];
@@ -14,13 +29,14 @@ export interface StudioContextShape {
   updateSectionConfig: (id: string, partial: Record<string, unknown>) => void;
   selectedSectionId: string | null;
   selectSection: (id: string | null) => void;
+  selectedPageId: string | null;
+  setSelectedPageId: (id: string | null) => void;
   portfolioId: string | null;
   setPortfolioId: (id: string | null) => void;
   customDesignId: string | null;
   setCustomDesignId: (id: string | null) => void;
   slug: string | null;
   setSlug: (s: string | null) => void;
-  // Replace current used sections with the provided list (hydrate from backend)
   loadSections: (sections: AnySectionInstance[]) => void;
   assets: unknown | null;
   setAssets: (a: unknown | null) => void;
@@ -32,6 +48,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [used, setUsed] = useState<AnySectionInstance[]>([]);
   const [available, setAvailable] = useState<{ type: string; label: string }[]>([]);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [portfolioId, _setPortfolioId] = useState<string | null>(null);
   const [customDesignId, _setCustomDesignId] = useState<string | null>(null);
   const [slug, _setSlug] = useState<string | null>(null);
@@ -58,18 +75,98 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Hydrate used sections from sessionStorage (draft) on mount
+  // Hydrate editor sections from centralized studio storage on mount (drafts map keyed by page id)
+  useEffect(() => {
+    try {
+      const state = getStudioState();
+      const map: Record<string, Partial<Page>> = (state.drafts as any) || {};
+      // Ensure a Home draft exists so we can default-select it reliably
+      const keys = Object.keys(map);
+      const hasHome = keys.some((k) => {
+        const d = map[k];
+        try {
+          return String(d?.id) === "home" || String(d?.title) === "Home" || String(d?.slug ?? "").toLowerCase() === "home";
+        } catch {
+          return false;
+        }
+      });
+      if (!hasHome) {
+        // create a minimal home draft and persist it
+        const homeDraft: DraftPage = {
+          // Ensure a stable id for Home to avoid collisions with the currently selected page id
+          id: "home",
+          portfolioId: String(state.portfolioId ?? "draft"),
+          title: "Home",
+          slug: "home",
+          sections: null,
+          order: 0,
+        };
+        const nextDrafts: Record<string, DraftPage> = { ...(state.drafts || {}), ["home"]: homeDraft };
+        try {
+          patchStudioState({ drafts: nextDrafts });
+        } catch {
+          /* ignore */
+        }
+        // update local map to reflect new home
+        map["home"] = homeDraft;
+      }
+
+      // Restore selected page id (stored centrally), otherwise prefer Home, else first available
+      const storedSel = readSelMem() ?? null;
+      let pickEntry: Partial<Page> | null = null;
+      if (storedSel && map[storedSel]) pickEntry = map[storedSel];
+      if (!pickEntry) {
+        const home = Object.values(map).find(
+          (d) => String(d?.slug || "").toLowerCase() === "home" || d?.title === "Home" || String(d?.id) === "home"
+        );
+        if (home) pickEntry = home as Partial<Page>;
+      }
+      if (!pickEntry) pickEntry = map[Object.keys(map)[0]] as Partial<Page>;
+
+      const secs = pickEntry?.sections;
+      if (Array.isArray(secs) && secs.length > 0) {
+        // @ts-ignore minimal shape (type, config)
+        loadSections(secs as any);
+      }
+      if (!selectedPageId && pickEntry?.id) {
+        try {
+          setSelectedPageId(String(pickEntry.id));
+        } catch {}
+      }
+    } catch {
+      // ignore
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist last selected page id to a centralized storage for hydration
+  useEffect(() => {
+    try {
+      writeSelMem(selectedPageId ?? null);
+    } catch {
+      // ignore
+    }
+  }, [selectedPageId]);
+
+  // Note: We no longer hydrate from a global draft (studioUsed). Per-page drafts live under studioDraftPages.
+
+  // Hydrate stored ids (portfolioId, customDesignId) from sessionStorage on mount
   useEffect(() => {
     try {
       if (typeof window === "undefined") return;
-      const raw = sessionStorage.getItem("studioUsed");
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        setUsed(parsed as AnySectionInstance[]);
+      const pid = sessionStorage.getItem("portfolioId");
+      // legacy: some older tabs may have written customDesignId; prefer portfolioId
+      const cid = sessionStorage.getItem("customDesignId");
+      if (pid) {
+        _setPortfolioId(pid);
+        _setCustomDesignId(pid);
+      } else if (cid) {
+        // fallback for older tabs: hydrate both from the legacy key
+        _setPortfolioId(cid);
+        _setCustomDesignId(cid);
       }
     } catch {
-      // ignore hydration errors
+      // ignore
     }
   }, []);
 
@@ -96,24 +193,15 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
   }, [used]);
 
-  // Persist used sections as a draft in sessionStorage
-  useEffect(() => {
-    try {
-      if (typeof window === "undefined") return;
-      if (used && used.length) sessionStorage.setItem("studioUsed", JSON.stringify(used));
-      else sessionStorage.removeItem("studioUsed");
-    } catch {
-      // ignore persistence errors
-    }
-  }, [used]);
+  // We no longer persist a global 'studioUsed'. All persistence is handled per-page in PagesSidebar.
 
-  // Hydrate only draft assets from sessionStorage on mount (ids are resolved from auth)
+  // Hydrate only draft assets from centralized storage on mount (ids are resolved from auth)
   useEffect(() => {
     try {
-      const raw = typeof window !== "undefined" ? sessionStorage.getItem("designAssetsDraft") : null;
-      if (raw) _setAssets(JSON.parse(raw));
-      const rawSlug = typeof window !== "undefined" ? sessionStorage.getItem("portfolioSlugDraft") : null;
-      if (rawSlug) _setSlug(rawSlug);
+      const assetsDraft = getAssetsDraftCentral();
+      if (assetsDraft !== undefined) _setAssets(assetsDraft ?? null);
+      const slugDraft = getSlugDraftCentral();
+      if (slugDraft !== undefined && slugDraft !== null) _setSlug(slugDraft);
     } catch {
       // ignore
     }
@@ -122,44 +210,43 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   // persist assets draft to sessionStorage when assets change
   useEffect(() => {
     try {
-      if (typeof window === "undefined") return;
-      if (assets) sessionStorage.setItem("designAssetsDraft", JSON.stringify(assets));
-      else sessionStorage.removeItem("designAssetsDraft");
-    } catch {
-      // ignore
-    }
+      setAssetsDraftCentral(assets ?? null);
+    } catch {}
   }, [assets]);
 
   const setPortfolioId = useCallback((id: string | null) => {
     _setPortfolioId(id);
+    // Keep design id in-sync (canonical model: design is attached to portfolio)
+    _setCustomDesignId(id);
+    try {
+      if (typeof window !== "undefined") {
+        if (id) sessionStorage.setItem("portfolioId", id);
+        else sessionStorage.removeItem("portfolioId");
+        // NOTE: we intentionally do NOT write `customDesignId` anymore —
+        // portfolioId is the single canonical key for cross-tab sync
+      }
+    } catch {
+      // ignore
+    }
   }, []);
 
   const setCustomDesignId = useCallback((id: string | null) => {
-    _setCustomDesignId(id);
+    // Keep backwards-compatible API: delegate to setPortfolioId so both stay in-sync.
+    setPortfolioId(id);
   }, []);
 
   const setSlug = useCallback((s: string | null) => {
     _setSlug(s);
     try {
-      if (typeof window !== "undefined") {
-        if (s) sessionStorage.setItem("portfolioSlugDraft", String(s));
-        else sessionStorage.removeItem("portfolioSlugDraft");
-      }
-    } catch {
-      // ignore
-    }
+      setSlugDraftCentral(s ?? null);
+    } catch {}
   }, []);
 
   const setAssets = useCallback((a: unknown | null) => {
     _setAssets(a);
     try {
-      if (typeof window !== "undefined") {
-        if (a) sessionStorage.setItem("designAssetsDraft", JSON.stringify(a));
-        else sessionStorage.removeItem("designAssetsDraft");
-      }
-    } catch {
-      // ignore
-    }
+      setAssetsDraftCentral(a ?? null);
+    } catch {}
   }, []);
 
   const loadSections = useCallback((sections: AnySectionInstance[]) => {
@@ -167,7 +254,15 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       if (!Array.isArray(sections)) return;
       const normalized = sections.map((s) => {
         try {
-          if (s && typeof (s as any).id === "string" && typeof (s as any).type === "string") return s;
+          // If a valid instance shape comes in, preserve it as-is to keep ids stable
+          if (
+            s &&
+            typeof (s as any).id === "string" &&
+            (s as any).id.length > 0 &&
+            typeof (s as any).type === "string" &&
+            (s as any).type.length > 0
+          )
+            return s;
         } catch {
           /* fallthrough */
         }
@@ -182,7 +277,17 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         }
         return inst;
       });
-      setUsed(normalized);
+      setUsed((prev) => {
+        try {
+          const prevSimple = prev.map((p) => ({ type: p.type, config: p.config }));
+          const newSimple = normalized.map((n) => ({ type: n.type, config: n.config }));
+          // simple deep-equality check to avoid unnecessary state churn
+          if (JSON.stringify(prevSimple) === JSON.stringify(newSimple)) return prev;
+        } catch {
+          // fallthrough to set
+        }
+        return normalized;
+      });
     } catch {
       // ignore
     }
@@ -238,6 +343,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         updateSectionConfig,
         selectedSectionId,
         selectSection,
+        selectedPageId,
+        setSelectedPageId,
         portfolioId,
         setPortfolioId,
         customDesignId,

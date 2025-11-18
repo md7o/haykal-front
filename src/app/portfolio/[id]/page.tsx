@@ -3,14 +3,14 @@
 import { use, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { getCustomDesignById, getPortfolioBySlug } from "@/api/portfolio-endpoints";
-import { sectionsRegistry } from "@/components/pages/sections-design/registry/sections-registry";
+import { sectionsRegistry } from "@/components/pages/portfolio-feature/sections-design/registry/sections-registry";
 import PortfolioTheme from "@/components/theme/PortfolioTheme";
 import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui-tools/ui/button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui-tools/ui/tooltip";
 import { CircleUser, Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui-tools/ui/spinner";
 
 type SectionItem = { id?: string; type: string; config: unknown };
 

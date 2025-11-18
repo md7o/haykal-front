@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui-tools/ui/button";
 import {
   Save,
   Edit2,
@@ -24,11 +24,11 @@ import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 import { createCustomDesign, updatePortfolio, getCustomDesignById, getPortfolioById } from "@/api/portfolio-endpoints";
 import { ensureUserPortfolioId, resolveUserPortfolioId } from "@/lib/portfolio-helpers";
-import type { SectionType } from "@/components/pages/sections-design/registry/sections-registry";
+import type { SectionType } from "@/components/pages/portfolio-feature/sections-design/registry/sections-registry";
 import { useRouter } from "next/navigation";
 import { usePublishedDesign } from "@/context/PublishedDesignContext";
 import { useAuth } from "@/context/AuthContext";
-import ShareButton from "@/components/ui/custom_ui/ShareButton";
+import ShareButton from "@/components/ui-tools/custom_ui/ShareButton";
 
 // --- Icon map (shared with Studio, keep minimal here) ---
 const ICON_MAP: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
@@ -267,14 +267,9 @@ export default function BlockContent() {
       } catch {
         /* ignore */
       }
-      if (customDesignId || pid) {
-        await updatePortfolio(customDesignId || pid!, { sections: used, assets });
-        setFeedback("Sections updated successfully.");
-      } else {
-        const created = await createCustomDesign({ portfolioId: pid!, sections: used, assets });
-        if (created?.id) setCustomDesignId(created.id);
-        setFeedback("Sections saved successfully.");
-      }
+      // Portfolio-level sections are no longer supported. Consider updating a specific page instead.
+      if (assets) await updatePortfolio(customDesignId || pid!, { assets: assets as any });
+      setFeedback("Updated successfully.");
       // Ask the published preview to refetch so changes show immediately
       try {
         await refresh();
@@ -326,7 +321,7 @@ export default function BlockContent() {
         <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--color-description)" }}>
           Header
         </h3>
-        <div className="p-3 rounded-soft bg-white border" style={{ borderColor: "var(--color-card-border)" }}>
+        <div className="p-3 rounded-soft bg-white">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-soft flex items-center justify-center bg-card-bg">
               <Layout className="w-4 h-4 text-accent" />

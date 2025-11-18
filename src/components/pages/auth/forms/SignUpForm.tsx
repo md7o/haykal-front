@@ -5,15 +5,15 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form-field";
-import { PasswordStrengthIndicator } from "@/components/ui/password-strength";
+import { Button } from "@/components/ui-tools/ui/button";
+import { FormField } from "@/components/ui-tools/ui/form-field";
+import { PasswordStrengthIndicator } from "@/components/ui-tools/ui/password-strength";
 import { signUpSchema, type SignUpFormData } from "@/lib/validations";
 import { requestSignup, verifySignup, signIn } from "@/api/auth-endpoints";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { me } from "@/api/auth-endpoints";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui-tools/ui/input-otp";
 
 interface SignUpFormProps {
   onSuccess?: (email: string) => void;
@@ -89,8 +89,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
       setStep("otp");
       setResendTimer(90);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "An error occurred during registration. Please try again.";
+      const message = error instanceof Error ? error.message : "An error occurred during registration. Please try again.";
       setSubmitError(message);
     } finally {
       setIsSubmitting(false);
@@ -208,10 +207,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
                 {...register("password")}
               />
               {/* Password Strength Indicator */}
-              <PasswordStrengthIndicator
-                password={passwordValue}
-                showSuggestions={!!passwordValue && !errors.password}
-              />
+              <PasswordStrengthIndicator password={passwordValue} showSuggestions={!!passwordValue && !errors.password} />
             </div>
 
             {/* Submit Error */}
@@ -263,9 +259,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
         </>
       ) : (
         <div className="space-y-6 w-full max-w-sm mx-auto">
-          <p className="text-sm text-muted-foreground">
-            We sent a 6-digit code to {emailForOtp}. Enter it below to continue.
-          </p>
+          <p className="text-sm text-muted-foreground">We sent a 6-digit code to {emailForOtp}. Enter it below to continue.</p>
           <div className="w-full flex flex-col items-center justify-center gap-4">
             <InputOTP maxLength={6} value={otp} onChange={setOtp}>
               <InputOTPGroup>
@@ -286,9 +280,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
             <button
               type="button"
               onClick={handleResend}
-              className={`w-full text-sm ${
-                resendTimer > 0 ? "text-gray-400" : "text-accent hover:underline cursor-pointer"
-              }`}
+              className={`w-full text-sm ${resendTimer > 0 ? "text-gray-400" : "text-accent hover:underline cursor-pointer"}`}
               disabled={resendTimer > 0}
             >
               {getResendTimerText(resendTimer)}

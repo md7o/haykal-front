@@ -11,7 +11,6 @@ export interface PortfolioAssets {
     secondary?: string; // surface alt
   };
   font?: string; // CSS font-family string
-  mode?: "light" | "dark"; // optional explicit mode toggle
 }
 
 interface PortfolioThemeProps {
@@ -84,18 +83,23 @@ function buildCSS(assets?: PortfolioAssets | null) {
   const surfaceAlt = assets?.palette?.secondary?.trim() || lighten(accent, 70) || "#f5f5f5";
   const surface = lighten(accent, 90) || "#ffffff"; // light surface based on accent
   const background = "#ffffff"; // keep stable white background for consistency
-  const mode = assets?.mode || "light";
-
-  // Derive dark mode variant if requested
-  const isDark = mode === "dark";
-  const bg = isDark ? "#1f1f1f" : background;
-  const surfaceColor = isDark ? darken(surface, 60) || "#121212" : surface;
-  const surfaceAltColor = isDark ? darken(surfaceAlt, 55) || "#1d1d1d" : surfaceAlt;
-  const accentColor = isDark ? lighten(accent, 15) || accent : accent;
-  const text = isDark ? "#ffffff" : "#111111";
-  const textMuted = isDark ? "#c7c7c7" : "#555555";
-  const border = isDark ? darken(surfaceColor, 25) || "#2a2a2a" : lighten(surfaceColor, -10) || "#d0d0d0";
+  // Single light theme palette
+  const bg = background;
+  const surfaceColor = surface;
+  const surfaceAltColor = surfaceAlt;
+  const accentColor = accent;
+  const text = "#111111";
+  const textMuted = "#555555";
+  const border = lighten(surfaceColor, -10) || "#d0d0d0";
   const font = assets?.font?.trim();
+
+  // Derive a foreground for card surfaces that stays in the same family but ensures contrast
+  const cardForeground = (() => {
+    // If surface is quite light, darken for readable text; otherwise lighten
+    const lum = luminance(surfaceColor);
+    if (lum > 0.6) return darken(surfaceColor, 45) || "#222222";
+    return lighten(surfaceColor, 105) || "#eeeeee";
+  })();
 
   return `
   .preview-theme { 
@@ -121,8 +125,10 @@ function buildCSS(assets?: PortfolioAssets | null) {
     --color-accent: var(--pt-accent);
     --background: var(--pt-bg);
     --foreground: var(--pt-text);
-    --card: var(--pt-surface);
-    --card-foreground: var(--pt-text);
+  --card: var(--pt-surface);
+  --card-foreground: ${cardForeground};
+  /* legacy alias for components expecting color-card-foreground */
+  --color-card-foreground: var(--card-foreground);
     --border: var(--pt-border);
     --input: var(--pt-border);
     --primary: var(--pt-accent);

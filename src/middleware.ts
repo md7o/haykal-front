@@ -36,7 +36,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (isProtectedPath(pathname) && !hasRefreshCookie) {
-    clonedUrl.pathname = "/login";
+    clonedUrl.pathname = "/";
     const originalFullPath = pathname + (request.nextUrl.search || "");
     clonedUrl.searchParams.set("next", originalFullPath);
     return NextResponse.redirect(clonedUrl);

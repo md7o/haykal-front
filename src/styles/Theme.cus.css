@@ -80,3 +80,26 @@
 .preview-theme {
   position: relative;
 }
+
+/* Text defaults outside cards */
+.preview-theme {
+  color: var(--color-title-cus);
+}
+.preview-theme .text-description,
+.preview-theme [data-role="description"],
+.preview-theme .description {
+  color: var(--color-description-cus);
+}
+
+/* Text inside card surfaces should use the card foreground for contrast */
+.preview-theme .bg-card-bg,
+.preview-theme [data-surface="card"],
+.preview-theme .card-surface {
+  color: var(--card-foreground, var(--color-card-foreground, var(--color-title-cus)));
+}
+
+/* Make standard muted/description inside cards slightly dimmer when relying on classes */
+.preview-theme .bg-card-bg .text-description,
+.preview-theme [data-surface="card"] .text-description {
+  color: color-mix(in oklab, var(--card-foreground, var(--color-card-foreground, var(--color-title-cus))) 70%, black 30%);
+}

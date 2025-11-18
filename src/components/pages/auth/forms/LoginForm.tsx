@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form-field";
+import { Button } from "@/components/ui-tools/ui/button";
+import { FormField } from "@/components/ui-tools/ui/form-field";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
 import { signIn, me } from "@/api/auth-endpoints";
 import { useAuth } from "@/context/AuthContext";
@@ -40,9 +40,7 @@ export default function LoginForm() {
       const userData = await me();
       setIsLogged(true);
       setUser(userData);
-      // Support middleware-provided ?next=... param
-      const next = search?.get("next");
-      router.push(next || "/dashboard/sections");
+      router.push("/" + (search.get("next") || "dashboard/sections"));
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "An error occurred during login. Please try again.");
     } finally {

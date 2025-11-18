@@ -4,10 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import { forgotPassword } from "@/api/auth-endpoints";
 import { useRecoveryPassword } from "@/context/RecoveryPasswordContext";
 import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form-field";
+import { Button } from "@/components/ui-tools/ui/button";
+import { FormField } from "@/components/ui-tools/ui/form-field";
 import { useRouter } from "next/navigation";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui-tools/ui/input-otp";
 
 export default function ForgotPasswordForm() {
   function getResendTimerText(timer: number) {

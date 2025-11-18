@@ -12,10 +12,14 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarHeader,
-} from "@/components/ui/sidebar";
-import { Layers, BarChart2, User, LogOut, LucideIcon, Eye, Users2, Edit } from "lucide-react";
+} from "@/components/ui-tools/ui/sidebar";
+import { Layers, BarChart2, User, LogOut, LucideIcon, Eye, Users2, Edit, Trash2 } from "lucide-react";
+import { useStudio } from "@/context/StudioContext";
+import { deletePortfolio } from "@/api/portfolio-endpoints";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import PagesDialog from "@/components/ui-tools/custom_ui/DialogStorage";
 
 interface MenuItem {
   id: string;
@@ -32,14 +36,48 @@ interface MenuGroup {
 }
 export default function SidebarDashboard() {
   const { logoutUser, user } = useAuth();
+  const { portfolioId, setPortfolioId, setCustomDesignId } = useStudio();
   const pathname = usePathname();
+
+  const router = useRouter();
+
+  const [showRemoveDialog, setShowRemoveDialog] = React.useState(false);
+  const [isRemoving, setIsRemoving] = React.useState(false);
 
   const handleLogout = async () => {
     try {
       await logoutUser();
-      window.location.href = "/";
+      router.push("/");
     } catch (e) {
-      window.location.href = "/";
+      router.push("/");
+    }
+  };
+
+  const handleRemovePortfolio = async () => {
+    try {
+      if (!portfolioId) {
+        window.alert("No portfolio selected to remove.");
+        return;
+      }
+
+      setIsRemoving(true);
+      const ok = await deletePortfolio(portfolioId);
+      if (ok) {
+        try {
+          setPortfolioId(null);
+          setCustomDesignId(null);
+          router.push("/");
+        } catch {
+          // ignore
+        }
+      } else {
+        window.alert("Failed to remove portfolio.");
+      }
+    } catch (e) {
+      window.alert("Failed to remove portfolio.");
+    } finally {
+      setIsRemoving(false);
+      setShowRemoveDialog(false);
     }
   };
 
@@ -94,6 +132,14 @@ export default function SidebarDashboard() {
       label: "Logout",
       icon: LogOut,
       onClick: handleLogout,
+    },
+    {
+      id: "remove",
+      label: "Remove portfolio",
+      icon: Trash2,
+      onClick: () => {
+        setShowRemoveDialog(true);
+      },
     },
   ];
 
@@ -170,6 +216,19 @@ export default function SidebarDashboard() {
             ))}
           </SidebarMenu>
         </SidebarFooter>
+        {/* Confirm removal dialog (controlled) */}
+        <PagesDialog
+          title="Confirm Removal"
+          content="Are you sure you want to remove this portfolio? This action cannot be undone."
+          confirmLabel={isRemoving ? "Removing..." : "Remove"}
+          cancelLabel="Cancel"
+          open={showRemoveDialog}
+          onOpenChange={(v: boolean) => setShowRemoveDialog(v)}
+          onConfirm={async () => {
+            await handleRemovePortfolio();
+          }}
+          onCancel={() => setShowRemoveDialog(false)}
+        />
       </SidebarContent>
     </Sidebar>
   );

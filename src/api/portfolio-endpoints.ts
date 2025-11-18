@@ -7,17 +7,26 @@ export type Portfolio = {
   id: string;
   userId: string;
   slug?: string | null;
-  sections: unknown | null;
-  assets: unknown | null;
+  pages: Page[];
+  assets: Record<string, any> | null;
   createdAt?: string | Date;
   updatedAt?: string | Date;
 };
 
+// Page entity (per backend entities provided)
+export type Page = {
+  id: string;
+  portfolioId: string;
+  title: string;
+  slug: string;
+  sections: unknown | null;
+  order: number;
+};
+
 type CreatePortfolioDto = {
-  userId: string;
   slug?: string | null;
-  sections?: unknown | null;
-  assets?: unknown | null;
+  pages?: Array<Partial<Page>> | null;
+  assets?: Record<string, any> | null;
 };
 
 function toError(err: unknown): Error {
@@ -27,6 +36,10 @@ function toError(err: unknown): Error {
     const data: unknown = e.response?.data;
 
     let message = e.message;
+    // Friendly message for slug conflicts
+    if (status === 409) {
+      message = "Slug already in use";
+    }
     if (typeof data === "string") {
       message = data;
     } else if (data && typeof data === "object") {
@@ -58,16 +71,13 @@ function checkStatus(status: number, okStatuses: number[] = [200]) {
 // Map client DTO to backend payload
 function mapCreatePayload(dto: CreatePortfolioDto) {
   return {
-    user: dto.userId,
     ...(dto.slug !== undefined ? { slug: dto.slug } : {}),
-    // pass-through optional fields if provided
-    ...(dto.sections !== undefined ? { sections: dto.sections } : {}),
+    ...(dto.pages !== undefined ? { pages: dto.pages } : {}),
     ...(dto.assets !== undefined ? { assets: dto.assets } : {}),
   };
 }
 
 export const createPortfolio = async (dto: CreatePortfolioDto): Promise<Portfolio> => {
-  if (!dto?.userId) throw new Error("userId is required to create a portfolio");
   try {
     const payload = mapCreatePayload(dto);
     const res = await api.post<Portfolio>(PATH, payload);
@@ -117,11 +127,9 @@ export const updatePortfolio = async (id: string, updateDto: Partial<CreatePortf
   try {
     // map only provided fields
     const payload: Record<string, unknown> = {};
-    if (updateDto.userId) payload.user = updateDto.userId;
     if (updateDto.slug !== undefined) payload.slug = updateDto.slug;
-    if (updateDto.sections !== undefined) payload.sections = updateDto.sections;
+    if (updateDto.pages !== undefined) payload.pages = updateDto.pages as Array<Partial<Page>> | null;
     if (updateDto.assets !== undefined) payload.assets = updateDto.assets;
-    // category/layout removed from payload
 
     const res = await api.patch(`${PATH}/${id}`, payload);
     checkStatus(res.status, [200]);
@@ -146,20 +154,98 @@ export const deletePortfolio = async (id: string): Promise<boolean> => {
   }
 };
 
+// ---- Pages API helpers (operate via portfolio pages + PATCH) ----
+
+export type CreatePageDto = {
+  title: string;
+  slug?: string | null;
+  sections?: unknown | null;
+  order?: number;
+};
+
+export const getPages = async (portfolioId: string): Promise<Page[]> => {
+  ensureId(portfolioId);
+  try {
+    const p = await getPortfolioById(portfolioId);
+    return p?.pages ?? [];
+  } catch (err) {
+    throw toError(err);
+  }
+};
+
+export const createPage = async (portfolioId: string, dto: CreatePageDto): Promise<Page> => {
+  ensureId(portfolioId);
+  if (!dto?.title) throw new Error("title is required");
+  try {
+    const current = (await getPortfolioById(portfolioId)) as Portfolio | null;
+    const beforeIds = new Set((current?.pages ?? []).map((pg) => pg.id as string));
+    const nextPages: Array<Partial<Page>> = [
+      ...((current?.pages ?? []) as Array<Partial<Page>>),
+      {
+        title: dto.title,
+        slug: dto.slug ?? undefined,
+        sections: dto.sections ?? undefined,
+        order: dto.order,
+      },
+    ];
+    await updatePortfolio(portfolioId, { pages: nextPages as Array<Partial<Page>> });
+    const fresh = (await getPortfolioById(portfolioId)) as Portfolio | null;
+    const created = (fresh?.pages ?? []).find((pg) => !beforeIds.has(pg.id));
+    return created || (fresh?.pages ?? [])[Math.max(0, (fresh?.pages?.length ?? 1) - 1)];
+  } catch (err) {
+    throw toError(err);
+  }
+};
+
+export const updatePage = async (portfolioId: string, pageId: string, dto: Partial<CreatePageDto>): Promise<Page | null> => {
+  ensureId(portfolioId);
+  ensureId(pageId);
+  try {
+    const current = (await getPortfolioById(portfolioId)) as Portfolio | null;
+    const pages: Array<Partial<Page>> = (current?.pages ?? []).map((pg) =>
+      pg.id === pageId
+        ? {
+            id: pg.id,
+            portfolioId: pg.portfolioId,
+            title: dto.title ?? pg.title,
+            slug: dto.slug ?? pg.slug,
+            sections: dto.sections ?? pg.sections,
+            order: dto.order ?? pg.order,
+          }
+        : pg
+    );
+    await updatePortfolio(portfolioId, { pages });
+    const fresh = (await getPortfolioById(portfolioId)) as Portfolio | null;
+    return (fresh?.pages ?? []).find((pg) => pg.id === pageId) ?? null;
+  } catch (err) {
+    throw toError(err);
+  }
+};
+
+export const removePage = async (portfolioId: string, pageId: string): Promise<boolean> => {
+  ensureId(portfolioId);
+  ensureId(pageId);
+  try {
+    const res = await api.delete(`${PATH}/${encodeURIComponent(portfolioId)}/pages/${encodeURIComponent(pageId)}`);
+    return res.status === 200 || res.status === 204;
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 404) return false;
+    throw toError(err);
+  }
+};
+
 // ---- Shims replacing former studio-endpoints (custom design) using unified portfolio ----
 
 export type CustomDesign = Portfolio;
 
 export const createCustomDesign = async (createDto: {
   portfolioId: string;
-  sections?: unknown | null;
-  assets?: unknown | null;
+  assets?: Record<string, any> | null;
 }): Promise<CustomDesign> => {
   if (!createDto?.portfolioId) throw new Error("portfolioId is required");
   try {
-    // In unified model, design belongs to the portfolio row; update that row
+    // Update only assets on the portfolio row (no portfolio-level sections)
     const updated = await updatePortfolio(createDto.portfolioId, {
-      sections: createDto.sections,
       assets: createDto.assets,
     });
     // updatePortfolio may return null if 404
@@ -180,9 +266,9 @@ export const getCustomDesignById = async (id: string): Promise<CustomDesign | nu
 
 export const updateCustomDesign = async (
   id: string,
-  updateDto: { sections?: unknown | null; assets?: unknown | null }
+  updateDto: { assets?: Record<string, any> | null }
 ): Promise<CustomDesign | null> => {
-  return updatePortfolio(id, updateDto);
+  return updatePortfolio(id, { assets: updateDto.assets ?? null });
 };
 
 export const deleteCustomDesign = async (id: string): Promise<boolean> => {

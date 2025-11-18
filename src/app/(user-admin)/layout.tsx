@@ -1,4 +1,4 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui-tools/ui/sidebar";
 import { StudioProvider } from "@/context/StudioContext";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

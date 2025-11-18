@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useEffect, useMemo, useRef, useState, useContext, ReactNode } from "react";
 import { getCustomDesignById } from "@/api/portfolio-endpoints";
-import { sectionsRegistry } from "@/components/pages/sections-design/registry/sections-registry";
+import { sectionsRegistry } from "@/components/pages/portfolio-feature/sections-design/registry/sections-registry";
 
 type SectionItem = { id?: string; type: string; config: unknown };
 
@@ -74,16 +74,20 @@ export function PublishedDesignProvider({ children }: { children: ReactNode }) {
 
   // Bootstrap IDs from sessionStorage on mount
   useEffect(() => {
-    const d = safeGetSession("customDesignId");
+    // Legacy: try customDesignId for older tabs, but prefer portfolioId (canonical)
     const p = safeGetSession("portfolioId");
-    if (d) _setDesignId(d);
-    if (p) _setPortfolioId(p);
+    const d = safeGetSession("customDesignId");
+    if (p) {
+      _setPortfolioId(p);
+      _setDesignId(p);
+    } else if (d) {
+      // fallback for older stored value
+      _setPortfolioId(d);
+      _setDesignId(d);
+    }
   }, []);
 
-  // Keep sessionStorage in sync for cross-tab coherence
-  useEffect(() => {
-    safeSetSession("customDesignId", designId);
-  }, [designId]);
+  // Keep sessionStorage in sync for cross-tab coherence — only persist portfolioId.
   useEffect(() => {
     safeSetSession("portfolioId", portfolioId);
   }, [portfolioId]);
@@ -93,8 +97,13 @@ export function PublishedDesignProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     const onStorage = (e: StorageEvent) => {
       if (e.storageArea !== sessionStorage) return;
-      if (e.key === "customDesignId") _setDesignId(e.newValue);
-      if (e.key === "portfolioId") _setPortfolioId(e.newValue);
+      // react to portfolioId changes (canonical). Legacy keys may still exist in older tabs.
+      if (e.key === "portfolioId") {
+        _setPortfolioId(e.newValue);
+        // keep design id in sync for immediate coherence
+        _setDesignId(e.newValue ?? null);
+      }
+      // ignore legacy customDesignId changes; we only read it on boot for migration
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -113,7 +122,7 @@ export function PublishedDesignProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const data = await getCustomDesignById(id);
-      const normalized = normalizeSections(data?.sections);
+      const normalized = normalizeSections((data as any)?.sections);
       setSections(normalized);
       setAssets(data?.assets ?? null);
       setLastLoadedAt(new Date());
@@ -149,6 +158,8 @@ export function PublishedDesignProvider({ children }: { children: ReactNode }) {
   }, []);
   const setPortfolioId = useCallback((id: string | null) => {
     _setPortfolioId(id);
+    // keep design id in sync immediately (compat shim)
+    _setDesignId(id);
   }, []);
 
   const value = useMemo<PublishedDesignContextShape>(

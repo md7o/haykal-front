@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "../ui/button";
+import { Button } from "../ui-tools/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -35,9 +35,7 @@ export default function Navbar() {
             </div>
           ) : isLogged ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-foreground/70">
-                Welcome{user?.username ? `, ${user.username}` : ""}
-              </span>
+              <span className="text-sm text-foreground/70">Welcome{user?.username ? `, ${user.username}` : ""}</span>
               <Button
                 variant="transparent"
                 size="base"

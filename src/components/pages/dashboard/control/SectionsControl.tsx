@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { IconButton } from "@/components/ui/button";
+import { IconButton } from "@/components/ui-tools/ui/button";
 import { Blocks, Palette } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/context/AuthContext";

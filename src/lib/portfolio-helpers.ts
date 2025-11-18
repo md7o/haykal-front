@@ -26,6 +26,6 @@ export async function resolveUserPortfolioId(userId: string): Promise<string | n
 export async function ensureUserPortfolioId(userId: string): Promise<string> {
   const existing = await resolveUserPortfolioId(userId);
   if (existing) return existing;
-  const created = await createPortfolio({ userId });
+  const created = await createPortfolio({});
   return created.id as string;
 }

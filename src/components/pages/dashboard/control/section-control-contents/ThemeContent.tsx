@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui-tools/ui/button";
 import { Save, Edit2, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useStudio } from "@/context/StudioContext";

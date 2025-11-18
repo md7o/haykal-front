@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, CardHeader } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend } from "@/components/ui/chart";
+import { Card, CardHeader } from "@/components/ui-tools/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend } from "@/components/ui-tools/ui/chart";
 import { Monitor, Smartphone, TabletIcon } from "lucide-react";
 import React from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";

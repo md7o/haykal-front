@@ -2,8 +2,15 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui-tools/ui/dialog";
+import { Button } from "@/components/ui-tools/ui/button";
 
 export default function HeaderDashboard() {
   const [activeTab, setActiveTab] = useState<"portfolio" | "community">("portfolio");
