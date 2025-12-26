@@ -2,9 +2,6 @@ import axios, { AxiosRequestConfig } from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const REFRESH_PATH = "/auth/refresh";
-const STORAGE_TOKEN_KEY = "auth.accessToken";
-const STORAGE_EXP_KEY = "auth.accessTokenExpiry";
-const isBrowser = typeof window !== "undefined";
 
 export const api = axios.create({ baseURL: API_URL, withCredentials: true });
 
@@ -20,16 +17,9 @@ const failedQueue: Array<{
 
 // ---------- tiny helpers ----------
 const isExpired = () => !!accessToken && !!accessTokenExpiry && Date.now() >= accessTokenExpiry!;
-const persist = (token: string | null, exp: number | null) => {
-  if (!isBrowser) return;
-  if (token && exp) {
-    sessionStorage.setItem(STORAGE_TOKEN_KEY, token);
-    sessionStorage.setItem(STORAGE_EXP_KEY, String(exp));
-  } else {
-    sessionStorage.removeItem(STORAGE_TOKEN_KEY);
-    sessionStorage.removeItem(STORAGE_EXP_KEY);
-  }
-};
+
+const persist = (_token: string | null, _exp: number | null) => {};
+
 const scheduleRefresh = () => {
   if (refreshTimeout) clearTimeout(refreshTimeout);
   if (!accessTokenExpiry) return;
@@ -63,13 +53,6 @@ const errorWithStatus = (err: unknown, fallback: string) => {
   return e;
 };
 
-// restore token on import (client only)
-if (isBrowser) {
-  const token = sessionStorage.getItem(STORAGE_TOKEN_KEY);
-  const exp = sessionStorage.getItem(STORAGE_EXP_KEY);
-  if (token && exp) setToken(token, Number(exp));
-}
-
 // ---------- refresh flow ----------
 function processQueue(error: unknown | null, token: string | null = null) {
   failedQueue.splice(0).forEach(({ resolve, reject, config }) => {
@@ -102,11 +85,21 @@ async function refreshSession(): Promise<string | null> {
 // ---------- interceptors ----------
 api.interceptors.request.use(async (config) => {
   const isRefreshCall = (config.url || "").toString().includes(REFRESH_PATH);
-  if (!isRefreshCall && accessToken && isExpired()) {
-    try {
-      await (pendingRefresh || refreshSession());
-    } catch {}
+
+  // If a refresh is pending, wait for it.
+  // Or if we have a token but it's expired, trigger a refresh.
+  if (!isRefreshCall) {
+    if (pendingRefresh) {
+      try {
+        await pendingRefresh;
+      } catch {}
+    } else if (accessToken && isExpired()) {
+      try {
+        await refreshSession();
+      } catch {}
+    }
   }
+
   if (accessToken) {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>)["Authorization"] = `Bearer ${accessToken}`;
@@ -121,7 +114,11 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
     const isRefreshCall = (original?.url || "").includes(REFRESH_PATH);
-    if (error?.response?.status === 401 && !original._retry && !isRefreshCall && accessToken && isExpired()) {
+
+    // On 401, try to refresh the token (unless it's already a retry or the refresh call itself).
+    // We do NOT check for isExpired() here, because we might have no token in memory
+    // (e.g. after reload) but a valid httpOnly cookie exists.
+    if (error?.response?.status === 401 && !original._retry && !isRefreshCall) {
       original._retry = true;
       return new Promise(async (resolve, reject) => {
         failedQueue.push({ resolve, reject, config: original });
@@ -216,8 +213,15 @@ export async function resetPassword(email: string, code: string, password: strin
 }
 
 export async function checkAuthStatus() {
-  if (!accessToken) return { isAuthenticated: false } as const;
   try {
+    if (!accessToken) {
+      try {
+        await refreshSession();
+      } catch {}
+    }
+
+    if (!accessToken) return { isAuthenticated: false } as const;
+
     if (isExpired()) await refreshSession();
     const user = await me();
     return { isAuthenticated: true, user } as const;

@@ -1,4 +1,4 @@
-import StudioPage from "@/components/pages/structure/studio-page/StudioPage";
+import StudioPage from "@/components/pages/portfolio-feature/studio-page/StudioPage";
 
 export default function Studio() {
   return (

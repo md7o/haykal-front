@@ -10,7 +10,6 @@ const responsiveBarVariants = cva("fixed bottom-0 left-0 right-0 z-50 transition
   variants: {
     variant: {
       default: "bg-card-bg shadow-lg",
-      dark: "bg-gray-900 border-gray-700",
     },
     size: {
       small: "h-16 px-2",
@@ -31,10 +30,7 @@ const responsiveBarItemVariants = cva(
       variant: {
         default: "text-description hover:text-accent hover:bg-secondary-card",
         active: "text-accent",
-        dark: "text-gray-400 hover:text-white hover:bg-gray-800",
-        "dark-active": "text-white bg-gray-800",
         disabled: "text-description opacity-60 pointer-events-none",
-        "dark-disabled": "text-gray-500 opacity-60 pointer-events-none",
       },
       size: {
         small: "min-w-12",
@@ -110,8 +106,8 @@ const ResponsiveBarItem = React.forwardRef<HTMLDivElement, ResponsiveBarItemProp
         className={cn(
           responsiveBarItemVariants({
             variant: (() => {
-              if (isActive) return variant === "dark" ? "dark-active" : "active";
-              if (isDisabled) return variant === "dark" ? "dark-disabled" : "disabled";
+              if (isActive) return "active";
+              if (isDisabled) return "disabled";
               return variant;
             })(),
             size,
@@ -205,7 +201,7 @@ const ResponsiveBar = React.forwardRef<HTMLDivElement, ResponsiveBarProps>(
             <ResponsiveBarItem
               key={item.id}
               item={item}
-              variant={variant === "dark" ? "dark" : "default"}
+              variant={"default"}
               size={size}
               isActive={activeItem === item.id}
               isDisabled={item.disabled}

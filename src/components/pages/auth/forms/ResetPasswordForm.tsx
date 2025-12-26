@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form-field";
+import { Button } from "@/components/ui-tools/ui/button";
+import { FormField } from "@/components/ui-tools/ui/form-field";
 import { resetPassword } from "@/api/auth-endpoints";
 import { useRecoveryPassword } from "@/context/RecoveryPasswordContext";
 
@@ -72,11 +72,7 @@ export default function ResetPasswordForm() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             error={
-              error && password && !confirmPassword
-                ? error
-                : password !== confirmPassword
-                ? "Passwords do not match."
-                : undefined
+              error && password && !confirmPassword ? error : password !== confirmPassword ? "Passwords do not match." : undefined
             }
             touched={!!error || confirmPassword.length > 0}
           />

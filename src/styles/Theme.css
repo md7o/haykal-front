@@ -1,5 +1,3 @@
-/* stylelint-disable at-rule-no-unknown */
-/* Category card gradient background */
 .category-gradient {
   background: linear-gradient(180deg, #fa6b77, #fe9171);
 }
@@ -8,6 +6,8 @@
   --color-base-bg: #ffffff;
   --color-primary: #fff7f4;
   --color-secondary: #fee9e1;
+
+  --portfolio-background: #ffffff;
 
   /* Text Colors */
   --color-title: black;
@@ -19,7 +19,12 @@
   --color-secondary-card: #dddddd;
 
   /* Accent */
-  --color-accent: #fa6b77;
+  --color-accent: #fa886b;
+
+  /* Notification */
+  --color-success: "#38e9a2";
+  --color-warning: "#ffb71c";
+  --color-error: "#eb5f5f";
 
   /* Font */
   --font-montserrat: "Montserrat", sans-serif;
