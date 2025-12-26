@@ -34,7 +34,7 @@ export default function AdvantagesSection() {
             key={index}
             data-aos="fade-up"
             data-aos-delay={index * 100}
-            data-aos-duration="1500"
+            data-aos-duration="5000"
             className="border border-border shadow-sm rounded-xl hover:shadow-md transition"
           >
             <CardContent className="flex items-center text-center pr-5 py-2 space-y-4">

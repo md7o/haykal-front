@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Sidebar, SidebarContent } from "@/components/ui-tools/ui/sidebar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui-tools/ui/tabs";
-import { useStudio } from "@/context/StudioContext";
+import { useStudio } from "@/context/studio-context-logic/StudioContext";
 import DrawerEditor from "./DrawerEditor";
 import SectionsSidebar from "./studio-sidebar/SectionsSidebar";
 import AssetsSidebar from "./studio-sidebar/AssetsSidebar";

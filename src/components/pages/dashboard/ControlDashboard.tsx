@@ -1,18 +1,15 @@
 "use client";
 
-import React from "react";
 import Preview from "@/components/pages/dashboard/PreviewDashboard";
 import InsightsDashboard from "@/components/pages/dashboard/control/InsightsControl";
-import SectionsControl from "./control/SectionsControl";
 
 export interface ControlDashboardProps {
   panel?: string;
 }
 
-export default function ControlDashboard({ panel = "" }: ControlDashboardProps) {
+export default function ControlDashboard({ panel }: ControlDashboardProps) {
   return (
     <div className="h-full overflow-auto">
-      {panel === "sections" && <SectionsControl />}
       {panel === "preview" && <Preview />}
       {panel === "insights" && <InsightsDashboard />}
 

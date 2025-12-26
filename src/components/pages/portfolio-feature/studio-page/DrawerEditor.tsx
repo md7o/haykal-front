@@ -1,9 +1,9 @@
-import React from "react";
-import { Sheet, SheetContent, SheetClose, SheetTitle } from "@/components/ui-tools/ui/sheet";
-import { useStudio } from "@/context/StudioContext";
-import { sectionsRegistry } from "@/components/pages/portfolio-feature/sections-design/registry/sections-registry";
+// This page is the drawer for edit customize section
 
-// Convert DrawerEditor to accept open/setOpen props
+import { Sheet, SheetContent, SheetClose, SheetTitle } from "@/components/ui-tools/ui/sheet";
+import { useStudio } from "@/context/studio-context-logic/StudioContext";
+import { sectionsVisualization } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
+
 interface DrawerEditorProps {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -12,7 +12,7 @@ interface DrawerEditorProps {
 export default function DrawerEditor({ open, setOpen }: DrawerEditorProps) {
   const { selectedSectionId, used, updateSectionConfig } = useStudio();
   const section = used.find((s) => s.id === selectedSectionId) || null;
-  const def = section ? sectionsRegistry[section.type] : null;
+  const def = section ? sectionsVisualization[section.type] : null;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

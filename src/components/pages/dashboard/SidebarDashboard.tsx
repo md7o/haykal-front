@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,13 +13,15 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui-tools/ui/sidebar";
-import { Layers, BarChart2, User, LogOut, LucideIcon, Eye, Users2, Edit, Trash2 } from "lucide-react";
-import { useStudio } from "@/context/StudioContext";
+import { BarChart2, User, LogOut, LucideIcon, Eye, Edit, Trash2, QrCode } from "lucide-react";
+import { useStudio } from "@/context/studio-context-logic/StudioContext";
+import { useUserPortfolio } from "@/context/UserPortfolioContext";
 import { deletePortfolio } from "@/api/portfolio-endpoints";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 import PagesDialog from "@/components/ui-tools/custom_ui/DialogStorage";
+import { resolveUserPortfolioId } from "@/lib/portfolio-helpers";
+import ShareButton from "@/components/ui-tools/custom_ui/ShareButton";
 
 interface MenuItem {
   id: string;
@@ -28,52 +30,55 @@ interface MenuItem {
   href?: string;
   onClick?: () => void;
 }
-
-interface MenuGroup {
-  id: string;
-  label?: string;
-  items: MenuItem[];
-}
 export default function SidebarDashboard() {
   const { logoutUser, user } = useAuth();
-  const { portfolioId, setPortfolioId, setCustomDesignId } = useStudio();
+  const { portfolioId } = useStudio();
+  const { refreshPortfolioId } = useUserPortfolio();
   const pathname = usePathname();
-
   const router = useRouter();
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
-  const [showRemoveDialog, setShowRemoveDialog] = React.useState(false);
-  const [isRemoving, setIsRemoving] = React.useState(false);
+  const handleLogout = () =>
+    logoutUser()
+      .then(() => router.push("/"))
+      .catch(() => router.push("/"));
 
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-      router.push("/");
-    } catch (e) {
-      router.push("/");
+  const getPortfolioId = async () => {
+    if (portfolioId) return portfolioId;
+    if (typeof window !== "undefined") {
+      const id = sessionStorage.getItem("portfolioId") || sessionStorage.getItem("customDesignId");
+      if (id) return id;
     }
+    if (user) {
+      try {
+        const userId = (user as any).userId || (user as any).id;
+        if (userId) return await resolveUserPortfolioId(String(userId));
+      } catch {}
+    }
+    return null;
   };
 
   const handleRemovePortfolio = async () => {
+    const idToRemove = await getPortfolioId();
+    if (!idToRemove) {
+      window.alert("No portfolio selected to remove.");
+      return;
+    }
+    setIsRemoving(true);
     try {
-      if (!portfolioId) {
-        window.alert("No portfolio selected to remove.");
-        return;
-      }
-
-      setIsRemoving(true);
-      const ok = await deletePortfolio(portfolioId);
-      if (ok) {
-        try {
-          setPortfolioId(null);
-          setCustomDesignId(null);
-          router.push("/");
-        } catch {
-          // ignore
+      if (await deletePortfolio(idToRemove)) {
+        await refreshPortfolioId();
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("portfolioId");
+          sessionStorage.removeItem("customDesignId");
+          document.cookie = "portfolio_removed=true; path=/; max-age=10";
         }
+        router.push("/");
       } else {
         window.alert("Failed to remove portfolio.");
       }
-    } catch (e) {
+    } catch {
       window.alert("Failed to remove portfolio.");
     } finally {
       setIsRemoving(false);
@@ -81,152 +86,100 @@ export default function SidebarDashboard() {
     }
   };
 
-  const menuGroups: MenuGroup[] = [
-    {
-      id: "portfolio",
-      label: "Portfolio",
-      items: [
-        {
-          id: "sections",
-          label: "Sections",
-          icon: Layers,
-          href: "/dashboard/sections",
-        },
-        {
-          id: "preview",
-          label: "Preview",
-          icon: Eye,
-          href: "/dashboard/preview",
-        },
-        {
-          id: "edit",
-          label: "Edit",
-          icon: Edit,
-          href: "/studio?mode=edit",
-        },
-      ],
-    },
-    {
-      id: "insights",
-      label: "Analystics",
-      items: [
-        {
-          id: "insights",
-          label: "Insights",
-          icon: BarChart2,
-          href: "/dashboard/insights",
-        },
-      ],
-    },
-  ];
-
-  const footerItems: MenuItem[] = [
-    {
-      id: "account",
-      label: "Account",
-      icon: User,
-      href: "/user-admin/account",
-    },
-    {
-      id: "logout",
-      label: "Logout",
-      icon: LogOut,
-      onClick: handleLogout,
-    },
-    {
-      id: "remove",
-      label: "Remove portfolio",
-      icon: Trash2,
-      onClick: () => {
-        setShowRemoveDialog(true);
-      },
-    },
-  ];
-
   const renderMenuItem = (item: MenuItem) => {
     const Icon = item.icon;
-    // derive active via pathname matching end segment
-
-    const buttonClasses = "rounded-base hover:bg-accent/10 py-5 transition-all text-description hover:text-accent group/icon";
-
-    const iconContainerClasses = "w-8 h-8 rounded-soft flex items-center justify-center";
-
     const isActive = !!(item.href && pathname?.startsWith(item.href));
-
-    const iconClasses = `w-5 h-5 transition-colors group-hover/icon:text-accent ${isActive ? "text-accent" : "text-title"}`;
-
-    const baseInner = (
+    const btnClass = "rounded-base hover:bg-accent/10 py-5 transition-all text-description hover:text-accent group/icon";
+    const inner = (
       <>
-        <div className={iconContainerClasses}>
-          <Icon className={iconClasses} />
+        <div className="w-8 h-8 rounded-soft flex items-center justify-center">
+          <Icon className={`w-5 h-5 transition-colors group-hover/icon:text-accent ${isActive ? "text-accent" : "text-title"}`} />
         </div>
         <span className={`font-medium ${isActive ? "text-accent" : ""}`}>{item.label}</span>
       </>
     );
 
-    if (item.href) {
+    if (item.href)
       return (
-        <SidebarMenuButton key={item.id} asChild className={buttonClasses}>
-          <a href={item.href} className={`flex items-center gap-3  px-3 py-5 w-full text-left ${isActive ? "bg-accent/10" : ""}`}>
-            {baseInner}
+        <SidebarMenuButton key={item.id} asChild className={btnClass}>
+          <a href={item.href} className={`flex items-center gap-3 px-3 py-5 w-full text-left ${isActive ? "bg-accent/10" : ""}`}>
+            {inner}
           </a>
         </SidebarMenuButton>
       );
-    }
-
-    if (item.onClick) {
+    if (item.onClick)
       return (
-        <SidebarMenuButton key={item.id} asChild className={buttonClasses}>
+        <SidebarMenuButton key={item.id} asChild className={btnClass}>
           <button
             type="button"
             onClick={item.onClick}
             className={`flex items-center gap-3 px-3 py-5 w-full text-left cursor-pointer ${isActive ? "bg-accent/10" : ""}`}
           >
-            {baseInner}
+            {inner}
           </button>
         </SidebarMenuButton>
       );
-    }
-
     return null;
   };
+
+  const menuItems = [
+    { id: "preview", label: "Preview", icon: Eye, href: "/dashboard/preview" },
+    { id: "edit", label: "Edit", icon: Edit, href: portfolioId ? `/studio?id=${encodeURIComponent(portfolioId)}` : "/studio" },
+    { id: "share", label: "Share", icon: QrCode },
+    { id: "insights", label: "Insights", icon: BarChart2, href: "/dashboard/insights" },
+  ];
+
+  const footerItems = [
+    // { id: "account", label: "Account", icon: User, href: "/user-admin/account" },
+    { id: "logout", label: "Logout", icon: LogOut, onClick: handleLogout },
+    { id: "remove", label: "Remove portfolio", icon: Trash2, onClick: () => setShowRemoveDialog(true) },
+  ];
 
   return (
     <Sidebar className="bg-white shadow-md" collapsible="offcanvas">
       <SidebarContent className="p-4">
-        <SidebarHeader className="text-xl ">Welcome {user?.username}</SidebarHeader>
-        {menuGroups.map((group) => (
-          <SidebarGroup key={group.id} className={group.id === "portfolio" ? "border-b border-card-border/20" : ""}>
-            {group.label && <SidebarGroupLabel className="text-description text-xs">{group.label}</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.id}>{renderMenuItem(item)}</SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
-
+        <SidebarHeader className="text-xl">Welcome {user?.username}</SidebarHeader>
+        <SidebarGroup className="border-b border-card-border/20">
+          <SidebarGroupLabel className="text-description text-xs">Portfolio</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.slice(0, 3).map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  {item.id === "share" ? (
+                    <ShareButton portfolioId={portfolioId || undefined}>
+                      <SidebarMenuButton className="cursor-pointer rounded-base hover:bg-accent/10 transition-all text-description hover:text-accent group/icon flex items-center gap-3 px-3 py-5 w-full text-left">
+                        <div className="w-8 h-8 rounded-soft flex items-center justify-center">
+                          <QrCode className="w-5 h-5 text-title group-hover/icon:text-accent transition-colors" />
+                        </div>
+                        <span className="font-medium">Share</span>
+                      </SidebarMenuButton>
+                    </ShareButton>
+                  ) : (
+                    renderMenuItem(item)
+                  )}
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-description text-xs">Analytics</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>{menuItems.slice(3).map(renderMenuItem)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
         <SidebarFooter className="mt-auto">
           <p className="text-description text-xs">Settings</p>
-          <SidebarMenu className="space-y-2">
-            {footerItems.map((item) => (
-              <SidebarMenuItem key={item.id}>{renderMenuItem(item)}</SidebarMenuItem>
-            ))}
-          </SidebarMenu>
+          <SidebarMenu className="space-y-2">{footerItems.map(renderMenuItem)}</SidebarMenu>
         </SidebarFooter>
-        {/* Confirm removal dialog (controlled) */}
         <PagesDialog
           title="Confirm Removal"
           content="Are you sure you want to remove this portfolio? This action cannot be undone."
           confirmLabel={isRemoving ? "Removing..." : "Remove"}
           cancelLabel="Cancel"
           open={showRemoveDialog}
-          onOpenChange={(v: boolean) => setShowRemoveDialog(v)}
-          onConfirm={async () => {
-            await handleRemovePortfolio();
-          }}
+          onOpenChange={setShowRemoveDialog}
+          onConfirm={handleRemovePortfolio}
           onCancel={() => setShowRemoveDialog(false)}
         />
       </SidebarContent>

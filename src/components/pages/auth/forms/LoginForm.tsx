@@ -40,7 +40,7 @@ export default function LoginForm() {
       const userData = await me();
       setIsLogged(true);
       setUser(userData);
-      router.push("/" + (search.get("next") || "dashboard/sections"));
+      router.push("/" + (search.get("next") || "dashboard/preview"));
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "An error occurred during login. Please try again.");
     } finally {

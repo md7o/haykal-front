@@ -1,24 +1,28 @@
 "use client";
 
 import { SidebarProvider, SidebarInset } from "@/components/ui-tools/ui/sidebar";
-// import { useStructureContext } from "@/context/StructureContext";
 import DisplayPage from "./DisplayPage";
-import { StudioProvider } from "@/context/StudioContext";
-import BottomBar from "./BottomBar";
+import { StudioProvider } from "@/context/studio-context-logic/StudioContext";
 import StudioSidebar from "./StudioSidebar";
+import { usePageRouting } from "@/hooks/usePageRouting";
 
-export default function StudioPage() {
-  // useStructureContext();
+function StudioContent() {
+  usePageRouting();
 
   return (
+    <SidebarProvider>
+      <StudioSidebar />
+      <SidebarInset>
+        <DisplayPage />
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+
+export default function StudioPage() {
+  return (
     <StudioProvider>
-      <SidebarProvider>
-        <StudioSidebar />
-        <SidebarInset>
-          <DisplayPage />
-          <BottomBar />
-        </SidebarInset>
-      </SidebarProvider>
+      <StudioContent />
     </StudioProvider>
   );
 }

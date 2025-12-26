@@ -9,13 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        fill: "category-gradient hover:opacity-80 rounded-soft",
+        // fill: "category-gradient hover:opacity-80 rounded-soft",
+        fill: "bg-accent hover:opacity-80 rounded-soft",
         outline: "border-2 border-black/80 hover:border-transparent hover:bg-accent hover:text-white text-title rounded-soft",
         grayFill: "bg-black/10 text-title hover:bg-black/15 rounded-soft",
         transparent: "bg-transparent hover:bg-black/5 text-black rounded-soft",
         link: "hover:opacity-80 underline text-lg bg-transparent rounded-soft",
         block: "hover:opacity-80 rounded-soft",
-        bobble: "category-gradient hover:opacity-80 rounded-full",
+        bobble: "bg-accent hover:opacity-80 rounded-full",
       },
       size: {
         small: "h-12 px-4 py-5 ",

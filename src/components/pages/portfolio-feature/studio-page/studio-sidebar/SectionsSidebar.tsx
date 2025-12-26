@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import {
   Layout,
@@ -13,11 +14,9 @@ import {
   FileBadge,
   CalendarCheck,
   BriefcaseBusiness,
-  Eye,
-  EyeOff,
 } from "lucide-react";
-import { useStudio } from "@/context/StudioContext";
-import { SectionType } from "@/components/pages/portfolio-feature/sections-design/registry/sections-registry";
+import { useStudio } from "@/context/studio-context-logic/StudioContext";
+import { SectionType } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui-tools/ui/sidebar";
 import { DndContext, PointerSensor, useSensors, useSensor, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
@@ -25,7 +24,6 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui-tools/ui/button";
 
-// Icon mapping (shared previously)
 const ICON_MAP: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   hero: Star,
   socialLinks: Users2,
@@ -36,7 +34,7 @@ const ICON_MAP: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>
   businessServices: BriefcaseBusiness,
 };
 
-interface UsedItemProps {
+interface UsedSectionsProps {
   id: string;
   name: string;
   type: string;
@@ -46,7 +44,7 @@ interface UsedItemProps {
   selected?: boolean;
 }
 
-function UsedItem({ id, name, type, onRemove, onEdit, onSelect, selected }: UsedItemProps) {
+function UsedSections({ id, name, type, onRemove, onEdit, onSelect, selected }: UsedSectionsProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const Icon = ICON_MAP[type] ?? Layout;
   const style: React.CSSProperties = {
@@ -140,8 +138,6 @@ export default function SectionsSidebar({ onEdit, onSelectToggle, selectedSectio
   const { used, available, addSection, removeSection, reorderUsed } = useStudio();
   const header = used.find((s: any) => s.type === "header");
 
-  // Ensure Header exists only on first mount if there are no sections at all.
-  // Avoid adding headers reactively on every used change to prevent generating new ids when switching tabs/pages.
   const didInitRef = React.useRef(false);
   React.useEffect(() => {
     if (didInitRef.current) return;
@@ -152,7 +148,6 @@ export default function SectionsSidebar({ onEdit, onSelectToggle, selectedSectio
         addSection("header");
       } catch {}
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const sensors = useSensors(
@@ -172,9 +167,7 @@ export default function SectionsSidebar({ onEdit, onSelectToggle, selectedSectio
   return (
     <>
       <SidebarGroup>
-        <SidebarGroupLabel className="text-xs font-semibold text-description mb-3 uppercase tracking-wider">
-          Header
-        </SidebarGroupLabel>
+        <SidebarGroupLabel className="text-xs font-semibold text-description  uppercase tracking-wider">Header</SidebarGroupLabel>
         <SidebarGroupContent>
           <div className="space-y-4">
             <div className="group p-3 rounded-lg bg-card-bg">
@@ -184,24 +177,28 @@ export default function SectionsSidebar({ onEdit, onSelectToggle, selectedSectio
                 </div>
                 <span className="flex-1 text-sm font-medium text-title truncate px-3">Site Header</span>
 
-                {header && (header.config as any)?.active !== false ? (
-                  <Button
-                    variant="transparent"
-                    size="icon"
-                    onClick={() => header && onEdit(header.id)}
-                    className="cursor-pointer transition-colors mx-0 px-0"
-                    aria-label="Open full editor"
-                    disabled={!header}
-                  >
-                    <Edit3 className="w-3.5 h-3.5 text-description transition-colors" />
-                  </Button>
-                ) : null}
+                <Button
+                  variant="transparent"
+                  size="icon"
+                  onClick={() => {
+                    if (header) {
+                      onEdit(header.id);
+                    } else {
+                      addSection("header");
+                    }
+                  }}
+                  className="cursor-pointer transition-colors mx-0 px-0"
+                  aria-label="Open full editor"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-description transition-colors" />
+                </Button>
               </div>
             </div>
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
-      <div className="h-px w-full bg-border opacity-50" />
+
+      {/* === Used Sections === */}
       <SidebarGroup>
         <SidebarGroupLabel className="text-xs font-semibold text-description mb-3 uppercase tracking-wider">
           Used Sections ({used.filter((s: any) => s.type !== "header").length})
@@ -221,7 +218,7 @@ export default function SectionsSidebar({ onEdit, onSelectToggle, selectedSectio
                 {used
                   .filter((s: any) => s.type !== "header")
                   .map((s: any) => (
-                    <UsedItem
+                    <UsedSections
                       key={s.id}
                       id={s.id}
                       name={s.name}
@@ -233,8 +230,7 @@ export default function SectionsSidebar({ onEdit, onSelectToggle, selectedSectio
                     />
                   ))}
                 {used.filter((s: any) => s.type !== "header").length === 0 && (
-                  <div className="text-center py-8 text-xs border border-dashed border-card-border rounded-lg text-muted-foreground bg-muted/20">
-                    <Layout className="w-6 h-6 mx-auto mb-2 opacity-30" />
+                  <div className="text-center py-5 text-xs border border-dashed border-card-border rounded-lg text-muted-foreground bg-muted/20">
                     No sections added yet
                   </div>
                 )}
@@ -243,7 +239,7 @@ export default function SectionsSidebar({ onEdit, onSelectToggle, selectedSectio
           </DndContext>
         </SidebarGroupContent>
       </SidebarGroup>
-      <div className="h-px w-full bg-border opacity-50" />
+
       <SidebarGroup>
         <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
           Available Sections

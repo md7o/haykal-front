@@ -1,30 +1,30 @@
-import HeroDesign from "../hero-block/HeroBlock";
-import HeroForm, { HeroConfig } from "../hero-block/HeroBlockForm";
-import SocialLinksBlock from "../sociallinks-block/SocialLinksBlock";
-import SocialLinksForm from "../sociallinks-block/SocialLinksBlockForm";
-import CareerBlock from "../career-block/CareerBlock";
-import CareerBlockForm from "../career-block/CareerBlockForm";
-import TextBlock from "../text-block/TextBlock";
-import TextBlockForm, { TextBlockConfig } from "../text-block/TextBlockForm";
-import AchievementsBlock from "../achievements-block/AchievementsBlock";
-import AchievementsBlockForm, { AchievementsConfig } from "../achievements-block/AchievementsBlockForm";
-import EventsBlock from "../events-block/EventsBlock";
-import EventsBlockForm, { EventsConfig } from "../events-block/EventsBlockForm";
-import BusinessServicesBlock from "../business-services-block/BusinessServicesBlock";
-import BusinessServicesBlockForm, { BusinessServicesConfig } from "../business-services-block/BusinessServicesBlockForm";
-import HeaderBlock from "../header-block/HeaderBlock";
-import HeaderBlockForm, { HeaderConfig } from "../header-block/HeaderBlockForm";
+import HeroDesign from "./hero-block/HeroBlock";
+import HeroForm, { HeroConfig } from "./hero-block/HeroBlockForm";
+import SocialLinksBlock from "./sociallinks-block/SocialLinksBlock";
+import SocialLinksForm from "./sociallinks-block/SocialLinksBlockForm";
+import CareerBlock from "./career-block/CareerBlock";
+import CareerBlockForm from "./career-block/CareerBlockForm";
+import TextBlock from "./text-block/TextBlock";
+import TextBlockForm, { TextBlockConfig } from "./text-block/TextBlockForm";
+import AchievementsBlock from "./achievements-block/AchievementsBlock";
+import AchievementsBlockForm, { AchievementsConfig } from "./achievements-block/AchievementsBlockForm";
+import EventsBlock from "./events-block/EventsBlock";
+import EventsBlockForm, { EventsConfig } from "./events-block/EventsBlockForm";
+import BusinessServicesBlock from "./business-services-block/BusinessServicesBlock";
+import BusinessServicesBlockForm, { BusinessServicesConfig } from "./business-services-block/BusinessServicesBlockForm";
+import HeaderBlock from "./header-block/HeaderBlock";
+import HeaderBlockForm, { HeaderConfig } from "./header-block/HeaderBlockForm";
 
 export interface SectionDefinition {
   type: string;
   label: string;
   defaultConfig: unknown;
-  Design: React.ComponentType<{ config: unknown; view?: "desktop" | "mobile" }>;
+  Design: React.ComponentType<{ config: unknown; view?: "desktop" | "mobile"; isPreview?: boolean }>;
   Form: React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>;
   validate?: (config: unknown) => string[];
 }
 
-export const sectionsRegistry: Record<string, SectionDefinition> = {
+export const sectionsVisualization: Record<string, SectionDefinition> = {
   header: {
     type: "header",
     label: "Header",
@@ -35,7 +35,7 @@ export const sectionsRegistry: Record<string, SectionDefinition> = {
       active: true,
       backgroundType: "normal",
     } satisfies HeaderConfig,
-    Design: HeaderBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile" }>,
+    Design: HeaderBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile"; isPreview?: boolean }>,
     Form: HeaderBlockForm as unknown as React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>,
     validate: (c: unknown) => {
       const cfg = c as HeaderConfig;
@@ -53,9 +53,9 @@ export const sectionsRegistry: Record<string, SectionDefinition> = {
       ctaLabel: "Get started",
       backgroundImage: "/assets/images/Placeholder.png",
       alignment: "left",
-      color: "#fa6b77",
+      // color: "#fa6b77",
     } satisfies HeroConfig,
-    Design: HeroDesign as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile" }>,
+    Design: HeroDesign as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile"; isPreview?: boolean }>,
     Form: HeroForm as unknown as React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>,
     validate: (c: unknown) => {
       const cfg = c as HeroConfig;
@@ -72,7 +72,11 @@ export const sectionsRegistry: Record<string, SectionDefinition> = {
     defaultConfig: {
       socialLinks: ["https://youtube.com", "https://instagram.com", "https://github.com"],
     },
-    Design: SocialLinksBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile" }>,
+    Design: SocialLinksBlock as unknown as React.ComponentType<{
+      config: unknown;
+      view?: "desktop" | "mobile";
+      isPreview?: boolean;
+    }>,
     Form: SocialLinksForm as unknown as React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>,
   },
 
@@ -87,7 +91,7 @@ export const sectionsRegistry: Record<string, SectionDefinition> = {
       note: "Led development of scalable web applications using React and Node.js. Mentored junior developers and implemented CI/CD pipelines that reduced deployment time by 60%.",
       careerType: "experience-career",
     },
-    Design: CareerBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile" }>,
+    Design: CareerBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile"; isPreview?: boolean }>,
     Form: CareerBlockForm as unknown as React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>,
   },
 
@@ -100,7 +104,7 @@ export const sectionsRegistry: Record<string, SectionDefinition> = {
       alignment: "center",
       style: "without-background",
     } satisfies TextBlockConfig,
-    Design: TextBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile" }>,
+    Design: TextBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile"; isPreview?: boolean }>,
     Form: TextBlockForm as unknown as React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>,
     validate: (c: unknown) => {
       const cfg = c as TextBlockConfig;
@@ -121,7 +125,11 @@ export const sectionsRegistry: Record<string, SectionDefinition> = {
       ctaLink: "#",
       layout: "row",
     } satisfies AchievementsConfig,
-    Design: AchievementsBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile" }>,
+    Design: AchievementsBlock as unknown as React.ComponentType<{
+      config: unknown;
+      view?: "desktop" | "mobile";
+      isPreview?: boolean;
+    }>,
     Form: AchievementsBlockForm as unknown as React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>,
     validate: (c: unknown) => {
       const cfg = c as AchievementsConfig;
@@ -145,7 +153,7 @@ export const sectionsRegistry: Record<string, SectionDefinition> = {
       eventDate: "2030-01-01T00:00",
       countdownStyle: "background",
     } satisfies EventsConfig,
-    Design: EventsBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile" }>,
+    Design: EventsBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile"; isPreview?: boolean }>,
     Form: EventsBlockForm as unknown as React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>,
     validate: (c: unknown) => {
       const cfg = c as EventsConfig;
@@ -189,7 +197,11 @@ export const sectionsRegistry: Record<string, SectionDefinition> = {
         },
       ],
     } satisfies BusinessServicesConfig,
-    Design: BusinessServicesBlock as unknown as React.ComponentType<{ config: unknown; view?: "desktop" | "mobile" }>,
+    Design: BusinessServicesBlock as unknown as React.ComponentType<{
+      config: unknown;
+      view?: "desktop" | "mobile";
+      isPreview?: boolean;
+    }>,
     Form: BusinessServicesBlockForm as unknown as React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>,
     validate: (c: unknown) => {
       const cfg = c as BusinessServicesConfig;
@@ -204,14 +216,4 @@ export const sectionsRegistry: Record<string, SectionDefinition> = {
   },
 };
 
-export type SectionType = keyof typeof sectionsRegistry;
-
-export function createSectionInstance(type: SectionType) {
-  const def = sectionsRegistry[type];
-  return {
-    id: crypto.randomUUID(),
-    type: def.type,
-    name: def.label,
-    config: { ...(def.defaultConfig as Record<string, unknown>) },
-  };
-}
+export type SectionType = keyof typeof sectionsVisualization;

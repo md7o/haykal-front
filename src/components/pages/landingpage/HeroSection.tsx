@@ -1,8 +1,30 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui-tools/ui/button";
 import Image from "next/image";
-import Link from "next/link";
+import { useUserPortfolio } from "@/context/UserPortfolioContext";
 
 export default function HeroSection() {
+  const router = useRouter();
+  const { createPortfolio, isLoading: isPortfolioLoading } = useUserPortfolio();
+  const [isCreating, setIsCreating] = useState(false);
+
+  const handleGetStarted = async () => {
+    setIsCreating(true);
+    try {
+      await createPortfolio("DRAFT");
+      router.push("/studio");
+    } catch (error) {
+      console.error("Failed to create portfolio", error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const isLoading = isPortfolioLoading || isCreating;
+
   return (
     <section className="flex flex-col xl:flex-row items-center justify-center gap-24 px-6 2xl:mx-36 text-center xl:text-left">
       <div data-aos="fade-up" data-aos-duration="800" className="relative max-w-lg space-y-5">
@@ -26,11 +48,9 @@ export default function HeroSection() {
           height={500}
           className="w-20 absolute -right-0 xl:right-20 bottom-30 hidden sm:block"
         />
-        {/* use route navigate to /category-type */}
-        <Button asChild variant="fill" size={"small"} className="uppercase">
-          <Link href={"/studio"} aria-label="Get started with Haykal">
-            Get started
-          </Link>
+
+        <Button variant="fill" size={"small"} className="uppercase" onClick={handleGetStarted} disabled={isLoading}>
+          Get started
         </Button>
       </div>
       <div data-aos="fade-up" className="">

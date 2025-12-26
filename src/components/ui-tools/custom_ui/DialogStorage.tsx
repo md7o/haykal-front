@@ -86,16 +86,7 @@ export default function PagesDialog({
         </DialogTrigger>
       )}
 
-      <DialogContent
-        className="sm:max-w-md"
-        onKeyDown={(e: React.KeyboardEvent) => {
-          // Activate confirm on Enter key. Prevent default to avoid form submissions.
-          if (e.key === "Enter") {
-            e.preventDefault();
-            handleConfirm();
-          }
-        }}
-      >
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {content && <DialogDescription className="text-sm text-description">{content}</DialogDescription>}

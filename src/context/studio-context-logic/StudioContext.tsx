@@ -1,13 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from "react";
 import { AnySectionInstance } from "@/types/sections";
-import { updatePortfolio } from "@/api/portfolio-endpoints";
+import { saveFullPortfolio, updatePortfolio } from "@/api/portfolio-endpoints";
 import { Page } from "@/api/pages-endpoints";
 import { useAuth } from "@/context/AuthContext";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
 import { SectionType } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
-import { buildAvailableSections, findPage, isHome, mapSections } from "./studio-context-logic/studio-utils";
+import { buildAvailableSections, findPage, isHome, mapSections } from "./studio-utils";
 import { useStudioPages } from "./useStudioPages";
 import { useStudioSections } from "./useStudioSections";
 
@@ -32,6 +32,7 @@ export interface StudioContextShape {
   setSlug: (s: string | null) => void;
   assets: unknown | null;
   setAssets: (a: unknown | null) => void;
+  flushDraft: (opts?: { force?: boolean }) => Promise<void>;
   isLoading: boolean;
   refreshPortfolioData: () => Promise<void>;
 }
@@ -45,15 +46,23 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [available] = useState<{ type: string; label: string }[]>(() => buildAvailableSections());
   const [selectedPageId, _setSelectedPageId] = useState<string | null>(null);
 
+  const [slug, _setSlug] = useState<string | null>(null);
+  const [assets, _setAssets] = useState<unknown | null>(null);
+  const dirtyRef = useRef(false);
+  const markDirty = useCallback(() => {
+    dirtyRef.current = true;
+  }, []);
+
   const { pages, setPages, addPage, updatePageDetails, deletePage, movePage } = useStudioPages(
     userPortfolioId,
     refreshPortfolioData,
     selectedPageId,
-    _setSelectedPageId
+    _setSelectedPageId,
+    markDirty
   );
 
   const { used, setUsed, selectedSectionId, selectSection, addSection, removeSection, reorderUsed, updateSectionConfig } =
-    useStudioSections(selectedPageId, pages, refreshPortfolioData);
+    useStudioSections(selectedPageId, pages, refreshPortfolioData, markDirty);
 
   const setSelectedPageId = useCallback(
     (idOrSlug: string | null) => _setSelectedPageId(idOrSlug ? findPage(pages, idOrSlug)?.id ?? null : null),
@@ -61,8 +70,42 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   );
 
   const portfolioId = userPortfolioId;
-  const [slug, _setSlug] = useState<string | null>(null);
-  const [assets, _setAssets] = useState<unknown | null>(null);
+
+  const buildFullSnapshot = useCallback(() => {
+    if (!portfolioId) return null;
+    const pagesWithSections = (portfolioData?.pages || []).map((p) => {
+      if (p.id !== selectedPageId) return p;
+      return {
+        ...p,
+        sections: used.map((s) => ({ id: s.id, type: s.type, config: s.config, name: s.name })),
+      } as any;
+    });
+
+    return {
+      id: portfolioId,
+      slug,
+      assets,
+      pages: pagesWithSections,
+      status: portfolioData?.status,
+      userId: portfolioData?.userId,
+    } as any;
+  }, [portfolioId, portfolioData?.pages, portfolioData?.status, portfolioData?.userId, selectedPageId, used, slug, assets]);
+
+  const flushDraft = useCallback(
+    async ({ force = false }: { force?: boolean } = {}) => {
+      if (!portfolioId) return;
+      if (!dirtyRef.current && !force) return;
+      const snapshot = buildFullSnapshot();
+      if (!snapshot) return;
+      try {
+        await saveFullPortfolio(portfolioId, snapshot);
+        dirtyRef.current = false;
+      } catch (err) {
+        console.error("Failed to flush draft", err);
+      }
+    },
+    [buildFullSnapshot, portfolioId]
+  );
 
   const patchPortfolio = useCallback(
     async (payload: Record<string, unknown>) => {
@@ -127,20 +170,42 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     });
   }, [selectedPageId, portfolioData, setUsed]);
 
+  // Mark state as dirty whenever core editor data changes
+  useEffect(() => {
+    dirtyRef.current = true;
+  }, [used, pages, slug, assets]);
+
+  // On tab close, attempt to send the latest snapshot via beacon
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => {
+      const snapshot = buildFullSnapshot();
+      if (!snapshot || !portfolioId) return;
+      try {
+        const blob = new Blob([JSON.stringify(snapshot)], { type: "application/json" });
+        navigator.sendBeacon(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/${portfolioId}/full`, blob);
+      } catch (err) {
+        console.error("Beacon flush failed", err);
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [buildFullSnapshot, portfolioId]);
+
   const setSlug = useCallback(
     async (s: string | null) => {
       _setSlug(s);
-      await patchPortfolio({ slug: s });
+      markDirty();
     },
-    [patchPortfolio]
+    [markDirty]
   );
 
   const setAssets = useCallback(
     async (a: unknown | null) => {
       _setAssets(a);
-      await patchPortfolio({ assets: a as Record<string, any> });
+      markDirty();
     },
-    [patchPortfolio]
+    [markDirty]
   );
 
   return (
@@ -162,6 +227,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         setSlug,
         assets,
         setAssets,
+        flushDraft,
         isLoading: isPortfolioLoading,
         refreshPortfolioData,
         addPage,
