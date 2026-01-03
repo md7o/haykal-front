@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Page } from "@/api/pages-endpoints";
+import { Page } from "@/api/portfolios-api/pages-endpoints";
 import { isHome, toSlug } from "./studio-utils";
 
 export function useStudioPages(

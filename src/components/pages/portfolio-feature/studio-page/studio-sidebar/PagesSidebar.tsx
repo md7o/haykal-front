@@ -6,11 +6,11 @@ import PagesDialog from "@/components/ui-tools/custom_ui/DialogStorage";
 import { Input } from "@/components/ui-tools/ui/input";
 import { Plus, FileText, Pencil, Check, X, Trash2, GripVertical, Home as HomeIcon } from "lucide-react";
 import { useStudio } from "@/context/studio-context-logic/StudioContext";
-import { type Page } from "@/api/pages-endpoints";
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { Page } from "@/api/portfolios-api/pages-endpoints";
 
 // --- Helpers
 const isHome = (p: { slug?: string | null; title?: string | null; id?: string | null }) =>

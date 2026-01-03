@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { getPages } from "@/api/pages-endpoints";
+import { getPages } from "@/api/portfolios-api/pages-endpoints";
 
 // ============================================================================
 // Types & Interfaces

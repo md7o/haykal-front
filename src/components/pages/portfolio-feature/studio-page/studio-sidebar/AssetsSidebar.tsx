@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui-tools/ui/sidebar";
 import { useStudio } from "@/context/studio-context-logic/StudioContext";
-import { updatePortfolio } from "@/api/portfolio-endpoints";
-import { COLOR_COMBINATIONS, FONT_OPTIONS, applyAssetsToDom, parseThemeAssets, getAppliedTheme } from "@/lib/theme-utils";
+import { COLOR_COMBINATIONS, FONT_OPTIONS, parseThemeAssets, getAppliedTheme } from "@/lib/theme-utils";
+import { updatePortfolio } from "@/api/portfolios-api/portfolio-endpoints";
 
 export default function AssetsSidebar() {
   const { portfolioId, assets: ctxAssets, setAssets } = useStudio();

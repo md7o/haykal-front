@@ -3,8 +3,9 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { resolveUserPortfolioId, fetchFullPortfolio } from "@/lib/portfolio-helpers";
-import { Portfolio, createPortfolio } from "@/api/portfolio-endpoints";
-import { createPage } from "@/api/pages-endpoints";
+import { Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
+import { createPortfolio } from "@/api/portfolios-api/portfolio-endpoints";
+import { createPage } from "@/api/portfolios-api/pages-endpoints";
 import { COLOR_COMBINATIONS, FONT_OPTIONS } from "@/lib/theme-utils";
 
 const PORTFOLIO_ID_KEY = "portfolioId";
@@ -147,9 +148,8 @@ export function UserPortfolioProvider({ children }: { children: ReactNode }) {
     [user, refreshPortfolioId]
   );
 
-  useEffect(() => {
-    refreshPortfolioId();
-  }, [refreshPortfolioId]);
+  // Removed automatic portfolio loading on mount.
+  // Pages that need portfolio data should explicitly call refreshPortfolioId() or refreshPortfolioData().
 
   const contextValue = useMemo(
     () => ({

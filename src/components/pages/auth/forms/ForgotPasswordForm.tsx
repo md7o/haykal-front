@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { forgotPassword } from "@/api/auth-endpoints";
+import { forgotPassword } from "@/api/auth/auth-endpoints";
 import { useRecoveryPassword } from "@/context/RecoveryPasswordContext";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui-tools/ui/button";

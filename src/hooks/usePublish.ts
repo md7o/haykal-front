@@ -5,8 +5,8 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { updatePortfolio } from "@/api/portfolio-endpoints";
-import { updatePage } from "@/api/pages-endpoints";
+import { updatePortfolio } from "@/api/portfolios-api/portfolio-endpoints";
+import { updatePage } from "@/api/portfolios-api/pages-endpoints";
 import { AnySectionInstance } from "@/types/sections";
 
 interface UsePublishResult {

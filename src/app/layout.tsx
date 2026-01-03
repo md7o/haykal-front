@@ -3,8 +3,8 @@ import { Montserrat, Lobster, Inconsolata, Caveat } from "next/font/google";
 import "./globals.css";
 import { AOSInit } from "@/styles/Aos";
 import { AuthProvider } from "@/context/AuthContext";
-import { RecoveryPasswordProvider } from "@/context/RecoveryPasswordContext";
 import { UserPortfolioProvider } from "@/context/UserPortfolioContext";
+import RootLayoutClient from "@/components/RootLayoutClient";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -48,7 +48,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <UserPortfolioProvider>
-            <RecoveryPasswordProvider>{children}</RecoveryPasswordProvider>
+            <RootLayoutClient>{children}</RootLayoutClient>
           </UserPortfolioProvider>
         </AuthProvider>
       </body>

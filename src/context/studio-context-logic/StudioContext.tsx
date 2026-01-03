@@ -2,14 +2,14 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from "react";
 import { AnySectionInstance } from "@/types/sections";
-import { saveFullPortfolio, updatePortfolio } from "@/api/portfolio-endpoints";
-import { Page } from "@/api/pages-endpoints";
 import { useAuth } from "@/context/AuthContext";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
 import { SectionType } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 import { buildAvailableSections, findPage, isHome, mapSections } from "./studio-utils";
 import { useStudioPages } from "./useStudioPages";
 import { useStudioSections } from "./useStudioSections";
+import { Page } from "@/api/portfolios-api/pages-endpoints";
+import { saveFullPortfolio, updatePortfolio } from "@/api/portfolios-api/portfolio-endpoints";
 
 export interface StudioContextShape {
   used: AnySectionInstance[];
@@ -40,8 +40,24 @@ export interface StudioContextShape {
 const StudioContext = createContext<StudioContextShape | undefined>(undefined);
 
 export function StudioProvider({ children }: { children: ReactNode }) {
-  useAuth();
-  const { userPortfolioId, portfolioData, refreshPortfolioData, isLoading: isPortfolioLoading } = useUserPortfolio();
+  const { user, isCheckingAuth } = useAuth();
+  const {
+    userPortfolioId,
+    portfolioData,
+    refreshPortfolioData,
+    isLoading: isPortfolioLoading,
+    refreshPortfolioId,
+  } = useUserPortfolio();
+
+  const didRequestRef = useRef(false);
+  useEffect(() => {
+    if (didRequestRef.current) return;
+    if (isCheckingAuth) return;
+    if (!user) return;
+    if (portfolioData || userPortfolioId) return;
+    didRequestRef.current = true;
+    refreshPortfolioId();
+  }, [isCheckingAuth, user, portfolioData, userPortfolioId, refreshPortfolioId]);
 
   const [available] = useState<{ type: string; label: string }[]>(() => buildAvailableSections());
   const [selectedPageId, _setSelectedPageId] = useState<string | null>(null);
@@ -73,12 +89,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const buildFullSnapshot = useCallback(() => {
     if (!portfolioId) return null;
-    const pagesWithSections = (portfolioData?.pages || []).map((p) => {
+    const pagesWithSections = (portfolioData?.pages || []).map((p: Page) => {
       if (p.id !== selectedPageId) return p;
       return {
         ...p,
         sections: used.map((s) => ({ id: s.id, type: s.type, config: s.config, name: s.name })),
-      } as any;
+      } satisfies Page;
     });
 
     return {
@@ -140,7 +156,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       );
 
       _setSelectedPageId((prev) => {
-        if (prev && portfolioData.pages.some((p) => p.id === prev)) return prev;
+        if (prev && portfolioData.pages.some((p: Page) => p.id === prev)) return prev;
         const home = portfolioData.pages.find(isHome);
         return home ? home.id : portfolioData.pages[0]?.id ?? null;
       });
@@ -153,7 +169,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const page = portfolioData.pages.find((p) => p.id === selectedPageId);
+    const page = portfolioData.pages.find((p: Page) => p.id === selectedPageId);
     if (!page) {
       setUsed([]);
       return;

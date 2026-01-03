@@ -1,8 +1,7 @@
 import axios from "axios";
-import { api } from "@/api/auth-endpoints";
+import { api } from "@/api/auth/auth-endpoints";
 import { toError, ensureId, checkStatus } from "@/api/api-utils";
-import type { Page } from "@/api/pages-endpoints";
-
+import { Page } from "@/api/portfolios-api/pages-endpoints";
 const PATH = "/portfolio";
 const publicApi = axios.create({ baseURL: process.env.NEXT_PUBLIC_API_URL });
 

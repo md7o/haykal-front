@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { type Portfolio } from "@/api/portfolio-endpoints";
+import { Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
 import PortfolioTheme from "@/components/theme/PortfolioTheme";
 import { Button } from "@/components/ui-tools/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui-tools/ui/tooltip";

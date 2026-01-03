@@ -1,15 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
+import { useAuth } from "@/context/AuthContext";
 import { MonitorSmartphone, Smartphone, Eye, Type } from "lucide-react";
 import { Button } from "@/components/ui-tools/ui/button";
 import { Spinner } from "@/components/ui-tools/ui/spinner";
 import PublishedPortfolio from "../portfolio-feature/published-portfolio/PublishedPortfolio";
 
 export default function PreviewDashboard() {
+  const { user, isCheckingAuth } = useAuth();
   const { portfolioData, isLoading, refreshPortfolioData } = useUserPortfolio();
   const [view, setView] = useState<"desktop" | "mobile">("desktop");
+
+  const didLoadRef = useRef(false);
+  useEffect(() => {
+    if (didLoadRef.current) return;
+    if (isCheckingAuth) return;
+    if (!user) return;
+    didLoadRef.current = true;
+    refreshPortfolioData();
+  }, [isCheckingAuth, user, refreshPortfolioData]);
 
   const handleVisitSite = () => {
     if (!portfolioData) return;

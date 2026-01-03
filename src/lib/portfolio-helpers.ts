@@ -1,5 +1,7 @@
-import { createPortfolio, getAllPortfolios, getFullPortfolioById, Portfolio } from "@/api/portfolio-endpoints";
-
+import { Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
+import { getAllPortfolios } from "@/api/portfolios-api/portfolio-endpoints";
+import { createPortfolio } from "@/api/portfolios-api/portfolio-endpoints";
+import { getFullPortfolioById } from "@/api/portfolios-api/portfolio-endpoints";
 /**
  * Robustly extracts the owner ID from a portfolio-like object.
  * Handles various shapes (flat userId, nested user object) to ensure compatibility.

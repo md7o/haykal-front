@@ -2,7 +2,8 @@ import { useState, useCallback } from "react";
 import { AnySectionInstance } from "@/types/sections";
 import { sectionsVisualization, SectionType } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 import { inheritHeaderConfig } from "./studio-utils";
-import { Page } from "@/api/pages-endpoints";
+import { Page } from "@/api/portfolios-api/pages-endpoints";
+
 export function useStudioSections(
   selectedPageId: string | null,
   pages: Page[],

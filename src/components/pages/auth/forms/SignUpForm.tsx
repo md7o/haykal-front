@@ -9,10 +9,10 @@ import { Button } from "@/components/ui-tools/ui/button";
 import { FormField } from "@/components/ui-tools/ui/form-field";
 import { PasswordStrengthIndicator } from "@/components/ui-tools/ui/password-strength";
 import { signUpSchema, type SignUpFormData } from "@/lib/validations";
-import { requestSignup, verifySignup, signIn } from "@/api/auth-endpoints";
+import { requestSignup, verifySignup, signIn } from "@/api/auth/auth-endpoints";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { me } from "@/api/auth-endpoints";
+import { me } from "@/api/auth/auth-endpoints";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui-tools/ui/input-otp";
 
 interface SignUpFormProps {

@@ -2,14 +2,14 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
 import { AnySectionInstance } from "@/types/sections";
-import { updatePortfolio } from "@/api/portfolio-endpoints";
-import { Page } from "@/api/pages-endpoints";
 import { useAuth } from "@/context/AuthContext";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
 import { SectionType } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 import { buildAvailableSections, findPage, isHome, mapSections } from "./studio-context-logic/studio-utils";
-import { useStudioPages } from "./useStudioPages";
-import { useStudioSections } from "./useStudioSections";
+import { useStudioPages } from "./studio-context-logic/useStudioPages";
+import { useStudioSections } from "./studio-context-logic/useStudioSections";
+import { Page } from "@/api/portfolios-api/pages-endpoints";
+import { updatePortfolio } from "@/api/portfolios-api/portfolio-endpoints";
 
 export interface StudioContextShape {
   used: AnySectionInstance[];
@@ -49,11 +49,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     userPortfolioId,
     refreshPortfolioData,
     selectedPageId,
-    _setSelectedPageId
+    _setSelectedPageId,
+    () => {}
   );
 
   const { used, setUsed, selectedSectionId, selectSection, addSection, removeSection, reorderUsed, updateSectionConfig } =
-    useStudioSections(selectedPageId, pages, refreshPortfolioData);
+    useStudioSections(selectedPageId, pages, refreshPortfolioData, () => {});
 
   const setSelectedPageId = useCallback(
     (idOrSlug: string | null) => _setSelectedPageId(idOrSlug ? findPage(pages, idOrSlug)?.id ?? null : null),

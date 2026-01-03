@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
+import { Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
 import {
-  getPublicPortfolioBySlug,
   getPublicPortfolioById,
-  getPortfolioBySlug,
+  getPublicPortfolioBySlug,
   getPortfolioById,
-  Portfolio,
-} from "@/api/portfolio-endpoints";
-import { getPages } from "@/api/pages-endpoints";
-import { getSections } from "@/api/sections-endpoints";
+  getPortfolioBySlug,
+} from "@/api/portfolios-api/portfolio-endpoints";
+import { getPages } from "@/api/portfolios-api/pages-endpoints";
+import { getSections } from "@/api/portfolios-api/sections-endpoints";
 import LoadingScreen from "@/components/ui-tools/custom_ui/LoadingScreen";
 import PublishedPortfolio from "@/components/pages/portfolio-feature/published-portfolio/PublishedPortfolio";
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui-tools/ui/button";
 import { FormField } from "@/components/ui-tools/ui/form-field";
-import { resetPassword } from "@/api/auth-endpoints";
+import { resetPassword } from "@/api/auth/auth-endpoints";
 import { useRecoveryPassword } from "@/context/RecoveryPasswordContext";
 
 export default function ResetPasswordForm() {

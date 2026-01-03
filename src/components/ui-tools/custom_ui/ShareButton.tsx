@@ -5,8 +5,8 @@ import { QRCodeSVG } from "qrcode.react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Copy, QrCode, Share2, Check, Facebook, Twitter, Linkedin, Mail, ExternalLink, ChevronRight } from "lucide-react";
-import { getPortfolioById } from "@/api/portfolio-endpoints";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
+import { getPortfolioById } from "@/api/portfolios-api/portfolio-endpoints";
 
 interface ShareButtonProps {
   portfolioId?: string;

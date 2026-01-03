@@ -1,6 +1,6 @@
-import { Page } from "@/api/pages-endpoints";
 import { sectionsVisualization } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 import { AnySectionInstance } from "@/types/sections";
+import { Page } from "@/api/portfolios-api/pages-endpoints";
 
 export const isHome = (p: { slug?: string | null; title?: string | null; id?: string | null }) =>
   (p.slug || "").toLowerCase() === "home" || p.title === "Home" || p.id === "home";

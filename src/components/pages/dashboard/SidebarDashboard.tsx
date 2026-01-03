@@ -16,12 +16,12 @@ import {
 import { BarChart2, User, LogOut, LucideIcon, Eye, Edit, Trash2, QrCode } from "lucide-react";
 import { useStudio } from "@/context/studio-context-logic/StudioContext";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
-import { deletePortfolio } from "@/api/portfolio-endpoints";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import PagesDialog from "@/components/ui-tools/custom_ui/DialogStorage";
 import { resolveUserPortfolioId } from "@/lib/portfolio-helpers";
 import ShareButton from "@/components/ui-tools/custom_ui/ShareButton";
+import { deletePortfolio } from "@/api/portfolios-api/portfolio-endpoints";
 
 interface MenuItem {
   id: string;

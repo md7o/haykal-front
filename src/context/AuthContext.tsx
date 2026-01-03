@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { checkAuthStatus, logout } from "@/api/auth-endpoints";
+import { checkAuthStatus, logout } from "@/api/auth/auth-endpoints";
 import type { AuthUser } from "@/types/auth";
 
 interface AuthContextType {
@@ -9,6 +9,7 @@ interface AuthContextType {
   user: AuthUser | null;
   isCheckingAuth: boolean;
   logoutUser: () => Promise<void>;
+  checkAuth: () => Promise<void>;
   setIsLogged: React.Dispatch<React.SetStateAction<boolean | null>>;
   setUser: React.Dispatch<React.SetStateAction<AuthUser | null>>;
 }
@@ -18,33 +19,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLogged, setIsLogged] = useState<boolean | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-    const checkAuthentication = async () => {
-      try {
-        const { isAuthenticated, user: userData } = await checkAuthStatus();
-        if (active) {
-          setIsLogged(isAuthenticated);
-          setUser((userData as AuthUser) || null);
-        }
-      } catch {
-        if (active) {
-          setIsLogged(false);
-          setUser(null);
-        }
-      } finally {
-        if (active) {
-          setIsCheckingAuth(false);
-        }
-      }
-    };
-    checkAuthentication();
-    return () => {
-      active = false;
-    };
-  }, []);
+  const checkAuth = async () => {
+    setIsCheckingAuth(true);
+    try {
+      const { isAuthenticated, user: userData } = await checkAuthStatus();
+      setIsLogged(isAuthenticated);
+      setUser((userData as AuthUser) || null);
+    } catch {
+      setIsLogged(false);
+      setUser(null);
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
 
   const logoutUser = async () => {
     await logout();
@@ -53,7 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLogged, user, isCheckingAuth, logoutUser, setIsLogged, setUser }}>
+    <AuthContext.Provider value={{ isLogged, user, isCheckingAuth, logoutUser, checkAuth, setIsLogged, setUser }}>
       {children}
     </AuthContext.Provider>
   );
