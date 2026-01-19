@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
@@ -102,9 +103,12 @@ export default function SidebarDashboard() {
     if (item.href)
       return (
         <SidebarMenuButton key={item.id} asChild className={btnClass}>
-          <a href={item.href} className={`flex items-center gap-3 px-3 py-5 w-full text-left ${isActive ? "bg-accent/10" : ""}`}>
+          <Link
+            href={item.href}
+            className={`flex items-center gap-3 px-3 py-5 w-full text-left ${isActive ? "bg-accent/10" : ""}`}
+          >
             {inner}
-          </a>
+          </Link>
         </SidebarMenuButton>
       );
     if (item.onClick)

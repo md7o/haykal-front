@@ -1,49 +1,133 @@
 import { Card, CardContent } from "@/components/ui-tools/ui/card";
-import { ClockFading, MousePointerClick, ChartColumnBig, PenTool } from "lucide-react";
+import {
+  Smartphone,
+  RefreshCw,
+  Zap,
+  Layers,
+  GraduationCap,
+  Layout,
+  QrCode,
+  ShieldCheck,
+  MessageCircle,
+  Cpu,
+  Calendar,
+  BarChart2,
+} from "lucide-react";
 
-const features = [
+type Item = { icon: any; text: string };
+type CardData = {
+  id: string;
+  bgClass: string;
+  title: string;
+  topIcon: any;
+  items: Item[];
+  textColor?: string;
+};
+
+const cards: CardData[] = [
   {
-    icon: ClockFading,
-    title: "Zero Setup Starter",
-    description: "Choose category, pick a layout, customize sections and styles",
+    id: "adaptive",
+    bgClass: "bg-[#EA9C53]",
+    textColor: "text-white",
+    title: "Adaptive & Responsive Design",
+    topIcon: Smartphone,
+    items: [
+      {
+        icon: Smartphone,
+        text: "Device Agnostic: Seamless experience from mobile screens to 4K monitors.",
+      },
+      { icon: RefreshCw, text: "Real-Time Sync: Switch between phone, tablet, and desktop without losing a beat." },
+      { icon: Zap, text: "Fluid Performance: Lightweight architecture for fast loading on any connection." },
+    ],
   },
   {
-    icon: MousePointerClick,
-    title: "One-Click Publish",
-    description: "Publish instantly with a shareable link and set your free subdomain",
+    id: "custom",
+    bgClass: "bg-[#E65858]",
+    textColor: "text-white",
+    title: "Radical Simplicity",
+    topIcon: Layers,
+    items: [
+      { icon: Zap, text: "Pure No-Code: Complex backend power hidden behind an intuitive, simple UI." },
+      { icon: GraduationCap, text: "One Learning Curve: Master one tool and you’ve mastered the entire ecosystem." },
+      { icon: Layout, text: "Unified Dashboard: Manage ideas, members, and bookings from a single view." },
+    ],
   },
   {
-    icon: ChartColumnBig,
-    title: "Audience Analytics",
-    description: " Track visits, clicks, and engagement with clean charts.",
+    id: "community",
+    bgClass: "bg-[#6C8EF5]",
+    textColor: "text-white",
+    title: "Community Controls",
+    topIcon: MessageCircle,
+    items: [
+      {
+        icon: QrCode,
+        text: "Zero-Friction Entry: Generate Invite QR codes with customizable expiration timers for secure, temporary, or permanent access.",
+      },
+      {
+        icon: ShieldCheck,
+        text: "Granular Control: Assign roles (Admin, Moderator, Student) and manage permissions with a click.",
+      },
+      {
+        icon: MessageCircle,
+        text: "Engagement Suite: Full support for threaded discussions, polls, events, and a shared resource library.",
+      },
+      { icon: Cpu, text: "AI Content Helper: The built-in AI drafts engagement starters and event descriptions for you." },
+    ],
   },
   {
-    icon: PenTool,
-    title: "Section Designer",
-    description: "Multiple layout variants per section, global styles, desktop & mobile preview",
+    id: "portfolio",
+    bgClass: "bg-[#4CC9B1]",
+    textColor: "text-white",
+    title: "Portfolio Power",
+    topIcon: Layers,
+    items: [
+      {
+        icon: Layout,
+        text: "Dynamic Portfolio Builder: Drag-and-drop sections to showcase your work, hosted on a free custom subdomain.",
+      },
+      {
+        icon: Calendar,
+        text: "Smart Scheduling: Two-way calendar sync tailored for creators. Clients book time slots that work for you.",
+      },
+      {
+        icon: BarChart2,
+        text: "Centralized Analytics: A unified dashboard tracking idea viability, community growth, and revenue/booking stats.",
+      },
+    ],
   },
 ];
 
 export default function AdvantagesSection() {
   return (
-    <section className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-6 max-w-5xl mx-auto">
-      {features.map((feature, index) => {
-        const Icon = feature.icon;
+    <section className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-6 max-w-6xl mx-auto">
+      {cards.map((c, idx) => {
+        const TopIcon = c.topIcon;
         return (
           <Card
-            key={index}
+            key={c.id}
             data-aos="fade-up"
-            data-aos-delay={index * 100}
-            data-aos-duration="5000"
-            className="border border-border shadow-sm rounded-xl hover:shadow-md transition"
+            data-aos-delay={idx * 120}
+            className={`p-6 ${c.bgClass} ${c.textColor ?? "text-foreground"}`}
           >
-            <CardContent className="flex items-center text-center pr-5 py-2 space-y-4">
-              <Icon className="w-20 h-20 text-accent" />
-              <div className="text-left px-5 space-y-1">
-                <h3 className="text-2xl text-title font-semibold">{feature.title}</h3>
-                <p className="text-lg text-description">{feature.description}</p>
+            <div className="flex flex-col items-start gap-4">
+              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-white/20">
+                <TopIcon className={` ${c.textColor ? "text-white" : "text-foreground"}`} size={35} />
               </div>
-            </CardContent>
+
+              <h3 className={`text-2xl font-semibold ${c.textColor ?? "text-title"}`}>{c.title}</h3>
+
+              <ol className="list-none space-y-3 mt-2 w-full">
+                {c.items.map((it, i) => {
+                  const Icon = it.icon;
+                  return (
+                    <li key={i} className="flex items-start gap-3">
+                      <Icon className={`w-5 h-5 mt-1 ${c.textColor ? "text-white/90" : "text-foreground/70"}`} />
+                      <span className={`${c.textColor ?? "text-description"}`}>{it.text}</span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
           </Card>
         );
       })}

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { api } from "@/api/auth/auth-endpoints";
+import { api } from "@/api/api";
 import { toError, ensureId, checkStatus } from "@/api/api-utils";
 import { Page } from "@/api/portfolios-api/pages-endpoints";
 const PATH = "/portfolio";

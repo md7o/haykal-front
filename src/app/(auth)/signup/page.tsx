@@ -4,7 +4,7 @@ import { AuthLeftSection, AuthRightSection, SignUpForm } from "@/components/page
 
 export default function Signup() {
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-card-main">
       <AuthLeftSection
         title="Design Your Portfolio With Pick-and Click"
         description="Total control, zero complexity and customize every section your way, Launch a professional portfolio in minutes, no tech skills needed."

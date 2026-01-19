@@ -1,112 +1,103 @@
-# Copilot Instructions — haykal-front (concise)
-
-This file helps AI coding agents get productive quickly in this repo. Focus on concrete, discoverable patterns and files.
-
-Quick start
-
-- **Install & run:** `npm install` then `npm run dev` (dev server runs on port 3001 by convention).
-- **Path alias:** `@/*` → `src/*` (use for imports).
-
-High-level architecture
-
-- **Framework:** Next.js (App Router) + React + TypeScript. App entry: `src/app/layout.tsx` (sets fonts, initializes AOS, wraps `AuthProvider`).
-- **Route groups:** `(auth)`, `(structure)`, `(user-admin)`, and public `portfolio/[id]` — Next.js route-group folders used for layout and access scoping.
-- **Editor state:** `src/context/StudioContext.tsx` — authoritative store for studio/editor state (used/available sections, selectedPageId, portfolioId). It performs optimistic UI updates and then syncs with backend.
-
-Critical files & integration points
-
-- **API layer:** `src/api/*.ts` — `auth-endpoints.ts` (axios + refresh interceptors), `portfolio-endpoints.ts`, `pages-endpoints.ts`, `sections-endpoints.ts`.
-- **Studio UI & registration:** components under `src/components/pages/portfolio-feature/sections-design/`. Register new section types in `src/components/pages/portfolio-feature/sections-design/registry/sections-registry.ts` so `StudioContext` can discover them.
-- **Preview & theme:** `src/components/theme/PortfolioTheme.tsx` and the studio `DisplayPage` implement live preview rendering.
-- **Route protection:** `src/middlewar.ts` (note repo filename) enforces redirects and protections for studio and admin areas.
-
-Conventions & patterns (specific)
-
-- **Client components:** Files using hooks must include `"use client"` at the top (common across `components/*` and studio pages).
-- **Forms & validation:** `react-hook-form` + `zod` — schemas and helpers in `src/lib/validations.ts`.
-- **Styling:** Tailwind v4 + shadcn/ui. Use `cn()` helper and theme tokens in `src/styles/Theme.css`.
-- **Storage rule:** Do **not** persist core studio data to Local Storage. Only `portfolioId` is cached in `sessionStorage`. `studio-storage.ts` is deprecated — avoid using it.
-- **401 handling:** `StudioContext` silently resets on 401 to avoid noisy logs — be aware when adding new API flows.
-
-How to add a new Section (practical steps)
-
-1. Add a `Design` (preview) and `Form` (config) component: `src/components/pages/sections-design/<your-section>/Design.tsx` and `Form.tsx`.
-2. Export metadata or default props matching existing sections (follow patterns in other folders).
-3. Register the section in `sections-registry.ts`.
-4. Use `StudioContext` methods (`addSection`, `updateSectionConfig`) — these handle optimistic update + backend sync.
-
-Developer workflows & scripts
-
-- **Dev server:** `npm run dev` (uses Next dev server). Build with `npm run build` and start production with `npm run start` if present in `package.json`.
-- **Lint/format:** use repo scripts (`npm run lint`, `npm run format`) where available.
-
-Notes for AI agents
-
-- Favor changing `StudioContext` (single source of truth) rather than sprinkling local persistence in components.
-- When adding or modifying sections, update both the UI folder and the registry; add API calls in `src/api` as needed.
-- Example places to inspect for patterns: `src/context/StudioContext.tsx`, `src/api/auth-endpoints.ts`, `src/components/pages/portfolio-feature/sections-design/registry/sections-registry.ts`, `src/app/(structure)/studio/page.tsx`, `src/components/theme/PortfolioTheme.tsx`.
-
-If anything in these notes is unclear or you want concrete code examples (registry entry, sample `Design` + `Form`, or `StudioContext` helper), tell me which area and I will add a focused snippet.
-
 # Copilot Instructions — haykal-front
 
-These notes orient AI coding agents to be productive quickly in this repo. Focus on the concrete patterns already used here.
+Guide for AI agents to become productive in this Next.js portfolio editor codebase.
 
-## Overview
+## Quick Start
 
-- **Framework:** Next.js (App Router) 15 + React 19 + TypeScript.
-- **Styling:** Tailwind v4 (via `@tailwindcss/postcss`) + shadcn/ui primitives + custom theme CSS in `src/styles`.
-- **UI Libs:** Radix UI primitives, lucide-react icons, AOS for scroll animations, dnd-kit for drag-drop.
-- **Dev Server:** `npm run dev` on port 3001.
-- **Path Aliases:** `@/*` → `src/*`.
+- **Install & run:** `npm install` && `npm run dev` (dev server on port 3001)
+- **Build:** `npm run build` && `npm run start`
+- **Lint:** `npm run lint`
+- **Path alias:** `@/*` → `src/*` (used in all imports)
 
-## Architecture & Data Flow
+## Architecture Overview
 
-- **App Entry:** `src/app/layout.tsx` sets global fonts, `AOSInit`, and wraps children with `AuthProvider`.
-- **Route Groups:**
+**Tech Stack:** Next.js 16 + React 19 + TypeScript | Tailwind v4 + shadcn/ui + Radix UI | Axios (token refresh) | react-hook-form + zod
 
-  - `(auth)`: Login/signup pages.
-  - `(structure)`: Studio layout.
-  - `(user-admin)`: Dashboard and control panels.
-  - `portfolio/[id]`: Public portfolio view.
+**Route Structure** (Next.js App Router with route groups):
 
-- **State Management:**
+- `(auth)`: Login, signup, password reset
+- `(structure)`: Studio editor (`/studio`)
+- `(user-admin)`: Dashboard, user panels (`/dashboard`, `/own`)
+- `community/[slug]`: Community hubs (posts, events, resources)
+- `(portfolio)/[id]`: Published portfolio view
 
-  - **AuthContext:** Manages user session (`isLogged`, `user`). Token stored in memory/cookies.
-  - **StudioContext:** **Primary state for the editor.**
-    - Manages `used` sections, `available` sections, `selectedPageId`, `portfolioId`.
-    - **CRITICAL:** Data is **NOT** stored in Local Storage. It is fetched from the backend API.
-    - `portfolioId` is cached in `sessionStorage` only to persist context across reloads.
-    - Performs optimistic updates for UI, then syncs with API.
+**Core State** (in order of responsibility):
 
-- **API Layer (`src/api`):**
-  - **`auth-endpoints.ts`:** Axios instance with interceptors for token refresh.
-  - **`portfolio-endpoints.ts`:** CRUD for Portfolios (`getPortfolioById`, `resolveUserPortfolioId`).
-  - **`pages-endpoints.ts`:** CRUD for Pages (`getPages`, `createPage`, `updatePage`).
-  - **`sections-endpoints.ts`:** CRUD for Sections (`getSections`, `createSection`, `reorderSections`).
+1. **AuthContext** (`src/context/AuthContext.tsx`): Session, user, token lifecycle
+2. **StudioContext** (`src/context/StudioContext.tsx`): Portfolio editor state — sections, pages, config
+3. **UserPortfolioContext**: Portfolio metadata & caching
+
+## Critical Patterns
+
+### StudioContext: Single Source of Truth for Editor
+
+- Manages: `used[]` sections, `available[]` section types, `pages[]`, `selectedPageId`, `portfolioId`
+- **Does NOT** persist to Local Storage — data fetched from API, cached in `sessionStorage` only for `portfolioId`
+- Optimistically updates UI, then syncs via API calls in `useStudioPages` and `useStudioSections` hooks
+- On 401 error: silently resets state (no noisy console logs)
+
+### Section System (Portfolio Building Blocks)
+
+- **Definition file:** `src/components/pages/portfolio-feature/sections-design/sectionsVisualization.ts`
+- Each section has: `type` (string key), `label`, `defaultConfig`, `Design` component, optional `Form` component, optional `validate()` function
+- **Example types:** `header`, `hero`, `text`, `career`, `achievements`, `events`, `business-services`, `social-links`
+- Adding new: Create folder `src/components/pages/portfolio-feature/sections-design/<type>/` with `<Type>Block.tsx` (Design) and `<Type>BlockForm.tsx` (Form with config interface), then add to `sectionsVisualization` record
+
+### API Layer
+
+- **Central:** `src/api/auth/auth-endpoints.ts` exports `api` (axios instance) with refresh token interceptor + scheduled refresh
+- **Patterns:** `src/api/portfolios-api/` (portfolio, pages, sections CRUD), `src/api/community/` (posts, members, etc.), `src/api/user/` (profile), `src/api/api-utils.ts` (helpers)
+- **Error handling:** Catch & log at call site; 401s trigger `AuthContext` reset
+
+### Forms & Validation
+
+- All validation via `src/lib/validations.ts`: Zod schemas (`loginSchema`, `signUpSchema`, `emailSchema`, `passwordSchema`, `usernameSchema`)
+- React-hook-form + Zod integration in forms
+- Custom `validateField()` and `createFieldValidator()` helpers
+
+### Styling & Theme
+
+- Tailwind v4 via `@tailwindcss/postcss`
+- shadcn/ui components in `src/components/ui-tools/ui/`
+- Theme tokens in `src/styles/Theme.css` (CSS custom properties)
+- Use `cn()` helper (from `clsx`/`tailwind-merge`) for class composition
+
+### Middleware & Route Protection
+
+- **File:** `src/middlewar.ts` (note typo in filename)
+- Protects `/studio`, `/dashboard`, admin routes; redirects unauthenticated users
 
 ## Developer Workflows
 
-- **Adding Sections:**
+**Adding a New Section:**
 
-  1. Create `Design` and `Form` components in `src/components/pages/sections-design/<type>/`.
-  2. Register in `src/components/pages/portfolio-feature/sections-design/registry/sections-registry.ts`.
-  3. `StudioContext` automatically picks it up.
+1. Create `src/components/pages/portfolio-feature/sections-design/<type>/` folder
+2. Export `<Type>Block.tsx` (Design component) and `<Type>BlockForm.tsx` (Form + config type)
+3. Add entry to `sectionsVisualization` record with type, label, defaultConfig, Design, Form, optional validate
+4. `StudioContext` auto-discovers via `buildAvailableSections()` utility
 
-- **Studio Logic:**
+**Modifying Editor State:**
 
-  - `StudioSidebar` uses `StudioContext` to list/add sections.
-  - `DisplayPage` renders the live preview using `PortfolioTheme`.
-  - **Do not use `studio-storage.ts`**. It is deprecated. Use `StudioContext` methods (`addSection`, `updateSectionConfig`) which call the API.
+- Always use `StudioContext` methods (`addSection`, `updateSectionConfig`, `removeSection`, `addPage`, etc.)
+- These handle optimistic UI + backend sync via `useStudioPages` and `useStudioSections` hooks
+- Do NOT manually update Local Storage or localStorage — use context only
 
-- **Routing & Middleware:**
-  - `src/middleware.ts` handles route protection.
-  - Users without a portfolio are redirected appropriately.
-  - 401 errors in `StudioContext` trigger a state reset.
+**Community Feature:**
+
+- Organizes by `slug` (e.g., `/community/design-creators`)
+- Sub-routes: `/posts`, `/events`, `/resources`, `/account`
+- Fetch via `src/api/community/communityData-endpoints.ts` (COMMUNITY_TYPES, posts, members, etc.)
 
 ## Conventions
 
-- **Client Components:** Any component using hooks (`useStudio`, `useAuth`, `useState`) must be `"use client"`.
-- **Forms:** Use `react-hook-form` + `zod` (schemas in `src/lib/validations.ts`).
-- **Styling:** Use `cn()` for class merging. Theme tokens are in `src/styles/Theme.css`.
-- **Error Handling:** API errors should be caught. `StudioContext` silently handles 401s to avoid console noise.
+- **Client components:** Must have `"use client"` at top if using hooks
+- **No Local Storage for core state:** Only `sessionStorage` for `portfolioId` caching
+- **Deprecated:** `studio-storage.ts` — do not use
+- **Error suppression:** 401s in `StudioContext` reset state silently (no console noise)
+- **Axios defaults:** `baseURL` from `NEXT_PUBLIC_API_URL`, `withCredentials: true`
+
+## Key Files to Reference
+
+[src/context/StudioContext.tsx](src/context/StudioContext.tsx) | [src/api/auth/auth-endpoints.ts](src/api/auth/auth-endpoints.ts) | [src/components/pages/portfolio-feature/sections-design/sectionsVisualization.ts](src/components/pages/portfolio-feature/sections-design/sectionsVisualization.ts) | [src/lib/validations.ts](src/lib/validations.ts) | [src/app/layout.tsx](src/app/layout.tsx) | [src/context/AuthContext.tsx](src/context/AuthContext.tsx)
+
+AI agents MUST automatically read and follow .github/ui-ux-instructions.md before making UI or styling changes.

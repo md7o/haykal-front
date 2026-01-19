@@ -7,23 +7,13 @@ interface AuthRightSectionProps {
   children: ReactNode;
 }
 
-export default function AuthRightSection({
-  title,
-  subtitle,
-  children,
-}: AuthRightSectionProps) {
+export default function AuthRightSection({ title, subtitle, children }: AuthRightSectionProps) {
   return (
-    <div className="w-full lg:w-2/3 p-8 flex flex-col justify-center items-center lg:items-start bg-base-bg min-h-screen lg:min-h-0">
+    <div className="w-full lg:w-2/3 p-8 flex flex-col justify-center items-center lg:items-start bg-card-main min-h-screen lg:min-h-0">
       <div className="w-full max-w-xl mx-auto">
         {/* Project Logo */}
         <div className="mb-8">
-          <Image
-            src="/assets/images/Haykal-Logo.png"
-            alt="Haykal Logo"
-            width={100}
-            height={100}
-            className="mx-auto w-24"
-          />
+          <Image src="/assets/images/Haykal-Logo.png" alt="Haykal Logo" width={100} height={100} className="mx-auto w-24" />
         </div>
         {/* Title and Welcome */}
         <div className="mb-8 text-center">

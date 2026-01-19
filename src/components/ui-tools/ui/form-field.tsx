@@ -26,7 +26,7 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
             ref={ref}
             id={id}
             className={cn(
-              "transition-all duration-200 bg-white",
+              "transition-all duration-200 bg-card-bg",
               hasError && "border-red-500 focus:border-red-500 focus:ring-red-500",
               isFocused && !hasError && "border-accent focus:border-accent",
               className

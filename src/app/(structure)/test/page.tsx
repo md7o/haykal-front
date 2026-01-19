@@ -1,6 +1,6 @@
 "use client";
 
-import { getSections, Section } from "@/api/sections-endpoints";
+import { getSections, type Section } from "@/api/portfolios-api/sections-endpoints";
 import { useEffect, useState } from "react";
 import { sectionsVisualization } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 

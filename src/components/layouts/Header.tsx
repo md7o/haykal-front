@@ -3,17 +3,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui-tools/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { isLogged, user, isCheckingAuth, logoutUser } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   return (
-    <header className="py-4 px-4 md:px-6 relative z-50">
+    <header className="pt-4 px-4 md:px-6 relative z-50">
       {/* Desktop Navigation */}
       <nav className="flex justify-between items-center lg:mx-60">
         <Link href={"/"} className="hover:scale-95 hover:opacity-70 duration-200">
@@ -28,7 +33,12 @@ export default function Navbar() {
         </Link>
 
         <div className="flex sm:gap-2 gap-1">
-          {isCheckingAuth ? (
+          {!isMounted ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+              <span className="text-sm text-foreground/70">Loading...</span>
+            </div>
+          ) : isCheckingAuth ? (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
               <span className="text-sm text-foreground/70">Checking...</span>
@@ -43,6 +53,13 @@ export default function Navbar() {
                   try {
                     setIsLoggingOut(true);
                     await logoutUser();
+
+                    // Clear all auth-related storage
+                    localStorage.removeItem("auth-store");
+                    localStorage.removeItem("authToken");
+                    localStorage.removeItem("user");
+                    sessionStorage.clear();
+
                     router.push("/");
                   } catch (error) {
                     console.error("Logout failed:", error);
@@ -58,12 +75,12 @@ export default function Navbar() {
           ) : (
             <>
               <Link href="/login">
-                <Button variant="transparent" size="base" asChild>
+                <Button variant="grayFill" asChild>
                   <span>Login</span>
                 </Button>
               </Link>
               <Link href="/signup">
-                <Button variant="fill" size="small" asChild>
+                <Button variant="fill" asChild>
                   <span>SignUp</span>
                 </Button>
               </Link>

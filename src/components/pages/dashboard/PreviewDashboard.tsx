@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
 import { useAuth } from "@/context/AuthContext";
 import { MonitorSmartphone, Smartphone, Eye, Type } from "lucide-react";
@@ -12,6 +13,7 @@ export default function PreviewDashboard() {
   const { user, isCheckingAuth } = useAuth();
   const { portfolioData, isLoading, refreshPortfolioData } = useUserPortfolio();
   const [view, setView] = useState<"desktop" | "mobile">("desktop");
+  const router = useRouter();
 
   const didLoadRef = useRef(false);
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function PreviewDashboard() {
   const handleVisitSite = () => {
     if (!portfolioData) return;
     const urlPart = portfolioData.slug || portfolioData.id;
-    window.location.href = `/${urlPart}`;
+    router.push(`/${urlPart}`);
   };
 
   // Extract theme info for the toolbar

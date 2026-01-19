@@ -1,11 +1,51 @@
 import axios from "axios";
 import { checkStatus, toError } from "../api-utils";
-import { api } from "../auth/auth-endpoints";
+import { api } from "@/api/api";
+
+export type CommunityType =
+  | "educational"
+  | "athlete"
+  | "gaming"
+  | "hobby"
+  | "local"
+  | "creator"
+  | "wellness"
+  | "financial"
+  | "artistic"
+  | "technology"
+  | "environmental"
+  | "scientific"
+  | "social"
+  | "culinary"
+  | "travel"
+  | "entertainment"
+  | "other";
+
+export const COMMUNITY_TYPES: CommunityType[] = [
+  "educational",
+  "athlete",
+  "gaming",
+  "hobby",
+  "local",
+  "creator",
+  "wellness",
+  "financial",
+  "artistic",
+  "technology",
+  "environmental",
+  "scientific",
+  "social",
+  "culinary",
+  "travel",
+  "entertainment",
+  "other",
+];
 
 export type communityDataType = {
   id: string;
   slug: string;
-  descreption: string | null;
+  description: string | null;
+  type?: CommunityType;
   createdAt: string;
   updatedAt: string;
   logoUrl: string | null;
@@ -14,6 +54,15 @@ export type communityDataType = {
 
 type CreateCommunityDataDto = {
   slug: string;
+  description?: string;
+  type?: CommunityType;
+};
+
+type updateCommunityDataDto = {
+  id: string;
+  slug?: string;
+  description?: string;
+  type?: CommunityType;
 };
 
 export const createCommunityData = async (dto: CreateCommunityDataDto): Promise<communityDataType> => {
@@ -46,12 +95,20 @@ export const getAllCommunityData = async (): Promise<communityDataType[]> => {
   }
 };
 
-export const updateCommunityData = async (
-  id: string,
-  data: { logoUrl?: string | null; logoTitle?: string | null }
-): Promise<communityDataType> => {
+export const getCommunityDataBySlug = async (slug: string): Promise<communityDataType> => {
   try {
-    const res = await api.put<communityDataType>(`/community-data/${id}`, data);
+    const res = await api.get<communityDataType>(`/community-data/${slug}`);
+    checkStatus(res.status);
+    return res.data;
+  } catch (err) {
+    throw toError(err);
+  }
+};
+
+export const updateCommunityData = async (dto: updateCommunityDataDto): Promise<communityDataType> => {
+  try {
+    const { id, ...updateData } = dto;
+    const res = await api.patch<communityDataType>(`/community-data/${id}`, updateData);
     checkStatus(res.status);
     return res.data;
   } catch (err) {

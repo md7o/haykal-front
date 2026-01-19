@@ -1,6 +1,6 @@
-import CommunityMedia from "@/components/pages/community/CommunityMedia";
+import { redirect } from "next/navigation";
 
-export default function Page({ params }: { params: { slug: string } }) {
-  const { slug } = params;
-  return <CommunityMedia slug={slug} />;
+export default async function Page({ params }: { params: { slug: string } } | { params: Promise<{ slug: string }> }) {
+  const { slug } = (await params) as { slug: string };
+  redirect(`/community/${slug}/feed`);
 }

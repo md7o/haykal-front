@@ -4,6 +4,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Home, Layout as LayoutIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const responsiveBarVariants = cva("fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out md:hidden", {
@@ -85,6 +86,7 @@ const defaultItems: ResponsiveBarItem[] = [
 
 const ResponsiveBarItem = React.forwardRef<HTMLDivElement, ResponsiveBarItemProps>(
   ({ className, variant, size, item, isActive, showLabel = true, onClick, isDisabled: forcedDisabled, ...props }, ref) => {
+    const router = useRouter();
     const isDisabled = forcedDisabled || item.disabled;
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -96,7 +98,8 @@ const ResponsiveBarItem = React.forwardRef<HTMLDivElement, ResponsiveBarItemProp
         item.onClick();
       }
       if (item.href) {
-        window.location.href = item.href;
+        // Use client-side navigation to avoid full page reloads (which retrigger auth refresh calls)
+        router.push(item.href);
       }
     };
 

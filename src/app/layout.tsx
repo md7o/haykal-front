@@ -4,6 +4,7 @@ import "./globals.css";
 import { AOSInit } from "@/styles/Aos";
 import { AuthProvider } from "@/context/AuthContext";
 import { UserPortfolioProvider } from "@/context/UserPortfolioContext";
+import { UserProvider } from "@/context/UserContext";
 import RootLayoutClient from "@/components/RootLayoutClient";
 
 const montserrat = Montserrat({
@@ -47,9 +48,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <AuthProvider>
-          <UserPortfolioProvider>
-            <RootLayoutClient>{children}</RootLayoutClient>
-          </UserPortfolioProvider>
+          <UserProvider>
+            <UserPortfolioProvider>
+              <RootLayoutClient>{children}</RootLayoutClient>
+            </UserPortfolioProvider>
+          </UserProvider>
         </AuthProvider>
       </body>
     </html>

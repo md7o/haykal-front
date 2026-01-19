@@ -36,11 +36,6 @@ export function ensureId(id?: string) {
   // Basic UUID validation regex
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(id)) {
-    // If it's not a UUID, we might want to allow it if it's a slug,
-    // but for functions explicitly named 'ById', it should probably be a UUID.
-    // However, some legacy IDs or slugs might be passed here.
-    // Let's just warn for now or throw if strict validation is needed.
-    // throw new Error(`Invalid UUID format: ${id}`);
   }
 }
 

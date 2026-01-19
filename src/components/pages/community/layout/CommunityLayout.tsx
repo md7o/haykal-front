@@ -7,26 +7,28 @@ import CommunitySidebar, { CommunityNavKey } from "./CommunitySidebar";
 interface CommunityLayoutProps {
   communityTitle?: string;
   activeItem: CommunityNavKey;
-  onNavigate: (key: CommunityNavKey) => void;
+  slug: string;
+  onSettingsOpen?: () => void;
   children: ReactNode;
 }
 
 export default function CommunityLayout({
   communityTitle = "Community",
   activeItem,
-  onNavigate,
+  slug,
+  onSettingsOpen,
   children,
 }: CommunityLayoutProps) {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full text-title">
-        <CommunitySidebar title={communityTitle} activeItem={activeItem} onNavigate={onNavigate} />
+        <CommunitySidebar title={communityTitle} activeItem={activeItem} slug={slug} onSettingsOpen={onSettingsOpen} />
         <SidebarInset className="flex-1 bg-card-bg">
           <div className="flex h-full flex-col gap-4 p-4 md:p-6">
             <div className="md:hidden">
-              <SidebarTrigger className="bg-white border border-card-border/20 rounded-base shadow-sm text-title" />
+              <SidebarTrigger className="bg-card-main rounded-base text-title" />
             </div>
-            <main className="bg-white border border-card-border/20 rounded-base shadow-sm flex-1 p-6">{children}</main>
+            <main className="bg-card-main rounded-base shadow-sm flex-1 p-6">{children}</main>
           </div>
         </SidebarInset>
       </div>

@@ -7,7 +7,7 @@ interface AuthLeftSectionProps {
 
 export default function AuthLeftSection({ title, description }: AuthLeftSectionProps) {
   return (
-    <div className="hidden lg:flex lg:w-2/5 category-gradient p-8 lg:p-12 flex-col justify-center items-center text-center relative overflow-hidden my-3 rounded-tr-curvey rounded-br-curvey shadow-lg">
+    <div className="hidden lg:flex lg:w-2/5 bg-accent my-10 p-8 lg:p-12 flex-col justify-center items-center text-center relative overflow-hidden rounded-tr-curvey rounded-br-curvey shadow-lg">
       {/* Project Image */}
       <div className="mb-8 lg:mb-12 w-full max-w-md">
         <Image

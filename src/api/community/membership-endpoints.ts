@@ -1,10 +1,11 @@
-import { api } from "@/api/auth/auth-endpoints";
+import { api } from "@/api/api";
 import { toError, ensureId, checkStatus } from "@/api/api-utils";
 
 export type membershipType = {
   id: string;
   userId: string;
   communityId: string;
+  authorName: string;
   role: "member" | "owner";
   joinedAt: string;
 };
@@ -25,9 +26,18 @@ export const createMembership = async (communityId: string, role: "member" | "ow
   }
 };
 
-export const getMemberships = async (): Promise<membershipType[]> => {
+export const getAllMemberships = async (): Promise<membershipType[]> => {
   try {
     const res = await api.get<membershipType[]>(`${MEMBERSHIP_BASE}`);
+    checkStatus(res.status);
+    return res.data;
+  } catch (err) {
+    throw toError(err);
+  }
+};
+export const getMembershipsByUser = async (): Promise<membershipType[]> => {
+  try {
+    const res = await api.get<membershipType[]>(`${MEMBERSHIP_BASE}/me`);
     checkStatus(res.status);
     return res.data;
   } catch (err) {

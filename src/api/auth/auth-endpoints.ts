@@ -1,45 +1,13 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios from "axios";
+import type { AuthUser } from "@/types/auth";
+import { api, ensureAuthSession } from "@/api/api";
+import {
+  getAccessTokenTimeLeft as getAccessTokenTimeLeftFromStore,
+  hasValidAccessToken,
+  useAuthStore,
+  waitForAuthHydration,
+} from "@/store/authStore";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const REFRESH_PATH = "/auth/refresh";
-
-export const api = axios.create({ baseURL: API_URL, withCredentials: true });
-
-let accessToken: string | null = null;
-let accessTokenExpiry: number | null = null; // epoch ms
-let refreshTimeout: ReturnType<typeof setTimeout> | null = null;
-let pendingRefresh: Promise<string | null> | null = null;
-const failedQueue: Array<{
-  resolve: (value?: unknown) => void;
-  reject: (reason?: unknown) => void;
-  config: AxiosRequestConfig;
-}> = [];
-
-// ---------- tiny helpers ----------
-const isExpired = () => !!accessToken && !!accessTokenExpiry && Date.now() >= accessTokenExpiry!;
-
-const persist = (_token: string | null, _exp: number | null) => {};
-
-const scheduleRefresh = () => {
-  if (refreshTimeout) clearTimeout(refreshTimeout);
-  if (!accessTokenExpiry) return;
-  const delay = Math.max(0, accessTokenExpiry - Date.now() + 500);
-  refreshTimeout = setTimeout(() => {
-    if (!isExpired()) return;
-    refreshSession().catch(() => {});
-  }, delay);
-};
-const setToken = (token: string | null, exp: number | null) => {
-  accessToken = token;
-  accessTokenExpiry = exp;
-  scheduleRefresh();
-  persist(accessToken, accessTokenExpiry);
-};
-const clearToken = () => {
-  if (refreshTimeout) clearTimeout(refreshTimeout);
-  refreshTimeout = null;
-  setToken(null, null);
-};
 const msg = (err: unknown, fallback: string) => {
   if (axios.isAxiosError(err)) {
     const data = err.response?.data as { message?: string } | undefined;
@@ -47,107 +15,28 @@ const msg = (err: unknown, fallback: string) => {
   }
   return fallback;
 };
+
 const errorWithStatus = (err: unknown, fallback: string) => {
   const e = new Error(msg(err, fallback)) as Error & { status?: number };
   if (axios.isAxiosError(err) && err.response?.status) e.status = err.response.status;
   return e;
 };
 
-// ---------- refresh flow ----------
-function processQueue(error: unknown | null, token: string | null = null) {
-  failedQueue.splice(0).forEach(({ resolve, reject, config }) => {
-    if (error) return reject(error);
-    if (token) {
-      config.headers = config.headers ?? {};
-      (config.headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
-    }
-    resolve(api(config));
-  });
-}
-
-async function refreshSession(): Promise<string | null> {
-  if (pendingRefresh) return pendingRefresh;
-  pendingRefresh = (async () => {
-    try {
-      const { data } = await api.post(REFRESH_PATH, {});
-      setToken(data.accessToken || null, data.accessTokenExpiry ?? null);
-      return accessToken;
-    } catch (err) {
-      clearToken();
-      throw err;
-    } finally {
-      pendingRefresh = null;
-    }
-  })();
-  return pendingRefresh;
-}
-
-// ---------- interceptors ----------
-api.interceptors.request.use(async (config) => {
-  const isRefreshCall = (config.url || "").toString().includes(REFRESH_PATH);
-
-  // If a refresh is pending, wait for it.
-  // Or if we have a token but it's expired, trigger a refresh.
-  if (!isRefreshCall) {
-    if (pendingRefresh) {
-      try {
-        await pendingRefresh;
-      } catch {}
-    } else if (accessToken && isExpired()) {
-      try {
-        await refreshSession();
-      } catch {}
-    }
-  }
-
-  if (accessToken) {
-    config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>)["Authorization"] = `Bearer ${accessToken}`;
-  }
-  return config;
-});
-
-api.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    const original = (error?.config || {}) as AxiosRequestConfig & {
-      _retry?: boolean;
-    };
-    const isRefreshCall = (original?.url || "").includes(REFRESH_PATH);
-
-    // On 401, try to refresh the token (unless it's already a retry or the refresh call itself).
-    // We do NOT check for isExpired() here, because we might have no token in memory
-    // (e.g. after reload) but a valid httpOnly cookie exists.
-    if (error?.response?.status === 401 && !original._retry && !isRefreshCall) {
-      original._retry = true;
-      return new Promise(async (resolve, reject) => {
-        failedQueue.push({ resolve, reject, config: original });
-        try {
-          processQueue(null, await refreshSession());
-        } catch (e) {
-          processQueue(e, null);
-        }
-      });
-    }
-    return Promise.reject(error);
-  }
-);
-
-// ---------- API ----------
 export async function me() {
-  try {
-    const { data } = await api.get(`/auth/me`);
-    return data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error) && error?.response?.status === 401) clearToken();
-    throw new Error(msg(error, "Not authenticated"));
-  }
+  await waitForAuthHydration();
+  const storedUser = useAuthStore.getState().user;
+  if (storedUser) return storedUser;
+
+  const { user } = await ensureAuthSession({ forceRefresh: true });
+  if (!user) throw new Error("Not authenticated");
+  return user;
 }
 
 export const getUserData = me;
 
 export async function refresh() {
-  return refreshSession();
+  const { accessToken } = await ensureAuthSession({ forceRefresh: true });
+  return accessToken;
 }
 
 export async function requestSignup(input: { username: string; email: string; password: string }) {
@@ -171,7 +60,29 @@ export async function verifySignup(email: string, code: string) {
 export async function signIn(input: { email: string; password: string }) {
   try {
     const { data } = await api.post(`/auth/signin`, input);
-    setToken(data.accessToken || null, data.accessTokenExpiry ?? null);
+    console.log("[signIn] Response data:", {
+      hasUser: !!data.user,
+      hasToken: !!data.accessToken,
+      user: data.user,
+    });
+
+    useAuthStore.getState().setAuth(data.user ?? null, data.accessToken ?? null, data.accessTokenExpiry ?? null);
+
+    console.log("[signIn] Auth store after setAuth:", useAuthStore.getState());
+
+    // If user object is incomplete or missing, fetch it via /auth/me
+    if (!data.user || !data.user.username) {
+      console.log("[signIn] User incomplete, fetching via /auth/me");
+      try {
+        const { data: meData } = await api.get(`/auth/me`);
+        console.log("[signIn] /auth/me response:", meData);
+        useAuthStore.getState().setAuth(meData, data.accessToken ?? null, data.accessTokenExpiry ?? null);
+        console.log("[signIn] Auth store after /auth/me:", useAuthStore.getState());
+      } catch (err) {
+        console.warn("Could not fetch full user data after signin:", err);
+      }
+    }
+
     return data;
   } catch (error: unknown) {
     throw new Error(msg(error, "Signin failed"));
@@ -181,11 +92,11 @@ export async function signIn(input: { email: string; password: string }) {
 export async function logout(userId?: string) {
   try {
     const { data } = await api.post(`/auth/logout`, { userId });
-    clearToken();
+    useAuthStore.getState().logout();
     return data;
-  } catch {
-    clearToken();
-    throw new Error("Logout failed");
+  } catch (error) {
+    useAuthStore.getState().logout();
+    throw new Error(msg(error, "Logout failed"));
   }
 }
 
@@ -214,23 +125,20 @@ export async function resetPassword(email: string, code: string, password: strin
 
 export async function checkAuthStatus() {
   try {
-    if (!accessToken) {
-      try {
-        await refreshSession();
-      } catch {}
+    await waitForAuthHydration();
+    if (useAuthStore.getState().user && hasValidAccessToken()) {
+      return { isAuthenticated: true, user: useAuthStore.getState().user as AuthUser } as const;
     }
 
-    if (!accessToken) return { isAuthenticated: false } as const;
-
-    if (isExpired()) await refreshSession();
-    const user = await me();
-    return { isAuthenticated: true, user } as const;
+    const { user } = await ensureAuthSession({ forceRefresh: !useAuthStore.getState().accessToken });
+    if (user && hasValidAccessToken(0)) return { isAuthenticated: true, user } as const;
+    return { isAuthenticated: false } as const;
   } catch {
-    clearToken();
+    useAuthStore.getState().logout();
     return { isAuthenticated: false } as const;
   }
 }
 
 export function getAccessTokenTimeLeft(): number | null {
-  return accessTokenExpiry ? Math.max(0, accessTokenExpiry - Date.now()) : null;
+  return getAccessTokenTimeLeftFromStore();
 }

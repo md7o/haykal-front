@@ -10,9 +10,9 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: "bg-accent border-none text-white",
-        success: "bg-green-500 border-none text-white",
-        error: " bg-red-400 border-none text-white",
-        info: "bg-blue-500 border-none text-white",
+        success: "bg-success border-none text-white",
+        error: " bg-error border-none text-white",
+        info: "bg-warning border-none text-white",
       },
     },
     defaultVariants: {

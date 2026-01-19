@@ -8,8 +8,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui-tools/ui/button";
 import { FormField } from "@/components/ui-tools/ui/form-field";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
-import { signIn, me } from "@/api/auth/auth-endpoints";
-import { useAuth } from "@/context/AuthContext";
+import { signIn } from "@/api/auth/auth-endpoints";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginForm() {
@@ -18,7 +17,6 @@ export default function LoginForm() {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const router = useRouter();
   const search = useSearchParams();
-  const { setIsLogged, setUser } = useAuth();
 
   const {
     register,
@@ -37,9 +35,6 @@ export default function LoginForm() {
       setIsSubmitting(true);
       setSubmitError(null);
       await signIn({ email: data.email, password: data.password });
-      const userData = await me();
-      setIsLogged(true);
-      setUser(userData);
       router.push("/" + (search.get("next") || "dashboard/preview"));
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "An error occurred during login. Please try again.");

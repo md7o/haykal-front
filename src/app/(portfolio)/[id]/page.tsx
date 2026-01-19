@@ -20,7 +20,7 @@ export default function CustomDesignPage({ params }: { params: Promise<{ id: str
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let mounted = true;
+    const mounted = true;
 
     async function fetchFullPortfolio() {
       try {

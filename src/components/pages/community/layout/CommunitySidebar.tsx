@@ -1,10 +1,10 @@
 "use client";
 
-import { LucideIcon, MessageSquare, BookOpen, CalendarDays, BarChartHorizontal, Settings, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { LucideIcon, MessageSquare, BookOpen, CalendarDays, BarChartHorizontal, Settings, User, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -14,7 +14,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui-tools/ui/sidebar";
 
-export type CommunityNavKey = "posts" | "resources" | "events" | "polls" | "settings" | "account";
+export type CommunityNavKey = "feed" | "posts" | "resources" | "events" | "communication" | "settings" | "manage-members";
 
 interface MenuItem {
   id: CommunityNavKey;
@@ -25,24 +25,44 @@ interface MenuItem {
 interface CommunitySidebarProps {
   title?: string;
   activeItem: CommunityNavKey;
-  onNavigate: (key: CommunityNavKey) => void;
+  slug: string;
+  onSettingsOpen?: () => void;
+  isOwner?: boolean;
 }
 
 const primaryItems: MenuItem[] = [
+  { id: "feed", label: "Feed", icon: BarChartHorizontal },
   { id: "posts", label: "Posts", icon: MessageSquare },
   { id: "resources", label: "Resources", icon: BookOpen },
   { id: "events", label: "Events", icon: CalendarDays },
-  { id: "polls", label: "Polls", icon: BarChartHorizontal },
+  { id: "communication", label: "Communication", icon: MessageSquare },
 ];
 
-const footerItems: MenuItem[] = [
-  { id: "settings", label: "Settings", icon: Settings },
-  { id: "account", label: "Account", icon: User },
-];
+export default function CommunitySidebar({
+  title = "Community",
+  activeItem,
+  slug,
+  onSettingsOpen,
+  isOwner = false,
+}: CommunitySidebarProps) {
+  const router = useRouter();
 
-export default function CommunitySidebar({ title = "Community", activeItem, onNavigate }: CommunitySidebarProps) {
+  const displayTitle = title.replace(/^Community:\s*/i, "");
+
   const buttonClass =
     "rounded-base hover:bg-accent/10 transition-all text-description  group/icon flex items-center gap-3 px-3 py-4 w-full text-left";
+
+  const ownerFooterItem: MenuItem = { id: "manage-members", label: "Manage Members", icon: Users };
+  const settingsItem: MenuItem = { id: "settings", label: "Settings", icon: Settings };
+  const dynamicFooterItems: MenuItem[] = isOwner ? [ownerFooterItem, settingsItem] : [];
+
+  const handleNavigate = (item: MenuItem) => {
+    if (item.id === "settings") {
+      onSettingsOpen?.();
+    } else {
+      router.push(`/community/${slug}/${item.id}`);
+    }
+  };
 
   const renderMenuItem = (item: MenuItem) => {
     const Icon = item.icon;
@@ -52,13 +72,13 @@ export default function CommunitySidebar({ title = "Community", activeItem, onNa
         <SidebarMenuButton asChild className={buttonClass}>
           <button
             type="button"
-            onClick={() => onNavigate(item.id)}
+            onClick={() => handleNavigate(item)}
             className={`flex items-center gap-3 px-3 py-6 w-full text-left cursor-pointer ${isActive ? "bg-accent/10 " : ""}`}
           >
             <div className="w-8 h-8 rounded-soft flex items-center justify-center">
               <Icon className={`w-5 h-5  transition-colors ${isActive ? "text-accent" : "text-title "}`} />
             </div>
-            <span className={`${isActive ? " text-accent" : ""}`}>{item.label}</span>
+            <span className={`${isActive ? " text-accent" : "text-title"}`}>{item.label}</span>
           </button>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -66,9 +86,9 @@ export default function CommunitySidebar({ title = "Community", activeItem, onNa
   };
 
   return (
-    <Sidebar className="bg-white shadow-md" collapsible="offcanvas">
+    <Sidebar className="bg-card-main shadow-md" collapsible="offcanvas">
       <SidebarContent className="py-4 px-2 h-full flex flex-col">
-        <SidebarHeader className="text-xl text-title pb-1">{title}</SidebarHeader>
+        <SidebarHeader className="text-2xl font-semibold px-4 text-title">{displayTitle}</SidebarHeader>
 
         <div className="flex-1 flex flex-col">
           <SidebarGroup>
@@ -81,14 +101,12 @@ export default function CommunitySidebar({ title = "Community", activeItem, onNa
           <div className="flex-1" aria-hidden />
         </div>
 
-        <SidebarGroup className="pt-2 border-t border-card-border/20">
+        <SidebarGroup className="pt-2 border-t border-white/20">
           <SidebarGroupLabel className="text-description text-xs">Profile</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>{footerItems.map(renderMenuItem)}</SidebarMenu>
+            <SidebarMenu>{dynamicFooterItems.map(renderMenuItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        <SidebarFooter className="text-description text-xs">Stay engaged</SidebarFooter>
       </SidebarContent>
     </Sidebar>
   );

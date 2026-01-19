@@ -1,4 +1,4 @@
-import { api } from "@/api/auth/auth-endpoints";
+import { api } from "@/api/api";
 import { toError, ensureId, checkStatus } from "@/api/api-utils";
 
 // ---- Sections API helpers ----

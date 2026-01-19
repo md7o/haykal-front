@@ -3,28 +3,31 @@
 }
 @theme {
   /* Base Colors */
-  --color-base-bg: #ffffff;
+  --color-base-bg: #212121;
   --color-primary: #fff7f4;
   --color-secondary: #fee9e1;
 
   --portfolio-background: #ffffff;
 
   /* Text Colors */
-  --color-title: black;
-  --color-description: #565656;
+  --color-title: white;
+  --color-description: #cccccc;
 
   /* State Colors */
-  --color-card-border: #808080;
-  --color-card-bg: #eeeeee;
-  --color-secondary-card: #dddddd;
+  --color-card-main: #212121;
+  --color-card-bg: #2f2f2f;
+  /* --color-secondary-card: #dddddd; */
+
+  /* Border Colors */
+  --color-main-border: #808080;
 
   /* Accent */
   --color-accent: #fa886b;
 
   /* Notification */
-  --color-success: "#38e9a2";
-  --color-warning: "#ffb71c";
-  --color-error: "#eb5f5f";
+  --color-success: #30c97d;
+  --color-warning: #ffb71c;
+  --color-error: #eb5f5f;
 
   /* Font */
   --font-montserrat: "Montserrat", sans-serif;

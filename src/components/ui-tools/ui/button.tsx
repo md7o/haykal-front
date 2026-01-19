@@ -5,15 +5,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center cursor-pointer gap-2 whitespace-nowrap text-white  text-sm font-semibold transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center cursor-pointer gap-2 whitespace-nowrap text-white  text-sm font-semibold transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none",
   {
     variants: {
       variant: {
         // fill: "category-gradient hover:opacity-80 rounded-soft",
         fill: "bg-accent hover:opacity-80 rounded-soft",
-        outline: "border-2 border-black/80 hover:border-transparent hover:bg-accent hover:text-white text-title rounded-soft",
-        grayFill: "bg-black/10 text-title hover:bg-black/15 rounded-soft",
-        transparent: "bg-transparent hover:bg-black/5 text-black rounded-soft",
+        outline: "hover:bg-accent hover:text-white text-title rounded-soft",
+        grayFill: "bg-black/20 text-title hover:bg-black/15 rounded-soft",
+        transparent: "bg-transparent text-title hover:bg-black/5 rounded-soft",
         link: "hover:opacity-80 underline text-lg bg-transparent rounded-soft",
         block: "hover:opacity-80 rounded-soft",
         bobble: "bg-accent hover:opacity-80 rounded-full",

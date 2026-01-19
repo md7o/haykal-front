@@ -11,8 +11,6 @@ import { PasswordStrengthIndicator } from "@/components/ui-tools/ui/password-str
 import { signUpSchema, type SignUpFormData } from "@/lib/validations";
 import { requestSignup, verifySignup, signIn } from "@/api/auth/auth-endpoints";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
-import { me } from "@/api/auth/auth-endpoints";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui-tools/ui/input-otp";
 
 interface SignUpFormProps {
@@ -20,7 +18,6 @@ interface SignUpFormProps {
 }
 
 export default function SignUpForm({ onSuccess }: SignUpFormProps) {
-  const { setIsLogged, setUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -142,17 +139,12 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
       // 2. Auto sign in the user
       if (emailForOtp && passwordForOtp) {
         await signIn({ email: emailForOtp, password: passwordForOtp });
-
-        // 3. Fetch user and update auth context
-        const userData = await me();
-        setIsLogged(true);
-        setUser(userData);
       }
 
-      // 4. Optional success callback
+      // 3. Optional success callback
       onSuccess?.(emailForOtp);
 
-      // 5. Redirect to home
+      // 4. Redirect to home
       router.push("/");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Verification failed");
@@ -277,14 +269,14 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
             <Button onClick={handleVerify} disabled={otp.length !== 6 || verifying} size="huge">
               {verifying ? "Verifying..." : "Continue"}
             </Button>
-            <button
+            <Button
               type="button"
               onClick={handleResend}
               className={`w-full text-sm ${resendTimer > 0 ? "text-gray-400" : "text-accent hover:underline cursor-pointer"}`}
               disabled={resendTimer > 0}
             >
               {getResendTimerText(resendTimer)}
-            </button>
+            </Button>
           </div>
         </div>
       )}
