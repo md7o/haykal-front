@@ -61,7 +61,7 @@ const toolCards: ToolCard[] = [
     description: "Turn vague thoughts into actionable roadmaps.",
     cta: { label: "Get Started" },
     icon: Code,
-    link: "/ai-tool",
+    link: "/ai-question",
     items: [
       { icon: FileText, text: "Enter a raw idea. Get a clean, structured concept." },
       { icon: Eye, text: "See what your idea is and what it is not." },

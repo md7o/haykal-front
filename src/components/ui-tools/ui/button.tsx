@@ -12,7 +12,7 @@ const buttonVariants = cva(
         // fill: "category-gradient hover:opacity-80 rounded-soft",
         fill: "bg-accent hover:opacity-80 rounded-soft",
         outline: "hover:bg-accent hover:text-white text-title rounded-soft",
-        grayFill: "bg-black/20 text-title hover:bg-black/15 rounded-soft",
+        grayFill: "bg-black/40 text-title hover:bg-black/20 rounded-soft",
         transparent: "bg-transparent text-title hover:bg-black/5 rounded-soft",
         link: "hover:opacity-80 underline text-lg bg-transparent rounded-soft",
         block: "hover:opacity-80 rounded-soft",
@@ -31,7 +31,7 @@ const buttonVariants = cva(
       variant: "fill",
       size: "small",
     },
-  }
+  },
 );
 
 function Button({

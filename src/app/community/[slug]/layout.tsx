@@ -6,7 +6,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui-t
 import CommunitySidebar, { CommunityNavKey } from "@/components/pages/community/layout/CommunitySidebar";
 import SettingsDialog from "@/components/pages/community/options-resources/SettingsDialog";
 import { CommunityProvider, useCommunityData } from "@/context/CommunityContext";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { getMembershipsByUser } from "@/api/community/membership-endpoints";
 
 interface CommunityLayoutProps {
@@ -20,7 +20,7 @@ function CommunityLayoutContent({ children, slug }: { children: ReactNode; slug:
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const { communityData, updateCommunityData } = useCommunityData();
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const redirectedRef = useRef(false);
 
   const isJoinRoute = pathname.includes(`/community/${slug}/join`);
@@ -71,7 +71,7 @@ function CommunityLayoutContent({ children, slug }: { children: ReactNode; slug:
         const currentCommunityMembership = memberships.find((m) => m.communityId === communityData.id);
         const isOwnerStatus = currentCommunityMembership?.role === "owner" || false;
         console.log(
-          `[Owner Check] User: ${user.userId}, Community: ${communityData.id}, Role: ${currentCommunityMembership?.role}, isOwner: ${isOwnerStatus}`
+          `[Owner Check] User: ${user.userId}, Community: ${communityData.id}, Role: ${currentCommunityMembership?.role}, isOwner: ${isOwnerStatus}`,
         );
         setIsOwner(isOwnerStatus);
       } catch (err) {

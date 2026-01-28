@@ -1,5 +1,5 @@
 import axios from "axios";
-import { api } from "@/api/api";
+import { api } from "@/api/auth/auth-endpoints";
 import { toError, ensureId, checkStatus } from "@/api/api-utils";
 import { Page } from "@/api/portfolios-api/pages-endpoints";
 const PATH = "/portfolio";
@@ -196,7 +196,7 @@ export const getCustomDesignById = async (id: string): Promise<CustomDesign | nu
 
 export const updateCustomDesign = async (
   id: string,
-  updateDto: { assets?: Record<string, any> | null }
+  updateDto: { assets?: Record<string, any> | null },
 ): Promise<CustomDesign | null> => {
   return updatePortfolio(id, { assets: updateDto.assets ?? null });
 };

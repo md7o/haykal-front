@@ -1,4 +1,4 @@
-import { api } from "@/api/api";
+import { api } from "@/api/auth/auth-endpoints";
 import { toError, ensureId, checkStatus } from "@/api/api-utils";
 
 export enum CommunityItemTypeEnum {
@@ -83,7 +83,7 @@ export const getCommunityItems = async (type?: CommunityItemTypeEnum): Promise<C
 
 export const getCommunityItemsByCommunity = async (
   communityId: string,
-  type?: CommunityItemTypeEnum
+  type?: CommunityItemTypeEnum,
 ): Promise<CommunityItemType[]> => {
   ensureId(communityId);
   try {
@@ -100,7 +100,7 @@ export const getCommunityItemsByCommunity = async (
 export const getCommunityItemsByMembership = async (
   membershipId: string,
   communityId: string,
-  type?: CommunityItemTypeEnum
+  type?: CommunityItemTypeEnum,
 ): Promise<CommunityItemType[]> => {
   ensureId(membershipId);
   ensureId(communityId);

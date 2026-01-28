@@ -4,11 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui-tools/ui/button";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
+import { TokenTimer } from "@/components/auth/TokenTimer";
 
 export default function Navbar() {
-  const { isLogged, user, isCheckingAuth, logoutUser } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const logoutUser = useAuthStore((state) => state.logoutUser);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
@@ -38,13 +41,14 @@ export default function Navbar() {
               <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
               <span className="text-sm text-foreground/70">Loading...</span>
             </div>
-          ) : isCheckingAuth ? (
+          ) : isLoading ? (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
               <span className="text-sm text-foreground/70">Checking...</span>
             </div>
-          ) : isLogged ? (
+          ) : user ? (
             <div className="flex items-center gap-3">
+              <TokenTimer />
               <span className="text-sm text-foreground/70">Welcome{user?.username ? `, ${user.username}` : ""}</span>
               <Button
                 variant="transparent"
@@ -53,13 +57,7 @@ export default function Navbar() {
                   try {
                     setIsLoggingOut(true);
                     await logoutUser();
-
-                    // Clear all auth-related storage
-                    localStorage.removeItem("auth-store");
-                    localStorage.removeItem("authToken");
-                    localStorage.removeItem("user");
-                    sessionStorage.clear();
-
+                    // Auth store and logout handler clear everything automatically
                     router.push("/");
                   } catch (error) {
                     console.error("Logout failed:", error);

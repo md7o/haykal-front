@@ -1,6 +1,6 @@
 import axios from "axios";
 import { checkStatus, toError } from "../api-utils";
-import { api } from "@/api/api";
+import { api } from "@/api/auth/auth-endpoints";
 
 export type CommunityType =
   | "educational"

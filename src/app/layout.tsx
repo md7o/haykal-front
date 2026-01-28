@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat, Lobster, Inconsolata, Caveat } from "next/font/google";
 import "./globals.css";
 import { AOSInit } from "@/styles/Aos";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthInitializer } from "@/components/auth/AuthInitializer";
 import { UserPortfolioProvider } from "@/context/UserPortfolioContext";
 import { UserProvider } from "@/context/UserContext";
 import RootLayoutClient from "@/components/RootLayoutClient";
@@ -47,13 +47,12 @@ export default function RootLayout({
         className={`${montserrat.variable} ${lobster.variable} ${inconsolata.variable} ${caveat.variable}`}
         suppressHydrationWarning
       >
-        <AuthProvider>
-          <UserProvider>
-            <UserPortfolioProvider>
-              <RootLayoutClient>{children}</RootLayoutClient>
-            </UserPortfolioProvider>
-          </UserProvider>
-        </AuthProvider>
+        <AuthInitializer />
+        <UserProvider>
+          <UserPortfolioProvider>
+            <RootLayoutClient>{children}</RootLayoutClient>
+          </UserPortfolioProvider>
+        </UserProvider>
       </body>
     </html>
   );

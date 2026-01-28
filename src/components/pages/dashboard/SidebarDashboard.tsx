@@ -18,7 +18,7 @@ import { BarChart2, User, LogOut, LucideIcon, Eye, Edit, Trash2, QrCode } from "
 import { useStudio } from "@/context/studio-context-logic/StudioContext";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import PagesDialog from "@/components/ui-tools/custom_ui/DialogStorage";
 import { resolveUserPortfolioId } from "@/lib/portfolio-helpers";
 import ShareButton from "@/components/ui-tools/custom_ui/ShareButton";
@@ -32,7 +32,8 @@ interface MenuItem {
   onClick?: () => void;
 }
 export default function SidebarDashboard() {
-  const { logoutUser, user } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const logoutUser = useAuthStore((state) => state.logoutUser);
   const { portfolioId } = useStudio();
   const { refreshPortfolioId } = useUserPortfolio();
   const pathname = usePathname();

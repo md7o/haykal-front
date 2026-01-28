@@ -4,7 +4,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { updatePortfolio } from "@/api/portfolios-api/portfolio-endpoints";
 import { updatePage } from "@/api/portfolios-api/pages-endpoints";
 import { AnySectionInstance } from "@/types/sections";
@@ -28,7 +28,7 @@ export function usePublish(
   portfolioId: string | null,
   selectedPageId: string | null,
   sections: AnySectionInstance[],
-  refreshPortfolioData: () => Promise<void>
+  refreshPortfolioData: () => Promise<void>,
 ): UsePublishResult {
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export function usePublish(
   const [isSlugDialogOpen, setIsSlugDialogOpen] = useState(false);
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const router = useRouter();
 
   const handlePublishClick = useCallback(() => {
@@ -91,7 +91,7 @@ export function usePublish(
         setIsPublishing(false);
       }
     },
-    [sections, portfolioId, selectedPageId, user, refreshPortfolioData, router]
+    [sections, portfolioId, selectedPageId, user, refreshPortfolioData, router],
   );
 
   const goToSignIn = useCallback(() => {

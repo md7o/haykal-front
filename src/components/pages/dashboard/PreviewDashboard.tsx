@@ -3,26 +3,27 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { MonitorSmartphone, Smartphone, Eye, Type } from "lucide-react";
 import { Button } from "@/components/ui-tools/ui/button";
 import { Spinner } from "@/components/ui-tools/ui/spinner";
 import PublishedPortfolio from "../portfolio-feature/published-portfolio/PublishedPortfolio";
 
 export default function PreviewDashboard() {
-  const { user, isCheckingAuth } = useAuth();
-  const { portfolioData, isLoading, refreshPortfolioData } = useUserPortfolio();
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const { portfolioData, isLoading: isPortfolioLoading, refreshPortfolioData } = useUserPortfolio();
   const [view, setView] = useState<"desktop" | "mobile">("desktop");
   const router = useRouter();
 
   const didLoadRef = useRef(false);
   useEffect(() => {
     if (didLoadRef.current) return;
-    if (isCheckingAuth) return;
+    if (isLoading) return;
     if (!user) return;
     didLoadRef.current = true;
     refreshPortfolioData();
-  }, [isCheckingAuth, user, refreshPortfolioData]);
+  }, [isLoading, user, refreshPortfolioData]);
 
   const handleVisitSite = () => {
     if (!portfolioData) return;
@@ -46,7 +47,7 @@ export default function PreviewDashboard() {
     }
   })();
 
-  if (isLoading) {
+  if (isPortfolioLoading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <Spinner className="size-8 text-primary" />

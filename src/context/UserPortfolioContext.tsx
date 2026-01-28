@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useMemo } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { resolveUserPortfolioId, fetchFullPortfolio } from "@/lib/portfolio-helpers";
 import { Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
 import { createPortfolio } from "@/api/portfolios-api/portfolio-endpoints";
@@ -41,7 +41,7 @@ interface UserPortfolioContextType {
 const UserPortfolioContext = createContext<UserPortfolioContextType | undefined>(undefined);
 
 export function UserPortfolioProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const [userPortfolioId, setUserPortfolioId] = useState<string | null>(null);
   const [portfolioData, setPortfolioData] = useState<Portfolio | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -145,7 +145,7 @@ export function UserPortfolioProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       }
     },
-    [user, refreshPortfolioId]
+    [user, refreshPortfolioId],
   );
 
   // Removed automatic portfolio loading on mount.
@@ -160,7 +160,7 @@ export function UserPortfolioProvider({ children }: { children: ReactNode }) {
       refreshPortfolioData,
       createPortfolio: createPortfolioFn,
     }),
-    [userPortfolioId, portfolioData, isLoading, refreshPortfolioId, refreshPortfolioData, createPortfolioFn]
+    [userPortfolioId, portfolioData, isLoading, refreshPortfolioId, refreshPortfolioData, createPortfolioFn],
   );
 
   return <UserPortfolioContext.Provider value={contextValue}>{children}</UserPortfolioContext.Provider>;

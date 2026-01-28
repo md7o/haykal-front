@@ -4,24 +4,25 @@ import { useEffect, useRef } from "react";
 import SidebarDashboard from "@/components/pages/dashboard/SidebarDashboard";
 import HeaderDashboard from "@/components/pages/dashboard/HeaderDashboard";
 import { SidebarProvider, SidebarInset } from "@/components/ui-tools/ui/sidebar";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
 import type { CSSProperties, ReactNode } from "react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const { user, isCheckingAuth } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
   const { refreshPortfolioId, userPortfolioId, portfolioData } = useUserPortfolio();
   const didRequestRef = useRef(false);
 
   // Load portfolio only when dashboard actually mounts and auth is ready.
   useEffect(() => {
     if (didRequestRef.current) return;
-    if (isCheckingAuth) return;
+    if (isLoading) return;
     if (!user) return;
     if (portfolioData || userPortfolioId) return;
     didRequestRef.current = true;
     refreshPortfolioId();
-  }, [isCheckingAuth, user, portfolioData, userPortfolioId, refreshPortfolioId]);
+  }, [isLoading, user, portfolioData, userPortfolioId, refreshPortfolioId]);
 
   const sidebarStyles = { "--sidebar-width": "20rem" } as CSSProperties;
   return (

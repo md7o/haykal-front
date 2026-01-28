@@ -9,6 +9,7 @@ import { Button } from "@/components/ui-tools/ui/button";
 import { FormField } from "@/components/ui-tools/ui/form-field";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
 import { signIn } from "@/api/auth/auth-endpoints";
+import { useAuthStore } from "@/store/authStore";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginForm() {
@@ -34,8 +35,20 @@ export default function LoginForm() {
     try {
       setIsSubmitting(true);
       setSubmitError(null);
-      await signIn({ email: data.email, password: data.password });
-      router.push("/" + (search.get("next") || "dashboard/preview"));
+
+      // Sign in and get response
+      const response = await signIn(data.email, data.password);
+
+      // Update auth store
+      useAuthStore
+        .getState()
+        .setAuth(
+          { userId: response.userId, email: response.email, username: response.username },
+          response.accessToken,
+          response.accessTokenExpiry,
+        );
+
+      router.push("/");
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "An error occurred during login. Please try again.");
     } finally {

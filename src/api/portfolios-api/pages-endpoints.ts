@@ -1,5 +1,5 @@
 import axios from "axios";
-import { api } from "@/api/api";
+import { api } from "@/api/auth/auth-endpoints";
 import { toError, ensureId, checkStatus } from "@/api/api-utils";
 
 export type Page = {
@@ -44,7 +44,7 @@ export const createPage = async (portfolioId: string, dto: CreatePageDto): Promi
 export const updatePage = async (
   portfolioId: string, // kept for compatibility, but not strictly needed for the endpoint
   pageId: string,
-  dto: Partial<CreatePageDto>
+  dto: Partial<CreatePageDto>,
 ): Promise<Page | null> => {
   ensureId(pageId);
   try {

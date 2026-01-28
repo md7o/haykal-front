@@ -9,7 +9,8 @@ import { Button } from "@/components/ui-tools/ui/button";
 import { FormField } from "@/components/ui-tools/ui/form-field";
 import { PasswordStrengthIndicator } from "@/components/ui-tools/ui/password-strength";
 import { signUpSchema, type SignUpFormData } from "@/lib/validations";
-import { requestSignup, verifySignup, signIn } from "@/api/auth/auth-endpoints";
+import { signUp, verifySignUp } from "@/api/auth/auth-endpoints";
+import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui-tools/ui/input-otp";
 
@@ -75,11 +76,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
     try {
       setIsSubmitting(true);
       setSubmitError(null);
-      await requestSignup({
-        username: data.username,
-        email: data.email,
-        password: data.password,
-      });
+      await signUp(data.email, data.username, data.password);
       setEmailForOtp(data.email);
       setUsernameForOtp(data.username);
       setPasswordForOtp(data.password);
@@ -101,11 +98,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
       return;
     }
     try {
-      await requestSignup({
-        username: usernameForOtp,
-        email: emailForOtp,
-        password: "",
-      });
+      await signUp(emailForOtp, usernameForOtp, passwordForOtp);
       if (timerRef.current) clearInterval(timerRef.current);
       setResendTimer(90);
     } catch (err) {
@@ -134,12 +127,16 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
 
     try {
       // 1. Verify OTP
-      await verifySignup(emailForOtp, otp);
+      const verifyResponse = await verifySignUp(emailForOtp, otp);
 
-      // 2. Auto sign in the user
-      if (emailForOtp && passwordForOtp) {
-        await signIn({ email: emailForOtp, password: passwordForOtp });
-      }
+      // 2. Update auth store with verified user data
+      useAuthStore
+        .getState()
+        .setAuth(
+          { userId: verifyResponse.userId, email: verifyResponse.email, username: verifyResponse.username },
+          verifyResponse.accessToken,
+          verifyResponse.accessTokenExpiry,
+        );
 
       // 3. Optional success callback
       onSuccess?.(emailForOtp);

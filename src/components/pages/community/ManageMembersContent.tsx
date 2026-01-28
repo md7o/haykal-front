@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Trash2, Crown, Edit, User2 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { getAllMemberships, removeMembership } from "@/api/community/membership-endpoints";
 import type { membershipType } from "@/api/community/membership-endpoints";
 import { countCommentsByUser } from "@/api/community/userActivity-endpoints/comments-endpoints";
@@ -19,7 +19,7 @@ interface MemberWithActivity extends membershipType {
 }
 
 export default function ManageMembersContent({ slug }: ManageMembersContentProps) {
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const { communityData } = useCommunityData();
   const [members, setMembers] = useState<MemberWithActivity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -159,7 +159,7 @@ export default function ManageMembersContent({ slug }: ManageMembersContentProps
                       <span
                         className={cn(
                           "inline-flex items-center px-2.5 py-0.5 rounded-soft text-xs ",
-                          isOwner ? "bg-accent/15 text-accent" : "bg-description/10 text-description"
+                          isOwner ? "bg-accent/15 text-accent" : "bg-description/10 text-description",
                         )}
                       >
                         {isOwner ? "Owner" : "Member"}
@@ -178,7 +178,7 @@ export default function ManageMembersContent({ slug }: ManageMembersContentProps
                                 "p-1.5 transition-colors",
                                 "hover:bg-error/10 rounded-soft",
                                 "text-error",
-                                "disabled:opacity-50 disabled:cursor-not-allowed"
+                                "disabled:opacity-50 disabled:cursor-not-allowed",
                               )}
                               title="Remove member"
                             >
@@ -191,7 +191,7 @@ export default function ManageMembersContent({ slug }: ManageMembersContentProps
                                 "p-1.5 transition-colors",
                                 "hover:bg-accent/10 rounded-soft",
                                 "text-accent",
-                                "disabled:opacity-50 disabled:cursor-not-allowed"
+                                "disabled:opacity-50 disabled:cursor-not-allowed",
                               )}
                               title="Edit member"
                             >

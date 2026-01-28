@@ -9,9 +9,7 @@ import {
 } from "@/api/community/communityData-endpoints";
 import { Plus, Presentation } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { ensureAuthSession } from "@/api/api";
-import { useAuthStore, waitForAuthHydration } from "@/store/authStore";
+import { useAuthStore } from "@/store/authStore";
 import {
   Dialog,
   DialogTrigger,
@@ -32,7 +30,7 @@ import { Textarea } from "@/components/ui-tools/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
 
 export default function CommunitySetup() {
-  const { user, checkAuth } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const [communitySlug, setCommunitySlug] = useState("");
   const [communityDescription, setCommunityDescription] = useState("");
   const [communityType, setCommunityType] = useState<CommunityType>("other");
@@ -48,23 +46,25 @@ export default function CommunitySetup() {
   }, [communitySlug]);
 
   const handleCreateCommunity = async () => {
-    await waitForAuthHydration();
-    await checkAuth();
+    const { hasHydrated, accessToken, user: currentUser } = useAuthStore.getState();
 
-    try {
-      await ensureAuthSession();
-    } catch (error) {
-      console.error("Auth session failed:", error);
+    if (!hasHydrated) {
+      await new Promise<void>((resolve) => {
+        const interval = setInterval(() => {
+          if (useAuthStore.getState().hasHydrated) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 50);
+      });
+    }
+
+    const state = useAuthStore.getState();
+    if (!state.accessToken) {
       setShowLoginPrompt(true);
       return;
     }
-
-    const { accessToken, user: currentUser } = useAuthStore.getState();
-    if (!accessToken) {
-      setShowLoginPrompt(true);
-      return;
-    }
-    if (!currentUser) {
+    if (!state.user) {
       console.warn("No authenticated user found, proceeding with token only");
     }
 

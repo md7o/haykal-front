@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
 import { AnySectionInstance } from "@/types/sections";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { useUserPortfolio } from "@/context/UserPortfolioContext";
 import { SectionType } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 import { buildAvailableSections, findPage, isHome, mapSections } from "./studio-context-logic/studio-utils";
@@ -39,7 +39,6 @@ export interface StudioContextShape {
 const StudioContext = createContext<StudioContextShape | undefined>(undefined);
 
 export function StudioProvider({ children }: { children: ReactNode }) {
-  useAuth();
   const { userPortfolioId, portfolioData, refreshPortfolioData, isLoading: isPortfolioLoading } = useUserPortfolio();
 
   const [available] = useState<{ type: string; label: string }[]>(() => buildAvailableSections());
@@ -50,15 +49,15 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     refreshPortfolioData,
     selectedPageId,
     _setSelectedPageId,
-    () => {}
+    () => {},
   );
 
   const { used, setUsed, selectedSectionId, selectSection, addSection, removeSection, reorderUsed, updateSectionConfig } =
     useStudioSections(selectedPageId, pages, refreshPortfolioData, () => {});
 
   const setSelectedPageId = useCallback(
-    (idOrSlug: string | null) => _setSelectedPageId(idOrSlug ? findPage(pages, idOrSlug)?.id ?? null : null),
-    [pages]
+    (idOrSlug: string | null) => _setSelectedPageId(idOrSlug ? (findPage(pages, idOrSlug)?.id ?? null) : null),
+    [pages],
   );
 
   const portfolioId = userPortfolioId;
@@ -74,7 +73,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         console.error("Failed to update portfolio", e);
       }
     },
-    [portfolioId]
+    [portfolioId],
   );
 
   useEffect(() => {
@@ -85,22 +84,22 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    _setSlug((prev) => (prev !== (portfolioData.slug ?? null) ? portfolioData.slug ?? null : prev));
+    _setSlug((prev) => (prev !== (portfolioData.slug ?? null) ? (portfolioData.slug ?? null) : prev));
     _setAssets((prev: any) =>
-      JSON.stringify(prev) !== JSON.stringify(portfolioData.assets ?? null) ? portfolioData.assets ?? null : prev
+      JSON.stringify(prev) !== JSON.stringify(portfolioData.assets ?? null) ? (portfolioData.assets ?? null) : prev,
     );
 
     if (portfolioData.pages) {
       setPages((prev) =>
         prev.length === portfolioData.pages.length && prev.every((p, i) => p.id === portfolioData.pages[i].id)
           ? prev
-          : portfolioData.pages
+          : portfolioData.pages,
       );
 
       _setSelectedPageId((prev) => {
         if (prev && portfolioData.pages.some((p) => p.id === prev)) return prev;
         const home = portfolioData.pages.find(isHome);
-        return home ? home.id : portfolioData.pages[0]?.id ?? null;
+        return home ? home.id : (portfolioData.pages[0]?.id ?? null);
       });
     }
   }, [portfolioData, setPages]);
@@ -133,7 +132,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       _setSlug(s);
       await patchPortfolio({ slug: s });
     },
-    [patchPortfolio]
+    [patchPortfolio],
   );
 
   const setAssets = useCallback(
@@ -141,7 +140,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       _setAssets(a);
       await patchPortfolio({ assets: a as Record<string, any> });
     },
-    [patchPortfolio]
+    [patchPortfolio],
   );
 
   return (
