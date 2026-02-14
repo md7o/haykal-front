@@ -2,7 +2,7 @@
 
 import { use, useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createMembership, getMembershipsByUser } from "@/api/community/membership-endpoints";
+import { createMembership, getMembershipsByUser } from "@/api/community-api/membership-endpoints";
 import { useCommunityData } from "@/context/CommunityContext";
 import { Alert, AlertDescription } from "@/components/ui-tools/ui/alert";
 import { Spinner } from "@/components/ui-tools/ui/spinner";

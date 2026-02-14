@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-tools/
 import { FormField } from "@/components/ui-tools/ui/form-field";
 import { Button } from "@/components/ui-tools/ui/button";
 import { Grid3X3, Plus } from "lucide-react";
+import { blockFormStyles } from "../blockFormStyles";
 
 export interface ServiceItem {
   id: string;
@@ -51,12 +52,12 @@ export default function BusinessServicesBlockForm({
   };
 
   return (
-    <div className="h-full bg-white border-r border-gray-100 w-[25rem]">
-      <div className="h-full flex flex-col">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-title">Business Services</h2>
+    <div className={blockFormStyles.root}>
+      <div className={blockFormStyles.panel}>
+        <div className={blockFormStyles.header}>
+          <h2 className={blockFormStyles.headerTitle}>Business Services</h2>
         </div>
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+        <div className={blockFormStyles.content}>
           {/* Items list */}
           {(config.items || []).map((item, idx) => (
             <Card key={item.id}>

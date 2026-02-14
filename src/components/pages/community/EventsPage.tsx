@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getMembershipsByUser } from "@/api/community/membership-endpoints";
+import { getMembershipsByUser } from "@/api/community-api/membership-endpoints";
 import {
   getCommunityItemsByCommunity,
   CommunityItemTypeEnum,
   type CommunityItemType,
   deleteCommunityItem,
   getCommunityItems,
-} from "@/api/community/community-items-endpoints";
+} from "@/api/community-api/community-items-endpoints";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui-tools/ui/tabs";
 import { EventCreateDialog } from "@/components/pages/community/options-resources/event-resource/EventCreateDialog";
 import { EventsListSection } from "@/components/pages/community/options-resources/event-resource/EventsListSection";

@@ -3,6 +3,8 @@ import { Label } from "@/components/ui-tools/ui/label";
 import { DicesIcon, Target, Text } from "lucide-react";
 import { FormField } from "@/components/ui-tools/ui/form-field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
+import { blockFormStyles } from "../blockFormStyles";
+import { Textarea } from "@/components/ui-tools/ui/textarea";
 
 export interface SocialLinksConfig {
   socialLinks: string[];
@@ -24,14 +26,14 @@ interface Props {
 
 export default function CareerBlockForm({ config, onChange }: Props) {
   return (
-    <div className="h-full bg-white border-r border-gray-100 w-[25rem]">
-      <div className="h-full flex flex-col">
+    <div className={blockFormStyles.root}>
+      <div className={blockFormStyles.panel}>
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-title">Career</h2>
+        <div className={blockFormStyles.header}>
+          <h2 className={blockFormStyles.headerTitle}>Career</h2>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+        <div className={blockFormStyles.content}>
           <Card>
             <CardHeader className="flex-row items-center gap-2">
               <div className="flex items-center gap-2">
@@ -40,7 +42,7 @@ export default function CareerBlockForm({ config, onChange }: Props) {
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">Career Type</Label>
+              <Label>Career Type</Label>
               <Select
                 value={config.careerType || "experience-career"}
                 onValueChange={(v) => onChange({ careerType: v as "experience-career" | "education-career" })}
@@ -104,12 +106,13 @@ export default function CareerBlockForm({ config, onChange }: Props) {
                 <Label className="text-sm font-medium text-gray-700" htmlFor="career-note">
                   Note
                 </Label>
-                <textarea
+                <Textarea
                   id="career-note"
                   value={config.note || ""}
                   onChange={(e) => onChange({ note: e.target.value })}
                   placeholder="Details about the role, responsibilities or notes"
-                  className="w-full mt-2 rounded-md bg-white border border-card-border p-2 text-sm resize-vertical min-h-[5rem]"
+                  className="
+                  "
                 />
               </div>
             </CardContent>

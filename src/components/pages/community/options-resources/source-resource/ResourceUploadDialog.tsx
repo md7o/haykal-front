@@ -15,7 +15,7 @@ import { Button } from "@/components/ui-tools/ui/button";
 import { Plus, UploadCloud, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useResourceUpload } from "./resourcesHooks";
-import { updateCommunityItem, type CommunityItemType } from "@/api/community/community-items-endpoints";
+import { updateCommunityItem, type CommunityItemType } from "@/api/community-api/community-items-endpoints";
 
 interface ResourceUploadDialogProps {
   isOwner: boolean;

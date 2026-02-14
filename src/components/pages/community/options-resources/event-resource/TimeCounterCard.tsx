@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
-import type { CommunityItemType } from "@/api/community/community-items-endpoints";
+import type { CommunityItemType } from "@/api/community-api/community-items-endpoints";
 
 interface TimeCounterCardProps {
   events: CommunityItemType[];

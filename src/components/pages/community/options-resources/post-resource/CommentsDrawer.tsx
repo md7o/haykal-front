@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createComment, listComments, type commentType } from "@/api/community/userActivity-endpoints/comments-endpoints";
+import { createComment, listComments, type commentType } from "@/api/community-api/userActivity-endpoints/comments-endpoints";
 import { getCommentAuthor, formatRelative } from "@/lib/comment-helpers";
 import { Button } from "@/components/ui-tools/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui-tools/ui/drawer";

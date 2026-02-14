@@ -11,6 +11,7 @@ export function toError(err: unknown): Error {
     if (status === 409) {
       message = "Slug already in use";
     }
+
     if (typeof data === "string") {
       message = data;
     } else if (data && typeof data === "object") {
@@ -36,6 +37,7 @@ export function ensureId(id?: string) {
   // Basic UUID validation regex
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(id)) {
+    throw new Error("Invalid UUID format");
   }
 }
 

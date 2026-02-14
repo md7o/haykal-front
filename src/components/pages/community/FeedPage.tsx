@@ -6,7 +6,7 @@ import {
   CommunityItemTypeEnum,
   getCommunityItemsByCommunity,
   type CommunityItemType,
-} from "@/api/community/community-items-endpoints";
+} from "@/api/community-api/community-items-endpoints";
 import { useCommunityData } from "@/context/CommunityContext";
 import { CalendarClock, FolderOpen, MessageCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui-tools/ui/button";

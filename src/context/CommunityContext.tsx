@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { getCommunityDataBySlug } from "@/api/community/communityData-endpoints";
-import type { communityDataType } from "@/api/community/communityData-endpoints";
+import { getCommunityDataBySlug } from "@/api/community-api/communityData-endpoints";
+import type { communityDataType } from "@/api/community-api/communityData-endpoints";
 
 interface CommunityContextType {
   communityData: communityDataType | null;

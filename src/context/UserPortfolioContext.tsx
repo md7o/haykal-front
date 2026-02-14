@@ -6,7 +6,6 @@ import { resolveUserPortfolioId, fetchFullPortfolio } from "@/lib/portfolio-help
 import { Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
 import { createPortfolio } from "@/api/portfolios-api/portfolio-endpoints";
 import { createPage } from "@/api/portfolios-api/pages-endpoints";
-import { COLOR_COMBINATIONS, FONT_OPTIONS } from "@/lib/theme-utils";
 
 const PORTFOLIO_ID_KEY = "portfolioId";
 
@@ -82,8 +81,6 @@ export function UserPortfolioProvider({ children }: { children: ReactNode }) {
       } else {
         setPortfolioData(null);
       }
-    } catch (error) {
-      console.error("Failed to resolve user portfolio", error);
     } finally {
       setIsLoading(false);
     }
@@ -95,8 +92,6 @@ export function UserPortfolioProvider({ children }: { children: ReactNode }) {
       try {
         const fullData = await fetchFullPortfolio(userPortfolioId);
         setPortfolioData(fullData);
-      } catch (e) {
-        console.error(e);
       } finally {
         setIsLoading(false);
       }
@@ -110,30 +105,19 @@ export function UserPortfolioProvider({ children }: { children: ReactNode }) {
       if (!user) return;
       setIsLoading(true);
       try {
-        // Prepare default assets
-        const defaultPalette = COLOR_COMBINATIONS[0];
-        const defaultFont = FONT_OPTIONS[0].value;
-
-        const defaultAssets = {
-          palette: {
-            name: defaultPalette.name,
-            primary: defaultPalette.primary,
-            secondary: defaultPalette.secondary,
-          },
-          font: defaultFont,
-        };
+        const userId = (user as any).userId || (user as any).id;
+        if (!userId) throw new Error("User ID not found");
 
         // Create portfolio
-        const newPortfolio = await createPortfolio({ status, assets: defaultAssets });
+        const newPortfolio = await createPortfolio(userId, "portfolio");
 
-        // Create default Home page explicitly since backend might not handle nested creation
         if (newPortfolio?.id) {
           setCachedPortfolioId(newPortfolio.id);
+
+          // Create default Home page
           await createPage(newPortfolio.id, {
-            title: "Home",
             slug: "home",
             order: 0,
-            sections: [],
           });
         }
 

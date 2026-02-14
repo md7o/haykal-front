@@ -23,9 +23,11 @@ function detectPlatformIcon(url?: string) {
 export default function SocialLinksBlock({
   config,
   view,
+  asset,
 }: {
   config: SocialLinksConfig & { socialLinks?: string[] };
   view?: "desktop";
+  asset?: unknown;
 }) {
   const links = config.socialLinks || [];
 
@@ -44,7 +46,7 @@ export default function SocialLinksBlock({
               target={url ? "_blank" : undefined}
               rel={url ? "noopener noreferrer" : undefined}
               className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors ${
-                config.blockstyle === "icon-style" ? "bg-gray-100 hover:bg-gray-200" : ""
+                config.blockstyle === "icon-style" ? "bg-portf-primary hover:bg-portf-primary/80" : ""
               }`}
             >
               <Icon className="w-6 h-6" />
@@ -64,10 +66,12 @@ export default function SocialLinksBlock({
               href={url || "#"}
               target={url ? "_blank" : undefined}
               rel={url ? "noopener noreferrer" : undefined}
-              className="flex justify-center items-center gap-2 p-4 bg-card-bg rounded-soft hover:scale-[97%] duration-200 min-w-[12rem]"
+              className="flex justify-center items-center gap-2 p-4 bg-portf-primary rounded-soft hover:scale-[97%] duration-200 min-w-[12rem]"
             >
               <Icon className={iconClass} />
-              <span className={`${view === "desktop" ? "text-lg font-semibold" : "text-sm font-medium"} `}>
+              <span
+                className={`${view === "desktop" ? "text-lg font-semibold" : "text-sm font-medium"} [font-family:var(--portf-font)]`}
+              >
                 {url
                   ? url
                       .replace(/^https?:\/\//, "")
@@ -112,14 +116,14 @@ export default function SocialLinksBlock({
               rel={url ? "noopener noreferrer" : undefined}
               className={`flex items-center justify-center ${
                 view === "desktop" ? "xl:w-32 xl:h-32 w-20 h-20" : "w-20 h-20"
-              } flex flex-col rounded-base bg-card-bg hover:scale-[97%] duration-200`}
+              } flex flex-col rounded-base bg-portf-primary hover:scale-[97%] duration-200`}
             >
               <Icon className={iconClass} />
 
               <span
                 className={`${
-                  view === "desktop" ? "xl:text-lg xl:font-semibold text-sm font-medium" : "text-sm font-medium"
-                } break-words text-center`}
+                  view === "desktop" ? "xl:text-lg xl:font-semibold  text-sm font-medium" : "text-sm font-medium"
+                } break-words text-center font-portf-font`}
               >
                 {url
                   ? url

@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-tools/
 import { FormField } from "@/components/ui-tools/ui/form-field";
 import { Type, AlignLeft } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
+import { Textarea } from "@/components/ui-tools/ui/textarea";
+import { blockFormStyles } from "../blockFormStyles";
 
 export interface TextBlockConfig {
   title: string;
@@ -17,15 +19,15 @@ interface Props {
 
 export default function TextBlockForm({ config, onChange }: Props) {
   return (
-    <div className="h-full bg-white w-[25rem]">
-      <div className="flex flex-col">
+    <div className={blockFormStyles.root}>
+      <div className={blockFormStyles.panel}>
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-title">Text</h2>
+        <div className={blockFormStyles.header}>
+          <h2 className={blockFormStyles.headerTitle}>Text</h2>
         </div>
 
         {/* Form Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+        <div className={blockFormStyles.content}>
           <Card>
             <CardHeader className="flex-row items-center ">
               <div className="flex items-center gap-2">
@@ -47,7 +49,7 @@ export default function TextBlockForm({ config, onChange }: Props) {
                 <label htmlFor="text-description" className="text-sm font-medium text-title">
                   Description
                 </label>
-                <textarea
+                <Textarea
                   id="text-description"
                   value={config.description}
                   onChange={(e) => onChange({ description: e.target.value })}

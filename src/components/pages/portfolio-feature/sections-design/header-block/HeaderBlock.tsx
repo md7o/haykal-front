@@ -24,6 +24,7 @@ interface HeaderDesignProps {
   config: HeaderConfig;
   view?: "desktop" | "mobile";
   isPreview?: boolean;
+  asset?: unknown;
 }
 
 interface PageItem {
@@ -66,7 +67,7 @@ function Logo({ src, siteName }: { src?: string; siteName: string }) {
 function SiteName({ name }: { name: string }) {
   return (
     <div className="flex-shrink-0 py-4">
-      <span className="text-lg font-bold text-white tracking-tight">{name || "Portfolio"}</span>
+      <span className="text-lg font-bold text-white tracking-tight font-portf-font">{name || "Portfolio"}</span>
     </div>
   );
 }
@@ -84,13 +85,13 @@ function Navigation({ pages, isPreview, portfolioId }: { pages: PageItem[]; isPr
         {pages.map((page) => {
           const isActive = urlSelected && urlSelected === (page.slug || page.id);
           const base = "px-4 py-2 text-base font-medium text-white rounded-soft transition-all duration-200";
-          const activeCls = isActive ? "bg-accent/30 text-white" : "hover:bg-accent/10";
+          const activeCls = isActive ? "bg-black/20 text-white" : "hover:bg-black/10";
 
           const href = isPreview
             ? `?page=${page.slug || page.id}`
             : portfolioId
-            ? `/${portfolioId}?page=${page.slug || page.id}`
-            : `?page=${page.slug || page.id}`;
+              ? `/${portfolioId}?page=${page.slug || page.id}`
+              : `?page=${page.slug || page.id}`;
 
           return (
             <li key={page.id}>
@@ -109,7 +110,7 @@ function Navigation({ pages, isPreview, portfolioId }: { pages: PageItem[]; isPr
 // Main Component
 // ============================================================================
 
-export default function HeaderBlock({ config, view = "desktop", isPreview = false }: HeaderDesignProps) {
+export default function HeaderBlock({ config, view = "desktop", isPreview = false, asset }: HeaderDesignProps) {
   const {
     siteName,
     logoSrc,
@@ -124,6 +125,12 @@ export default function HeaderBlock({ config, view = "desktop", isPreview = fals
 
   // Fetch pages dynamically when portfolioId is available
   useEffect(() => {
+    // In preview mode, rely on config pages only (avoid extra fetches).
+    if (isPreview) {
+      setPages((prev) => (arePagesEqual(prev, configPages) ? prev : configPages));
+      return;
+    }
+
     // If pages are provided in config (e.g. from PublishedPortfolio or updated DisplayPage), use them.
     if (configPages.length > 0) {
       setPages((prev) => (arePagesEqual(prev, configPages) ? prev : configPages));
@@ -143,14 +150,16 @@ export default function HeaderBlock({ config, view = "desktop", isPreview = fals
       .catch((error) => {
         console.error("Failed to fetch pages for header:", error);
       });
-  }, [portfolioId, configPages]);
+  }, [portfolioId, configPages, isPreview]);
 
   // Memoized style classes
   const headerClasses = useMemo(() => {
     const baseClasses = "z-50 w-full transition-all duration-300";
     const positionClasses = fixed ? "sticky top-0" : "relative";
     const backgroundClasses =
-      backgroundType === "normal" ? "bg-card-bg/95 backdrop-blur-md shadow-sm border-b border-card-border/50" : "bg-transparent";
+      backgroundType === "normal"
+        ? "bg-portf-primary/95 backdrop-blur-md shadow-sm border-b border-portf-border/50"
+        : "bg-transparent";
 
     return `${baseClasses} ${positionClasses} ${backgroundClasses}`;
   }, [fixed, backgroundType]);

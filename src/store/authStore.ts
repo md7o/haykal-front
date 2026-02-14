@@ -1,13 +1,12 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { AuthUser } from "@/types/auth";
-import { checkAuthStatus, refreshAccessToken, logout as logoutRequest } from "@/api/auth/auth-endpoints";
+import { checkAuthStatus, refreshAccessToken, logout as logoutRequest } from "@/api/auth-api/auth-endpoints";
 
 interface AuthState {
   user: AuthUser | null;
   accessToken: string | null;
   accessTokenExpiry: number | null;
-  hasHydrated: boolean;
   isLoading: boolean;
   isInitialized: boolean;
 
@@ -63,22 +62,21 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       accessToken: null,
       accessTokenExpiry: null,
-      hasHydrated: false,
       isLoading: false,
       isInitialized: false,
 
       setAuth: (user, token, expiry) => {
-        set({ user, accessToken: token, accessTokenExpiry: expiry, hasHydrated: true });
+        set({ user, accessToken: token, accessTokenExpiry: expiry });
         scheduleTokenRefresh();
       },
 
-      setUser: (user) => set({ user, hasHydrated: true }),
+      setUser: (user) => set({ user }),
 
       setLoading: (loading) => set({ isLoading: loading }),
 
       logout: () => {
         cancelScheduledRefresh();
-        set({ user: null, accessToken: null, accessTokenExpiry: null, hasHydrated: true });
+        set({ user: null, accessToken: null, accessTokenExpiry: null });
       },
 
       initializeAuth: async () => {
@@ -86,21 +84,56 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
 
         try {
-          const { accessToken, accessTokenExpiry } = await refreshAccessToken();
-          const currentUser = get().user;
-          if (currentUser) {
-            set({ accessToken, accessTokenExpiry });
+          const currentState = get();
+          const currentUser = currentState.user;
+          const currentToken = currentState.accessToken;
+
+          // If we have a token from rehydration
+          if (currentToken && currentUser) {
+            // Check viability of the token
+            const isValid = isTokenValid();
+
+            if (isValid) {
+              scheduleTokenRefresh();
+              set({ isLoading: false, isInitialized: true });
+              return;
+            }
+
+            // Token expired, try to refresh immediately
+            try {
+              const { accessToken, accessTokenExpiry } = await refreshAccessToken();
+              set({ accessToken, accessTokenExpiry });
+              scheduleTokenRefresh();
+              set({ isLoading: false, isInitialized: true });
+              return;
+            } catch {
+              // Refresh failed, continue to fallback
+            }
           }
 
+          // Only refresh if we have a user but no token
+          if (currentUser && !currentToken) {
+            try {
+              const { accessToken, accessTokenExpiry } = await refreshAccessToken();
+              set({ accessToken, accessTokenExpiry });
+              scheduleTokenRefresh();
+              set({ isLoading: false, isInitialized: true });
+              return;
+            } catch {
+              // Refresh failed, clear auth
+              get().logout();
+              set({ isLoading: false, isInitialized: true });
+              return;
+            }
+          }
+
+          // No user or token - try to verify auth status
           const { isAuthenticated, user: backendUser } = await checkAuthStatus();
           if (isAuthenticated && backendUser) {
             set({ user: backendUser });
             scheduleTokenRefresh();
-            set({ isLoading: false, isInitialized: true });
-          } else {
-            get().logout();
-            set({ isLoading: false, isInitialized: true });
           }
+          set({ isLoading: false, isInitialized: true });
         } catch (error) {
           get().logout();
           set({ isLoading: false, isInitialized: true });
@@ -120,9 +153,9 @@ export const useAuthStore = create<AuthState>()(
       storage: createJSONStorage(() =>
         typeof window !== "undefined" ? localStorage : { getItem: () => null, setItem: () => {}, removeItem: () => {} },
       ),
-      partialize: (state) => ({ user: state.user }),
+      partialize: (state) => ({ user: state.user, accessToken: state.accessToken, accessTokenExpiry: state.accessTokenExpiry }),
       onRehydrateStorage: () => () => {
-        useAuthStore.setState({ hasHydrated: true });
+        // Hydration complete - let initializeAuth handle auth state validation
       },
     },
   ),

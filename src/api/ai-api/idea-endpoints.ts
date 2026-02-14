@@ -1,4 +1,4 @@
-import { api } from "@/api/auth/auth-endpoints";
+import { api } from "@/api/auth-api/auth-endpoints";
 import { toError, ensureId, checkStatus } from "@/api/api-utils";
 
 export type ideaType = {

@@ -14,9 +14,11 @@ type SocialLinksConfig = {
 export default function CareerBlock({
   config,
   view,
+  asset,
 }: {
   config: SocialLinksConfig & { socialLinks?: string[] };
   view?: "desktop";
+  asset?: unknown;
 }) {
   return (
     <section className={`${view === "desktop" ? "xl:w-[50rem] w-full xl:px-0 px-5" : "w-full px-5"} mx-auto`}>
@@ -29,11 +31,11 @@ export default function CareerBlock({
         ) : (
           <div className="flex items-center gap-2 mb-5">
             <UserStar size={30} className="text-accent" />
-            <h2 className="text-2xl font-bold">Experiences</h2>
+            <h2 className="text-2xl font-bold text-portf-text-dark">Experiences</h2>
           </div>
         )}
-        <div className={`${config.background !== "without-background" ? "rounded-base bg-card-bg p-6" : ""}`}>
-          {config.title && <h2 className="text-2xl font-semibold mb-2">{config.title}</h2>}
+        <div className={`${config.background !== "without-background" ? "rounded-base bg-portf-primary p-6" : ""}`}>
+          {config.title && <h2 className="text-2xl font-semibold mb-2 font-portf-font text-portf-text-light">{config.title}</h2>}
 
           {(() => {
             const infoItems: { id: string; value?: string; icon?: React.ReactNode }[] = [
@@ -54,12 +56,12 @@ export default function CareerBlock({
                     ) : (
                       <div key={item.id}>{item.value}</div>
                     )
-                  ) : null
+                  ) : null,
                 )}
               </div>
             );
           })()}
-          <p className="mt-8 mb-5">{config.note}</p>
+          <p className="mt-8 mb-5 font-portf-font text-portf-text-light">{config.note}</p>
         </div>
       </div>
       {/* {content} */}

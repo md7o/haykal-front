@@ -71,7 +71,6 @@ const cards: CardData[] = [
         icon: MessageCircle,
         text: "Engagement Suite: Full support for threaded discussions, polls, events, and a shared resource library.",
       },
-      { icon: Cpu, text: "AI Content Helper: The built-in AI drafts engagement starters and event descriptions for you." },
     ],
   },
   {
@@ -99,38 +98,43 @@ const cards: CardData[] = [
 
 export default function AdvantagesSection() {
   return (
-    <section className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-6 max-w-6xl mx-auto">
-      {cards.map((c, idx) => {
-        const TopIcon = c.topIcon;
-        return (
-          <Card
-            key={c.id}
-            data-aos="fade-up"
-            data-aos-delay={idx * 120}
-            className={`p-6 ${c.bgClass} ${c.textColor ?? "text-foreground"}`}
-          >
-            <div className="flex flex-col items-start gap-4">
-              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-white/20">
-                <TopIcon className={` ${c.textColor ? "text-white" : "text-foreground"}`} size={35} />
+    <section>
+      <h3 data-aos="fade-up" data-aos-delay={120} className="text-4xl font-bold text-center mb-5">
+        Why Us ?
+      </h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-6 max-w-6xl mx-auto">
+        {cards.map((c, idx) => {
+          const TopIcon = c.topIcon;
+          return (
+            <Card
+              key={c.id}
+              data-aos="fade-up"
+              data-aos-delay={idx * 100}
+              className={`p-6 ${c.bgClass} ${c.textColor ?? "text-foreground"}`}
+            >
+              <div className="flex flex-col items-start gap-4">
+                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-white/20">
+                  <TopIcon className={` ${c.textColor ? "text-white" : "text-foreground"}`} size={35} />
+                </div>
+
+                <h3 className={`text-2xl font-semibold ${c.textColor ?? "text-title"}`}>{c.title}</h3>
+
+                <ol className="list-none space-y-3 mt-2 w-full">
+                  {c.items.map((it, i) => {
+                    const Icon = it.icon;
+                    return (
+                      <li key={i} className="flex items-start gap-3">
+                        <Icon className={`w-5 h-5 mt-1 ${c.textColor ? "text-white/90" : "text-foreground/70"}`} />
+                        <span className={`${c.textColor ?? "text-description"}`}>{it.text}</span>
+                      </li>
+                    );
+                  })}
+                </ol>
               </div>
-
-              <h3 className={`text-2xl font-semibold ${c.textColor ?? "text-title"}`}>{c.title}</h3>
-
-              <ol className="list-none space-y-3 mt-2 w-full">
-                {c.items.map((it, i) => {
-                  const Icon = it.icon;
-                  return (
-                    <li key={i} className="flex items-start gap-3">
-                      <Icon className={`w-5 h-5 mt-1 ${c.textColor ? "text-white/90" : "text-foreground/70"}`} />
-                      <span className={`${c.textColor ?? "text-description"}`}>{it.text}</span>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-          </Card>
-        );
-      })}
+            </Card>
+          );
+        })}
+      </div>
     </section>
   );
 }

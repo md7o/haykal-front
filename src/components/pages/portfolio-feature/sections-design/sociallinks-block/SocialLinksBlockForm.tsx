@@ -4,6 +4,7 @@ import { Input } from "@/components/ui-tools/ui/input";
 import { Label } from "@/components/ui-tools/ui/label";
 import { Plus, Trash2, DicesIcon, Link } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
+import { blockFormStyles } from "../blockFormStyles";
 
 export interface SocialLinksConfig {
   socialLinks: string[];
@@ -38,15 +39,15 @@ export default function SocialLinksForm({ config, onChange }: Props) {
   const links = config.socialLinks || ["", "", ""];
 
   return (
-    <div className="h-full bg-white border-r border-gray-100 w-[25rem]">
-      <div className="h-full flex flex-col">
+    <div className={blockFormStyles.root}>
+      <div className={blockFormStyles.panel}>
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-gray-900">Social Links</h2>
+        <div className={blockFormStyles.header}>
+          <h2 className={blockFormStyles.headerTitle}>Social Links</h2>
         </div>
 
         {/* Form Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+        <div className={blockFormStyles.content}>
           {/* Content: three link fields without visible labels */}
           <Card>
             <CardHeader className="flex-row items-center gap-2">
@@ -75,7 +76,7 @@ export default function SocialLinksForm({ config, onChange }: Props) {
                       variant="outline"
                       size="small"
                       onClick={() => removeLink(index)}
-                      className="flex-shrink-0 w-8 h-8 p-0"
+                      className="flex-shrink-0 w-8 h-8 p-0 hover:bg-error"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -98,7 +99,7 @@ export default function SocialLinksForm({ config, onChange }: Props) {
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">Block Style</Label>
+              <Label>Block Style</Label>
               <Select
                 value={config.blockstyle || "grid-style"}
                 onValueChange={(v) => onChange({ blockstyle: v as "grid-style" | "card-style" | "icon-style" })}

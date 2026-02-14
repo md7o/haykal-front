@@ -1,6 +1,10 @@
 import { useState, useMemo } from "react";
-import { getMembershipsByUser } from "@/api/community/membership-endpoints";
-import { CommunityItemTypeEnum, createCommunityItem, type CommunityItemType } from "@/api/community/community-items-endpoints";
+import { getMembershipsByUser } from "@/api/community-api/membership-endpoints";
+import {
+  CommunityItemTypeEnum,
+  createCommunityItem,
+  type CommunityItemType,
+} from "@/api/community-api/community-items-endpoints";
 import { uploadAsset } from "@/api/portfolios-api/sections-endpoints";
 
 // ============ useResourceUpload Hook ============

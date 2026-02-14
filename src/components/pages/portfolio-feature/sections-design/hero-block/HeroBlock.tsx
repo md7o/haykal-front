@@ -16,9 +16,10 @@ export interface HeroConfig {
 interface HeroDesignProps {
   config: HeroConfig;
   view?: "desktop" | "mobile";
+  asset?: unknown;
 }
 
-export default function HeroBlock({ config, view = "desktop" }: HeroDesignProps) {
+export default function HeroBlock({ config, view = "desktop", asset }: HeroDesignProps) {
   const {
     heading,
     subheading,
@@ -47,7 +48,7 @@ export default function HeroBlock({ config, view = "desktop" }: HeroDesignProps)
   const layoutClasses = view === "mobile" ? "flex flex-col gap-10" : "flex flex-col xl:flex-row gap-24";
   const imageSize = view === "mobile" ? "w-64" : "xl:w-[30rem] w-[20rem]";
 
-  const buttonStyle = "uppercase bg-card-bg";
+  const buttonStyle = "uppercase bg-portf-primary";
   return (
     <section className={`${layoutClasses} items-center justify-center 2xl:mx-auto mx-36`}>
       {isImageLeft ? (
@@ -57,10 +58,10 @@ export default function HeroBlock({ config, view = "desktop" }: HeroDesignProps)
           </div>
 
           <div className={`relative space-y-5 ${alignmentClasses}`}>
-            <h1 className={`text-title font-bold relative ${headingSize}`}>{heading}</h1>
-            <p className="text-description">{subheading}</p>
-            {ctaLink ? (
-              <a href={ctaLink} target="_blank" rel="noopener noreferrer">
+            <h1 className={`text-portf-text-dark font-bold font-portf-font relative ${headingSize}`}>{config.heading}</h1>
+            <p className="text-portf-text-dark font-portf-font">{config.subheading}</p>
+            {config.ctaLink ? (
+              <a href={config.ctaLink} target="_blank" rel="noopener noreferrer">
                 <Button variant="block" size={"small"} className={buttonStyle}>
                   {ctaLabel}
                 </Button>
@@ -75,8 +76,8 @@ export default function HeroBlock({ config, view = "desktop" }: HeroDesignProps)
       ) : (
         <>
           <div className={`relative max-w-lg space-y-5 ${alignmentClasses}`}>
-            <h1 className={`text-title font-bold relative ${headingSize}`}>{heading}</h1>
-            <p className="text-description">{subheading}</p>
+            <h1 className={`text-portf-text-dark font-bold font-portf-font relative ${headingSize}`}>{heading}</h1>
+            <p className="text-portf-text-dark font-portf-font">{subheading}</p>
             {ctaLink ? (
               <a href={ctaLink} target="_blank" rel="noopener noreferrer">
                 <Button variant="block" size={"small"} className={buttonStyle}>

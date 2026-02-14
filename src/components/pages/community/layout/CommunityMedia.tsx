@@ -10,8 +10,8 @@ import FeedPage from "../FeedPage";
 import PostsPage from "../PostsPage";
 import ResourcesPage from "../ResourcesPage";
 import SettingsDialog from "../options-resources/SettingsDialog";
-import { getCommunityDataBySlug } from "@/api/community/communityData-endpoints";
-import type { communityDataType } from "@/api/community/communityData-endpoints";
+import { getCommunityDataBySlug } from "@/api/community-api/communityData-endpoints";
+import type { communityDataType } from "@/api/community-api/communityData-endpoints";
 import CommunicationPage from "../CommunicationPage";
 
 interface CommunityMediaProps {

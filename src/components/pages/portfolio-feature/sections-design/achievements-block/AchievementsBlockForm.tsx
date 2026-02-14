@@ -4,6 +4,7 @@ import { Label } from "@/components/ui-tools/ui/label";
 import { Image as ImageIcon, Text, Link as LinkIcon, DicesIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
 import { Input } from "@/components/ui-tools/ui/input";
+import { blockFormStyles } from "../blockFormStyles";
 
 export interface AchievementsConfig {
   imageSrc: string;
@@ -22,13 +23,13 @@ export default function AchievementsBlockForm({
   onChange: (partial: Partial<AchievementsConfig>) => void;
 }) {
   return (
-    <div className="h-full bg-white border-r border-gray-100 w-[25rem]">
-      <div className="h-full flex flex-col">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-title">Achievements</h2>
+    <div className={blockFormStyles.root}>
+      <div className={blockFormStyles.panel}>
+        <div className={blockFormStyles.header}>
+          <h2 className={blockFormStyles.headerTitle}>Achievements</h2>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+        <div className={blockFormStyles.content}>
           <Card>
             <CardHeader className="flex-row items-center ">
               <div className="flex items-center gap-2">
@@ -38,9 +39,7 @@ export default function AchievementsBlockForm({
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                <Label htmlFor="hero-bg-upload" className="text-sm font-medium text-description">
-                  Upload Image
-                </Label>
+                <Label htmlFor="hero-bg-upload">Upload Image</Label>
                 <div className="relative">
                   <Input
                     id="hero-bg-upload"
@@ -53,7 +52,7 @@ export default function AchievementsBlockForm({
                         onChange({ imageSrc: url });
                       }
                     }}
-                    className="h-full file:mr-3  file:px-4 file:rounded-md file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer cursor-pointer"
+                    className="h-full file:mr-3 bg-card-bg file:px-4 file:rounded-md file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer cursor-pointer"
                   />
                 </div>
               </div>
@@ -125,7 +124,7 @@ export default function AchievementsBlockForm({
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">Layout Direction</Label>
+              <Label>Layout Direction</Label>
               <Select value={config.layout || "row"} onValueChange={(v) => onChange({ layout: v as "row" | "column" })}>
                 <SelectTrigger className="w-full">
                   <SelectValue />

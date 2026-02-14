@@ -5,11 +5,11 @@ import { QRCodeSVG } from "qrcode.react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Copy, QrCode, Share2, Check, Facebook, Twitter, Linkedin, Mail, ExternalLink, ChevronRight } from "lucide-react";
-import { useUserPortfolio } from "@/context/UserPortfolioContext";
-import { getPortfolioById } from "@/api/portfolios-api/portfolio-endpoints";
+import { getPortfolioByUserId } from "@/api/portfolios-api/portfolio-endpoints";
 
 interface ShareButtonProps {
   portfolioId?: string;
+  portfolioSlug?: string;
   className?: string;
   children?: React.ReactNode;
 }
@@ -33,23 +33,30 @@ const SOCIAL_PLATFORMS = [
   },
 ];
 
-export default function ShareButton({ portfolioId, className, children }: ShareButtonProps) {
+export default function ShareButton({ portfolioId, portfolioSlug, className, children }: ShareButtonProps) {
   const [showQR, setShowQR] = useState(true);
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { portfolioData } = useUserPortfolio();
 
   useEffect(() => {
-    if (!portfolioId) {
+    if (!portfolioId && !portfolioSlug) {
       setPortfolioUrl("");
       return;
     }
+
+    // If slug is provided, use it directly
+    if (portfolioSlug) {
+      setPortfolioUrl(typeof window !== "undefined" ? `${window.location.origin}/portfolio/${portfolioId}` : "");
+      return;
+    }
+
+    // Otherwise, fetch portfolio by ID
     setIsLoading(true);
     (async () => {
       try {
-        const portfolio = await getPortfolioById(String(portfolioId));
+        const portfolio = await getPortfolioByUserId(String(portfolioId));
         const urlPart = portfolio?.slug || portfolioId;
         setPortfolioUrl(typeof window !== "undefined" ? `${window.location.origin}/portfolio/${urlPart}` : "");
       } catch {
@@ -58,7 +65,7 @@ export default function ShareButton({ portfolioId, className, children }: ShareB
         setIsLoading(false);
       }
     })();
-  }, [portfolioId]);
+  }, [portfolioId, portfolioSlug]);
 
   useEffect(() => {
     if (open) {
@@ -107,7 +114,7 @@ export default function ShareButton({ portfolioId, className, children }: ShareB
           <DialogDescription className="text-sm text-description">Share your site with others.</DialogDescription>
         </DialogHeader>
 
-        <div className="flex justify-between items-center gap-2 bg-white rounded-soft px-3 py-1">
+        <div className="flex justify-between items-center gap-2 bg-card-bg rounded-soft px-3 py-1">
           <p className="text-sm font-semibold text-title">{portfolioUrl || "No portfolio available"}</p>
           <Button
             variant="transparent"

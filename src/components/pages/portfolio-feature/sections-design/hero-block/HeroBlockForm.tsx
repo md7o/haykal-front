@@ -4,6 +4,7 @@ import { Input } from "@/components/ui-tools/ui/input";
 import { Label } from "@/components/ui-tools/ui/label";
 import { Type, Image as ImageIcon, Layout } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
+import { blockFormStyles } from "../blockFormStyles";
 
 export interface HeroConfig {
   heading: string;
@@ -24,15 +25,15 @@ interface Props {
 
 export default function HeroBlockForm({ config, onChange }: Props) {
   return (
-    <div className="h-full bg-white w-[25rem]">
-      <div className=" flex flex-col">
+    <div className={blockFormStyles.root}>
+      <div className={blockFormStyles.panel}>
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-title">Hero</h2>
+        <div className={blockFormStyles.header}>
+          <h2 className={blockFormStyles.headerTitle}>Hero</h2>
         </div>
 
         {/* Form Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+        <div className={blockFormStyles.content}>
           {/* Content */}
           <Card>
             <CardHeader className="flex-row items-center ">

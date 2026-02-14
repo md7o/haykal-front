@@ -1,6 +1,7 @@
 "use client";
 
-import { AuthLeftSection, AuthRightSection } from "@/components/pages/auth";
+import AuthLeftSection from "@/components/pages/auth/AuthLeftSection";
+import AuthRightSection from "@/components/pages/auth/AuthRightSection";
 import ResetPasswordForm from "@/components/pages/auth/forms/ResetPasswordForm";
 
 export default function ResetPassword() {

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { userType, getUserById } from "@/api/user/user-endpoints";
+import { userType, getUserById } from "@/api/user-api/user-endpoints";
 import { useAuthStore } from "@/store/authStore";
 
 interface UserContextType {

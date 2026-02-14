@@ -2,16 +2,14 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useStudio } from "@/context/studio-context-logic/StudioContext";
+import { usePages } from "@/context/PagesContext";
 
 /**
  * Hook to synchronize the selected page ID with the URL query parameter.
  * This allows deep linking to specific pages in the studio and handles browser navigation.
  */
 export function usePageRouting() {
-  const { selectedPageId, setSelectedPageId, pages } = useStudio();
-  const router = useRouter();
-  const pathname = usePathname();
+  const { selectedPageId, setSelectedPageId, pages } = usePages();
   const searchParams = useSearchParams();
 
   // Sync URL -> Context (Initial load or Back/Forward navigation)

@@ -4,10 +4,6 @@
 @theme {
   /* Base Colors */
   --color-base-bg: #212121;
-  --color-primary: #fff7f4;
-  --color-secondary: #fee9e1;
-
-  --portfolio-background: #ffffff;
 
   /* Text Colors */
   --color-title: white;
@@ -39,6 +35,17 @@
   --radius-strong: 20px;
   --radius-curvey: 50px;
   --radius-full: 999px;
+
+  /* Portfolio assets - dynamically */
+  --color-portf-primary: #fa886b;
+  --color-portf-secondary: #fa886bc0;
+  --color-portf-background: #ffffff;
+  --font-portf-font: "Montserrat", sans-serif;
+  --portf-font: var(--font-portf-font);
+
+  /* Portfolio assets - fixed */
+  --color-portf-text-dark: #303030;
+  --color-portf-text-light: #ffffff;
 }
 
 body {

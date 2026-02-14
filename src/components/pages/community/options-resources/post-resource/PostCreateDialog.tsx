@@ -6,7 +6,7 @@ import {
   updateCommunityItem,
   CommunityItemTypeEnum,
   type CommunityItemType,
-} from "@/api/community/community-items-endpoints";
+} from "@/api/community-api/community-items-endpoints";
 import { Button } from "@/components/ui-tools/ui/button";
 import { Input } from "@/components/ui-tools/ui/input";
 import { Textarea } from "@/components/ui-tools/ui/textarea";

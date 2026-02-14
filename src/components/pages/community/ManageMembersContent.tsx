@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { Trash2, Crown, Edit, User2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
-import { getAllMemberships, removeMembership } from "@/api/community/membership-endpoints";
-import type { membershipType } from "@/api/community/membership-endpoints";
-import { countCommentsByUser } from "@/api/community/userActivity-endpoints/comments-endpoints";
+import { getAllMemberships, removeMembership } from "@/api/community-api/membership-endpoints";
+import type { membershipType } from "@/api/community-api/membership-endpoints";
+import { countCommentsByUser } from "@/api/community-api/userActivity-endpoints/comments-endpoints";
 import { useCommunityData } from "@/context/CommunityContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui-tools/ui/table";
 import { cn } from "@/lib/utils";

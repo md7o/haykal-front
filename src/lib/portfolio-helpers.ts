@@ -1,7 +1,7 @@
-import { Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
+import { getPortfolioById, getPortfolioByUserId, Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
 import { getAllPortfolios } from "@/api/portfolios-api/portfolio-endpoints";
 import { createPortfolio } from "@/api/portfolios-api/portfolio-endpoints";
-import { getFullPortfolioById } from "@/api/portfolios-api/portfolio-endpoints";
+import { getAssetByPortfolioId } from "@/api/portfolios-api/assets-endpoints";
 /**
  * Robustly extracts the owner ID from a portfolio-like object.
  * Handles various shapes (flat userId, nested user object) to ensure compatibility.
@@ -50,8 +50,13 @@ export async function getUserPortfolios(userId: string): Promise<Portfolio[]> {
  * Useful for single-portfolio workflows.
  */
 export async function resolveUserPortfolioId(userId: string): Promise<string | null> {
-  const portfolios = await getUserPortfolios(userId);
-  return portfolios.length > 0 ? portfolios[0].id : null;
+  try {
+    const portfolios = await getUserPortfolios(userId);
+    return portfolios.length > 0 ? portfolios[0].id : null;
+  } catch (error) {
+    // Silently fail if unable to resolve (e.g., due to auth issues)
+    return null;
+  }
 }
 
 /**
@@ -65,7 +70,7 @@ export async function ensureUserPortfolioId(userId: string): Promise<string> {
   if (existingId) return existingId;
 
   try {
-    const created = await createPortfolio({});
+    const created = await createPortfolio(userId, "default-portfolio");
     return created.id;
   } catch (error) {
     throw new Error("Failed to ensure user portfolio: " + (error instanceof Error ? error.message : String(error)));
@@ -75,12 +80,22 @@ export async function ensureUserPortfolioId(userId: string): Promise<string> {
 /**
  * Fetches the full portfolio tree (Portfolio -> Pages -> Sections).
  * This ensures that the portfolio object is fully hydrated with all nested data.
+ * Returns null if portfolio cannot be fetched (e.g., due to auth issues or not found).
  */
 export async function fetchFullPortfolio(id: string): Promise<Portfolio | null> {
   try {
-    return await getFullPortfolioById(id);
+    const portfolio = await getPortfolioById(id);
+    if (!portfolio) return null;
+
+    if (!portfolio.asset) {
+      const asset = await getAssetByPortfolioId(id);
+      return { ...portfolio, asset };
+    }
+
+    return portfolio;
   } catch (error) {
-    console.error("Failed to fetch full portfolio:", error);
-    throw error;
+    // Silently fail if unable to fetch (e.g., due to auth issues or not found)
+    // This allows graceful degradation for unauthenticated access
+    return null;
   }
 }

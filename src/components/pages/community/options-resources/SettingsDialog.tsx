@@ -9,7 +9,7 @@ import {
   deleteCommunityData,
   CommunityType,
   COMMUNITY_TYPES,
-} from "@/api/community/communityData-endpoints";
+} from "@/api/community-api/communityData-endpoints";
 import { Copy, QrCode, Link as LinkIcon, Edit2, Save, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui-tools/ui/dialog";

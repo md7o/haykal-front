@@ -13,9 +13,11 @@ export interface AchievementsConfig {
 export default function AchievementsBlock({
   config,
   view = "desktop",
+  asset,
 }: {
   config: AchievementsConfig;
   view?: "desktop" | "mobile";
+  asset?: unknown;
 }) {
   const { imageSrc, title, description, ctaLabel, ctaLink, layout = "row" } = config;
 
@@ -27,8 +29,8 @@ export default function AchievementsBlock({
     view === "mobile"
       ? "flex flex-col gap-6"
       : isColumn
-      ? "flex flex-col gap-8"
-      : "flex flex-col xl:flex-row items-center gap-10";
+        ? "flex flex-col gap-8"
+        : "flex flex-col xl:flex-row items-center gap-10";
 
   const titleSize = view === "mobile" ? "text-2xl" : "sm:text-4xl text-3xl";
   const descSize = view === "mobile" ? "text-sm" : "text-base";
@@ -44,17 +46,17 @@ export default function AchievementsBlock({
 
   const TextContent = (
     <div className={`space-y-4 ${isColumn ? "text-center" : "text-left"}`}>
-      <h2 className={`${titleSize} font-semibold text-title break-words`}>{title}</h2>
-      {description ? <p className={`${descSize} text-description break-words`}>{description}</p> : null}
+      <h2 className={`${titleSize} font-semibold text-portf-text-dark font-portf-font break-words`}>{title}</h2>
+      {description ? <p className={`${descSize} text-portf-text-dark font-portf-font break-words`}>{description}</p> : null}
       {ctaLabel ? (
         ctaLink ? (
           <a href={ctaLink} target="_blank" rel="noopener noreferrer">
-            <Button variant="link" className="p-0">
+            <Button variant="link" className="p-0 text-portf-text-dark">
               {ctaLabel}
             </Button>
           </a>
         ) : (
-          <Button variant="link" className="p-0">
+          <Button variant="link" className="p-0 text-portf-text-dark">
             {ctaLabel}
           </Button>
         )

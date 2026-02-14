@@ -6,7 +6,6 @@ import { Button } from "../ui-tools/ui/button";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
-import { TokenTimer } from "@/components/auth/TokenTimer";
 
 export default function Navbar() {
   const user = useAuthStore((state) => state.user);
@@ -48,7 +47,6 @@ export default function Navbar() {
             </div>
           ) : user ? (
             <div className="flex items-center gap-3">
-              <TokenTimer />
               <span className="text-sm text-foreground/70">Welcome{user?.username ? `, ${user.username}` : ""}</span>
               <Button
                 variant="transparent"

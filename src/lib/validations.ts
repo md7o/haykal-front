@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+const usernameRegex = /^[a-zA-Z0-9_\s-]+$/;
 
 // Reusable field schemas
 export const emailSchema = z.string().min(1, "Email is required").email("Please enter a valid email address");
@@ -18,7 +18,7 @@ export const usernameSchema = z
   .string()
   .min(3, "Username must be at least 3 characters long")
   .max(20, "Username must be less than 20 characters")
-  .regex(usernameRegex, "Username can only contain letters, numbers, underscores, and hyphens");
+  .regex(usernameRegex, "Username can only contain letters, numbers, spaces, underscores, and hyphens");
 
 // Login form schema
 export const loginSchema = z.object({

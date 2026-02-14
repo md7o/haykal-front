@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMembershipsByUser } from "@/api/community/membership-endpoints";
+import { getMembershipsByUser } from "@/api/community-api/membership-endpoints";
 import {
   getCommunityItemsByMembership,
   CommunityItemTypeEnum,
   type CommunityItemType,
   deleteCommunityItem,
-} from "@/api/community/community-items-endpoints";
+} from "@/api/community-api/community-items-endpoints";
 import { CommunicationCreateDialog } from "./options-resources/communication-resource/CommunicationCreateDialog";
 import { CommunicationsListSection } from "./options-resources/communication-resource/CommunicationsListSection";
 import PagesDialog from "@/components/ui-tools/custom_ui/DialogStorage";
@@ -34,7 +34,7 @@ export default function CommunicationPage() {
     if (!communityData?.id || !ownerMembershipId) return;
     try {
       setCommunications(
-        await getCommunityItemsByMembership(ownerMembershipId, communityData.id, CommunityItemTypeEnum.COMMUNICATION)
+        await getCommunityItemsByMembership(ownerMembershipId, communityData.id, CommunityItemTypeEnum.COMMUNICATION),
       );
     } catch (err) {
       console.error("Failed to load communications", err);
@@ -67,7 +67,7 @@ export default function CommunicationPage() {
         const data = await getCommunityItemsByMembership(
           ownerMembershipId,
           communityData.id,
-          CommunityItemTypeEnum.COMMUNICATION
+          CommunityItemTypeEnum.COMMUNICATION,
         );
         if (!alive) return;
         setCommunications(data);

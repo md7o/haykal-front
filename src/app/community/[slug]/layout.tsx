@@ -7,7 +7,7 @@ import CommunitySidebar, { CommunityNavKey } from "@/components/pages/community/
 import SettingsDialog from "@/components/pages/community/options-resources/SettingsDialog";
 import { CommunityProvider, useCommunityData } from "@/context/CommunityContext";
 import { useAuthStore } from "@/store/authStore";
-import { getMembershipsByUser } from "@/api/community/membership-endpoints";
+import { getMembershipsByUser } from "@/api/community-api/membership-endpoints";
 
 interface CommunityLayoutProps {
   children: ReactNode;

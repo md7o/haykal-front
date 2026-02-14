@@ -8,13 +8,9 @@ import { useAuthStore } from "@/store/authStore";
  * No Context needed - just triggers the Zustand action
  */
 export const AuthInitializer = () => {
-  const hasHydrated = useAuthStore((state) => state.hasHydrated);
-
   useEffect(() => {
-    if (hasHydrated) {
-      useAuthStore.getState().initializeAuth();
-    }
-  }, [hasHydrated]);
+    useAuthStore.getState().initializeAuth();
+  }, []);
 
   return null; // Renders nothing
 };

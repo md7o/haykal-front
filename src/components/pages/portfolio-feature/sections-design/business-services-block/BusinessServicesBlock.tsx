@@ -35,8 +35,10 @@ function ServiceCard({ item, view }: { item: ServiceItem; view: "desktop" | "mob
 
   const Text = (
     <div className={`space-y-2 ${isColumn ? "text-center" : "text-left"}`}>
-      <h3 className={`${titleSize} font-bold  break-words`}>{item.title}</h3>
-      {item.description ? <p className={`${descSize} break-words`}>{item.description}</p> : null}
+      <h3 className={`${titleSize} font-bold font-portf-font text-portf-text-light break-words`}>{item.title}</h3>
+      {item.description ? (
+        <p className={`${descSize} font-portf-font text-portf-text-light-dark break-words`}>{item.description}</p>
+      ) : null}
       {item.ctaLabel ? (
         item.ctaLink ? (
           <a
@@ -57,7 +59,7 @@ function ServiceCard({ item, view }: { item: ServiceItem; view: "desktop" | "mob
   );
 
   return (
-    <div className={`bg-card-bg rounded-base py-8`}>
+    <div className={`bg-portf-primary rounded-base py-8`}>
       {isColumn ? (
         <div className="flex flex-col items-stretch gap-4">
           {ImageCard}
@@ -76,9 +78,11 @@ function ServiceCard({ item, view }: { item: ServiceItem; view: "desktop" | "mob
 export default function BusinessServicesBlock({
   config,
   view = "desktop",
+  asset,
 }: {
   config: BusinessServicesConfig;
   view?: "desktop" | "mobile";
+  asset?: unknown;
 }) {
   const containerWidth = view === "desktop" ? "max-w-[60rem]" : "w-full px-5";
   const gridCols = view === "mobile" ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3";

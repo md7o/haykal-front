@@ -24,3 +24,22 @@ export interface CommunityEvent {
   location?: string;
   rsvpStatus?: CommunityEventRsvpStatus;
 }
+
+export type CommunityType =
+  | "educational"
+  | "athlete"
+  | "gaming"
+  | "hobby"
+  | "local"
+  | "creator"
+  | "wellness"
+  | "financial"
+  | "artistic"
+  | "technology"
+  | "environmental"
+  | "scientific"
+  | "social"
+  | "culinary"
+  | "travel"
+  | "entertainment"
+  | "other";

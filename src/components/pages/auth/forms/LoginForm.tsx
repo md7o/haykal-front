@@ -8,7 +8,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui-tools/ui/button";
 import { FormField } from "@/components/ui-tools/ui/form-field";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
-import { signIn } from "@/api/auth/auth-endpoints";
+import { signIn } from "@/api/auth-api/auth-endpoints";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter, useSearchParams } from "next/navigation";
 

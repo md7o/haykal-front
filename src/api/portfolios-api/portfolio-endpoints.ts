@@ -1,46 +1,23 @@
 import axios from "axios";
-import { api } from "@/api/auth/auth-endpoints";
-import { toError, ensureId, checkStatus } from "@/api/api-utils";
-import { Page } from "@/api/portfolios-api/pages-endpoints";
+import { api, publicApi } from "@/api/auth-api/auth-endpoints";
+import { toError, checkStatus } from "@/api/api-utils";
+import type { Asset } from "@/types/asset";
+
 const PATH = "/portfolio";
-const publicApi = axios.create({ baseURL: process.env.NEXT_PUBLIC_API_URL });
 
 export type Portfolio = {
   id: string;
   userId: string;
-  slug?: string | null;
-  status: "DRAFT" | "PUBLISHED";
-  pages: Page[];
-  assets: Record<string, any> | null;
+  slug: string;
+  asset?: Asset | null;
   createdAt?: string | Date;
   updatedAt?: string | Date;
 };
 
-// Re-export Page for backward compatibility if needed, or prefer importing from pages-endpoints
-export type { Page };
-
-type CreatePortfolioDto = {
-  slug?: string | null;
-  status?: "DRAFT" | "PUBLISHED";
-  pages?: Array<Partial<Page>> | null;
-  assets?: Record<string, any> | null;
-};
-
-// Map client DTO to backend payload
-function mapCreatePayload(dto: CreatePortfolioDto) {
-  return {
-    ...(dto.slug !== undefined ? { slug: dto.slug } : {}),
-    ...(dto.status !== undefined ? { status: dto.status } : {}),
-    ...(dto.pages !== undefined ? { pages: dto.pages } : {}),
-    ...(dto.assets !== undefined ? { assets: dto.assets } : {}),
-  };
-}
-
-export const createPortfolio = async (dto: CreatePortfolioDto): Promise<Portfolio> => {
+export const createPortfolio = async (userId: string, slug: string): Promise<Portfolio> => {
   try {
-    const payload = mapCreatePayload(dto);
-    const res = await api.post<Portfolio>(PATH, payload);
-    checkStatus(res.status, [200, 201]);
+    const res = await api.post<Portfolio>(PATH, { userId, slug });
+    checkStatus(res.status, [201]);
     return res.data;
   } catch (err) {
     throw toError(err);
@@ -53,154 +30,134 @@ export const getAllPortfolios = async (): Promise<Portfolio[]> => {
     checkStatus(res.status);
     return res.data;
   } catch (err) {
+    // Return empty array for 401 (unauthorized/unauthenticated)
+    // This allows graceful degradation when not authenticated
+    if (axios.isAxiosError(err) && err.response?.status === 401) {
+      return [];
+    }
     throw toError(err);
   }
+};
+
+export const getPortfolioByIDorSlug = async (idOrSlug: string): Promise<Portfolio | null> => {
+  if (!idOrSlug) return null;
+
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
+
+  // Priority: try slug first, then ID
+  const attempts = isUUID
+    ? [idOrSlug, idOrSlug] // If already UUID, just try it once
+    : [idOrSlug, idOrSlug]; // If slug, try as slug then as potential ID
+
+  for (const param of attempts) {
+    try {
+      // Try with public API first (no auth required)
+      try {
+        const res = await publicApi.get<Portfolio>(`${PATH}/${param}`);
+        checkStatus(res.status);
+        return res.data;
+      } catch (publicErr) {
+        // If public API fails with 404, try authenticated API
+        if (axios.isAxiosError(publicErr) && publicErr.response?.status === 404) {
+          try {
+            const res = await api.get<Portfolio>(`${PATH}/${param}`);
+            checkStatus(res.status);
+            return res.data;
+          } catch (authErr) {
+            // Auth API also failed, continue to next attempt
+            if (axios.isAxiosError(authErr) && (authErr.response?.status === 404 || authErr.response?.status === 401)) {
+              continue;
+            }
+            throw authErr;
+          }
+        }
+        throw publicErr;
+      }
+    } catch (err) {
+      if (
+        axios.isAxiosError(err) &&
+        (err.response?.status === 404 || err.response?.status === 401 || err.response?.status === 500)
+      ) {
+        continue; // Try next attempt
+      }
+      throw toError(err);
+    }
+  }
+
+  return null;
 };
 
 export const getPortfolioById = async (id: string): Promise<Portfolio | null> => {
-  ensureId(id);
+  if (!id) return null;
   try {
-    const res = await api.get<Portfolio>(`${PATH}/${id}`);
-    checkStatus(res.status);
-    return res.data;
+    // Try with public API first (no auth required), fallback to authenticated API
+    try {
+      const res = await publicApi.get<Portfolio>(`${PATH}/${id}`);
+      checkStatus(res.status);
+      return res.data;
+    } catch (publicErr) {
+      // If public API fails with 404, return null
+      if (axios.isAxiosError(publicErr) && publicErr.response?.status === 404) {
+        return null;
+      }
+      // Otherwise, try with authenticated API (may have better access)
+      const res = await api.get<Portfolio>(`${PATH}/${id}`);
+      checkStatus(res.status);
+      return res.data;
+    }
   } catch (err) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) return null;
+    if (axios.isAxiosError(err) && (err.response?.status === 404 || err.response?.status === 401)) {
+      return null;
+    }
     throw toError(err);
   }
 };
 
-// Returns portfolio with nested pages and sections
-export const getFullPortfolioById = async (id: string): Promise<Portfolio | null> => {
-  ensureId(id);
+export const getPortfolioByUserId = async (userId: string): Promise<Portfolio | null> => {
+  if (!userId) return null;
   try {
-    const res = await api.get<Portfolio>(`${PATH}/${id}/full`);
-    checkStatus(res.status);
-    return res.data;
+    // Try with public API first (no auth required), fallback to authenticated API
+    try {
+      const res = await publicApi.get<Portfolio>(`${PATH}/user/${userId}`);
+      checkStatus(res.status);
+      return res.data;
+    } catch (publicErr) {
+      // If public API fails with 404, return null
+      if (axios.isAxiosError(publicErr) && publicErr.response?.status === 404) {
+        return null;
+      }
+      // Otherwise, try with authenticated API (may have better access)
+      const res = await api.get<Portfolio>(`${PATH}/${userId}`);
+      checkStatus(res.status);
+      return res.data;
+    }
   } catch (err) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) return null;
+    // Return null for 404 (not found) and 401 (unauthorized/unauthenticated)
+    // This allows public portfolio viewing without authentication
+    if (axios.isAxiosError(err) && (err.response?.status === 404 || err.response?.status === 401)) {
+      return null;
+    }
     throw toError(err);
   }
 };
 
-// Saves portfolio with nested pages and sections in one call
-export const saveFullPortfolio = async (id: string, payload: Partial<Portfolio>): Promise<Portfolio | null> => {
-  ensureId(id);
+export const updatePortfolio = async (id: string, data: { slug?: string }): Promise<Portfolio> => {
+  if (!id) throw new Error("Portfolio id is required");
   try {
-    const res = await api.put<Portfolio>(`${PATH}/${id}/full`, payload);
+    const res = await api.patch<Portfolio>(`${PATH}/${id}`, data);
     checkStatus(res.status, [200]);
     return res.data;
   } catch (err) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) return null;
     throw toError(err);
   }
 };
 
-export const getPortfolioBySlug = async (slug: string): Promise<Portfolio | null> => {
-  if (!slug) return null;
-  try {
-    const res = await api.get<Portfolio>(`${PATH}/slug/${encodeURIComponent(slug)}`);
-    checkStatus(res.status);
-    return res.data;
-  } catch (err) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) return null;
-    throw toError(err);
-  }
-};
-
-export const getPublicPortfolioById = async (id: string): Promise<Portfolio | null> => {
-  ensureId(id);
-  try {
-    const res = await publicApi.get<Portfolio>(`${PATH}/${id}`);
-    checkStatus(res.status);
-    return res.data;
-  } catch (err) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) return null;
-    throw toError(err);
-  }
-};
-
-export const getPublicPortfolioBySlug = async (slug: string): Promise<Portfolio | null> => {
-  if (!slug) return null;
-  try {
-    const res = await publicApi.get<Portfolio>(`${PATH}/slug/${encodeURIComponent(slug)}`);
-    checkStatus(res.status);
-    return res.data;
-  } catch (err) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) return null;
-    throw toError(err);
-  }
-};
-
-export const updatePortfolio = async (id: string, updateDto: Partial<CreatePortfolioDto>): Promise<Portfolio | null> => {
-  ensureId(id);
-  try {
-    // map only provided fields
-    const payload: Record<string, unknown> = {};
-    if (updateDto.slug !== undefined) payload.slug = updateDto.slug;
-    if (updateDto.status !== undefined) payload.status = updateDto.status;
-    if (updateDto.pages !== undefined) payload.pages = updateDto.pages as Array<Partial<Page>> | null;
-    if (updateDto.assets !== undefined) payload.assets = updateDto.assets;
-
-    const res = await api.patch(`${PATH}/${id}`, payload);
-    checkStatus(res.status, [200]);
-    // Some backends (TypeORM) return UpdateResult instead of entity; fetch to ensure we return the latest entity
-    const fresh = await api.get<Portfolio>(`${PATH}/${id}`);
-    checkStatus(fresh.status);
-    return fresh.data;
-  } catch (err) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) return null;
-    throw toError(err);
-  }
-};
-
-export const deletePortfolio = async (id: string): Promise<boolean> => {
-  ensureId(id);
+export const deletePortfolio = async (id: string): Promise<void> => {
+  if (!id) throw new Error("Portfolio id is required");
   try {
     const res = await api.delete(`${PATH}/${id}`);
-    return res.status === 200 || res.status === 204;
-  } catch (err) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) return false;
-    throw toError(err);
-  }
-};
-
-// ---- Shims replacing former studio-endpoints (custom design) using unified portfolio ----
-
-export type CustomDesign = Portfolio;
-
-export const createCustomDesign = async (createDto: {
-  portfolioId: string;
-  assets?: Record<string, any> | null;
-}): Promise<CustomDesign> => {
-  if (!createDto?.portfolioId) throw new Error("portfolioId is required");
-  try {
-    // Update only assets on the portfolio row (no portfolio-level sections)
-    const updated = await updatePortfolio(createDto.portfolioId, {
-      assets: createDto.assets,
-    });
-    // updatePortfolio may return null if 404
-    if (!updated) throw new Error("Portfolio not found");
-    return updated;
+    checkStatus(res.status, [200, 204]);
   } catch (err) {
     throw toError(err);
   }
-};
-
-export const getAllCustomDesigns = async (): Promise<CustomDesign[]> => {
-  return getAllPortfolios();
-};
-
-export const getCustomDesignById = async (id: string): Promise<CustomDesign | null> => {
-  return getPortfolioById(id);
-};
-
-export const updateCustomDesign = async (
-  id: string,
-  updateDto: { assets?: Record<string, any> | null },
-): Promise<CustomDesign | null> => {
-  return updatePortfolio(id, { assets: updateDto.assets ?? null });
-};
-
-export const deleteCustomDesign = async (id: string): Promise<boolean> => {
-  return deletePortfolio(id);
 };

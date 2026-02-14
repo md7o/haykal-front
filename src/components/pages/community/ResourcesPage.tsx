@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMembershipsByUser } from "@/api/community/membership-endpoints";
+import { getMembershipsByUser } from "@/api/community-api/membership-endpoints";
 import {
   getCommunityItemsByCommunity,
   CommunityItemTypeEnum,
   type CommunityItemType,
   deleteCommunityItem,
-} from "@/api/community/community-items-endpoints";
+} from "@/api/community-api/community-items-endpoints";
 import { useSearch } from "@/hooks/useSearch";
 import { Button } from "@/components/ui-tools/ui/button";
 import { Input } from "@/components/ui-tools/ui/input";

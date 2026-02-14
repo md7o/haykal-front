@@ -9,7 +9,7 @@ import { Button } from "@/components/ui-tools/ui/button";
 import { FormField } from "@/components/ui-tools/ui/form-field";
 import { PasswordStrengthIndicator } from "@/components/ui-tools/ui/password-strength";
 import { signUpSchema, type SignUpFormData } from "@/lib/validations";
-import { signUp, verifySignUp } from "@/api/auth/auth-endpoints";
+import { signUp, verifySignUp } from "@/api/auth-api/auth-endpoints";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui-tools/ui/input-otp";

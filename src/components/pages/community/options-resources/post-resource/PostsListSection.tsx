@@ -2,7 +2,7 @@
 
 import { EllipsisVertical, Heart, MessageCircle } from "lucide-react";
 import { CommunityCardSkeleton } from "@/components/pages/community/shared/CommunityCard";
-import type { CommunityItemType } from "@/api/community/community-items-endpoints";
+import type { CommunityItemType } from "@/api/community-api/community-items-endpoints";
 import { Button } from "@/components/ui-tools/ui/button";
 import {
   DropdownMenu,

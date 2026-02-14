@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMembershipsByUser } from "@/api/community/membership-endpoints";
+import { getMembershipsByUser } from "@/api/community-api/membership-endpoints";
 import {
   getCommunityItemsByMembership,
   CommunityItemType,
   CommunityItemTypeEnum,
   deleteCommunityItem,
-} from "@/api/community/community-items-endpoints";
-import { toggleLike } from "@/api/community/userActivity-endpoints/likes-endpoints";
+} from "@/api/community-api/community-items-endpoints";
+import { toggleLike } from "@/api/community-api/userActivity-endpoints/likes-endpoints";
 import { Input } from "@/components/ui-tools/ui/input";
 import { useSearch } from "@/hooks/useSearch";
 import CommentsDrawer from "./options-resources/post-resource/CommentsDrawer";

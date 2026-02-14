@@ -19,7 +19,7 @@ export interface SectionDefinition {
   type: string;
   label: string;
   defaultConfig: unknown;
-  Design: React.ComponentType<{ config: unknown; view?: "desktop" | "mobile"; isPreview?: boolean }>;
+  Design: React.ComponentType<{ config: unknown; view?: "desktop" | "mobile"; isPreview?: boolean; asset?: unknown }>;
   Form: React.ComponentType<{ config: unknown; onChange: (config: unknown) => void }>;
   validate?: (config: unknown) => string[];
 }

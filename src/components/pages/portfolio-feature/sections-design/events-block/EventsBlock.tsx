@@ -43,7 +43,15 @@ function useCountdown(target?: string) {
   return state;
 }
 
-export default function EventsBlock({ config, view = "desktop" }: { config: EventsConfig; view?: "desktop" | "mobile" }) {
+export default function EventsBlock({
+  config,
+  view = "desktop",
+  asset,
+}: {
+  config: EventsConfig;
+  view?: "desktop" | "mobile";
+  asset?: unknown;
+}) {
   const { imageSrc, title, description, ctaLabel, ctaLink, layout = "row", eventDate, countdownStyle = "background" } = config;
 
   const { days, hours, minutes, seconds } = useCountdown(eventDate);
@@ -54,8 +62,8 @@ export default function EventsBlock({ config, view = "desktop" }: { config: Even
     view === "mobile"
       ? "flex flex-col gap-6"
       : isColumn
-      ? "flex flex-col gap-8"
-      : "flex flex-col xl:flex-row items-center gap-10";
+        ? "flex flex-col gap-8"
+        : "flex flex-col xl:flex-row items-center gap-10";
 
   const titleSize = view === "mobile" ? "text-2xl" : "sm:text-4xl text-3xl";
   const descSize = view === "mobile" ? "text-sm" : "text-base";
@@ -69,8 +77,8 @@ export default function EventsBlock({ config, view = "desktop" }: { config: Even
 
   const TextContent = (
     <div className={`space-y-4 ${isColumn ? "text-center" : "text-left"}`}>
-      <h2 className={`${titleSize} font-semibold text-title break-words`}>{title}</h2>
-      {description ? <p className={`${descSize} text-description break-words`}>{description}</p> : null}
+      <h2 className={`${titleSize} font-semibold text-portf-text-dark font-portf-font break-words`}>{title}</h2>
+      {description ? <p className={`${descSize} text-portf-text-dark font-portf-font break-words`}>{description}</p> : null}
       {/* Countdown */}
       {countdownStyle === "background" ? (
         <div
@@ -84,7 +92,7 @@ export default function EventsBlock({ config, view = "desktop" }: { config: Even
             { label: "Minutes", value: minutes },
             { label: "Seconds", value: seconds },
           ].map((itm) => (
-            <div key={itm.label} className="bg-card-bg rounded-base p-3 w-full text-center">
+            <div key={itm.label} className="bg-portf-primary rounded-base p-3 w-full text-center">
               <div className={`${view === "mobile" ? "text-xl" : "text-2xl"} font-semibold `}>
                 {String(itm.value).padStart(2, "0")}
               </div>
@@ -103,12 +111,12 @@ export default function EventsBlock({ config, view = "desktop" }: { config: Even
       {ctaLabel ? (
         ctaLink ? (
           <a href={ctaLink} target="_blank" rel="noopener noreferrer">
-            <Button variant="link" className="p-0">
+            <Button variant="link" className="p-0 text-portf-text-dark">
               {ctaLabel}
             </Button>
           </a>
         ) : (
-          <Button variant="link" className="p-0">
+          <Button variant="link" className="p-0 text-portf-text-dark">
             {ctaLabel}
           </Button>
         )

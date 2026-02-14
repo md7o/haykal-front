@@ -1,6 +1,8 @@
 "use client";
 
-import { AuthLeftSection, AuthRightSection, SignUpForm } from "@/components/pages/auth";
+import AuthLeftSection from "@/components/pages/auth/AuthLeftSection";
+import AuthRightSection from "@/components/pages/auth/AuthRightSection";
+import SignUpForm from "@/components/pages/auth/forms/SignUpForm";
 
 export default function Signup() {
   return (

@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui-tools/ui/dropdown-menu";
-import type { CommunityItemType } from "@/api/community/community-items-endpoints";
+import type { CommunityItemType } from "@/api/community-api/community-items-endpoints";
 
 interface EventsListSectionProps {
   items: CommunityItemType[];
