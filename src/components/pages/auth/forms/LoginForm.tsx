@@ -5,19 +5,19 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui-tools/ui/button";
-import { FormField } from "@/components/ui-tools/ui/form-field";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { FormField } from "@/components/ui/shadcn_ui/form-field";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
-import { signIn } from "@/api/auth-api/auth-endpoints";
-import { useAuthStore } from "@/store/authStore";
-import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "@/lib/api/auth-api/auth-endpoints";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useRouter } from "next/navigation";
+import { getErrorMessage } from "@/lib/helpers/error-handler";
 
 export default function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const router = useRouter();
-  const search = useSearchParams();
 
   const {
     register,
@@ -50,7 +50,8 @@ export default function LoginForm() {
 
       router.push("/");
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "An error occurred during login. Please try again.");
+      const { message } = getErrorMessage(error);
+      setSubmitError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -90,8 +91,8 @@ export default function LoginForm() {
           </Link>
         </div>
         {submitError && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-600 flex items-center gap-2">
+          <div className="p-3 bg-error/50 rounded-soft">
+            <p className="text-sm  flex items-center gap-2">
               <AlertCircle className="w-4 h-4" />
               {submitError}
             </p>
@@ -101,10 +102,10 @@ export default function LoginForm() {
           {isSubmitting ? (
             <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Signing In...
+              Logging in...
             </div>
           ) : (
-            "Sign In"
+            "Login"
           )}
         </Button>
       </form>

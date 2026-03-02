@@ -1,14 +1,15 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useCallback, useEffect, useMemo } from "react";
-import { usePages } from "@/context/PagesContext";
-import { AnySectionInstance } from "@/types/sections";
+import { usePages } from "@/lib/context/PagesContext";
+import { AnySectionInstance } from "@/lib/types/sections";
 import { SectionType, sectionsVisualization } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
-import { buildAvailableSections, mapSections } from "@/context/hooks/studio-utils";
+import { buildAvailableSections, mapSections } from "@/lib/context/hooks/studio-utils";
 import {
   saveBatchSections,
   deleteBatchSections,
   reorderSections as reorderSectionsAPI,
+  updateSection,
 } from "@/api/portfolios-api/sections-endpoints";
 
 /**
@@ -51,6 +52,7 @@ export function SectionProvider({ children }: { children: ReactNode }) {
     if (!selectedPageId || !pages.length) {
       setSections([]);
       setOriginalSections([]);
+      setSelectedSectionId(null);
       return;
     }
 
@@ -58,12 +60,16 @@ export function SectionProvider({ children }: { children: ReactNode }) {
     if (!page) {
       setSections([]);
       setOriginalSections([]);
+      setSelectedSectionId(null);
       return;
     }
 
     const mapped = mapSections((page as any)?.sections || []);
     setSections(mapped);
     setOriginalSections(mapped);
+    // Don't clear selectedSectionId just because it's not in mapped yet
+    // (newly created sections with real IDs may not be in pages.sections yet from API)
+    // Only clear it if explicitly removed elsewhere
   }, [selectedPageId, pages]);
 
   // SECTION OPERATIONS (local changes, batch save on Save button)
@@ -155,8 +161,13 @@ export function SectionProvider({ children }: { children: ReactNode }) {
 
       const toCreate = nonHeaderSections.filter((s) => s.id.startsWith("temp-"));
       const toDelete = originalNonHeaderSections.filter((o) => !nonHeaderSections.find((s) => s.id === o.id)).map((s) => s.id);
+      const toUpdate = nonHeaderSections.filter(
+        (s) =>
+          !s.id.startsWith("temp-") &&
+          originalNonHeaderSections.find((o) => o.id === s.id && JSON.stringify(o.config) !== JSON.stringify(s.config)),
+      );
 
-      if (toCreate.length === 0 && toDelete.length === 0) return;
+      if (toCreate.length === 0 && toDelete.length === 0 && toUpdate.length === 0) return;
 
       // Batch create
       if (toCreate.length > 0) {
@@ -165,11 +176,25 @@ export function SectionProvider({ children }: { children: ReactNode }) {
           toCreate.map((s) => ({ type: s.type, config: s.config })),
         );
 
-        // Replace temp IDs with real IDs
+        // Replace temp IDs with real IDs and update selectedSectionId if needed
+        const idMap = new Map(toCreate.map((s, i) => [s.id, created[i]?.id]));
         setSections((prev) => {
-          const idMap = new Map(toCreate.map((s, i) => [s.id, created[i]?.id]));
           return prev.map((s) => (idMap.has(s.id) ? { ...s, id: idMap.get(s.id)! } : s));
         });
+        // If the selected section had a temp ID, update it to the real ID
+        setSelectedSectionId((prev) => (prev && idMap.has(prev) ? idMap.get(prev)! : prev));
+      }
+
+      // Batch update modified sections
+      if (toUpdate.length > 0) {
+        await Promise.all(
+          toUpdate.map((s) =>
+            updateSection(selectedPageId, s.id, {
+              type: s.type,
+              config: s.config,
+            }),
+          ),
+        );
       }
 
       // Batch delete

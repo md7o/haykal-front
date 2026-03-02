@@ -58,7 +58,7 @@ Guide for AI agents to become productive in this Next.js portfolio editor codeba
 ### Styling & Theme
 
 - Tailwind v4 via `@tailwindcss/postcss`
-- shadcn/ui components in `src/components/ui-tools/ui/`
+- shadcn/ui components in `src/components/ui/shadcn_ui/`
 - Theme tokens in `src/styles/Theme.css` (CSS custom properties)
 - Use `cn()` helper (from `clsx`/`tailwind-merge`) for class composition
 

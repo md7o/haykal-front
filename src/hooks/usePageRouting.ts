@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { usePages } from "@/context/PagesContext";
+import { usePages } from "@/lib/context/PagesContext";
 
 /**
  * Hook to synchronize the selected page ID with the URL query parameter.

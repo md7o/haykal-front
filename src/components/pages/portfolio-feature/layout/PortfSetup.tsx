@@ -2,7 +2,7 @@
 
 import { Plus, Presentation } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/lib/store/authStore";
 import {
   Dialog,
   DialogTrigger,
@@ -12,14 +12,14 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
-} from "@/components/ui-tools/ui/dialog";
-import { Button } from "@/components/ui-tools/ui/button";
-import { Input } from "@/components/ui-tools/ui/input";
-import { Label } from "@/components/ui-tools/ui/label";
-import AlertStatus from "@/components/ui-tools/custom_ui/AlertStatues";
+} from "@/components/ui/shadcn_ui/dialog";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { Input } from "@/components/ui/shadcn_ui/input";
+import { Label } from "@/components/ui/shadcn_ui/label";
+import AlertStatus from "@/components/ui/custom_ui/AlertsStatu";
 import { createPortfolio, getAllPortfolios, Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
 import { useRouter } from "next/navigation";
-import { useUserPortfolio } from "@/context/UserPortfolioContext";
+import { useUserPortfolio } from "@/lib/context/UserPortfolioContext";
 import { createPage } from "@/api/portfolios-api/pages-endpoints";
 
 export default function PortfSetup() {

@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { Trash2, Crown, Edit, User2 } from "lucide-react";
-import { useAuthStore } from "@/store/authStore";
-import { getAllMemberships, removeMembership } from "@/api/community-api/membership-endpoints";
-import type { membershipType } from "@/api/community-api/membership-endpoints";
-import { countCommentsByUser } from "@/api/community-api/userActivity-endpoints/comments-endpoints";
-import { useCommunityData } from "@/context/CommunityContext";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui-tools/ui/table";
+import { useAuthStore } from "@/lib/store/authStore";
+import { getAllMemberships, removeMembership } from "@/lib/api/community-api/membership-endpoints";
+import { membershipType } from "@/lib/api/community-api/membership-endpoints";
+import { useCommunityData } from "@/lib/context/CommunityContext";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/shadcn_ui/table";
 import { cn } from "@/lib/utils";
+import EditMemberDialog from "./options-resources/EditMemberDialog";
+import { countCommentsByUser } from "@/lib/api/community-api/userActivity-endpoints/comments-endpoints";
 
 interface ManageMembersContentProps {
   slug: string;
@@ -25,6 +26,8 @@ export default function ManageMembersContent({ slug }: ManageMembersContentProps
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+  const [editMember, setEditMember] = useState<MemberWithActivity | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     const loadMembers = async () => {
@@ -81,6 +84,16 @@ export default function ManageMembersContent({ slug }: ManageMembersContentProps
     }
   };
 
+  const handleEditMember = (member: MemberWithActivity) => {
+    setEditMember(member);
+    setEditDialogOpen(true);
+  };
+
+  const handleMemberUpdated = (updated: membershipType) => {
+    setMembers((prev) => prev.map((m) => (m.id === updated.id ? { ...m, ...updated } : m)));
+    setEditDialogOpen(false);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -130,6 +143,7 @@ export default function ManageMembersContent({ slug }: ManageMembersContentProps
                 <TableHead>User ID</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Joined</TableHead>
+                <TableHead>Subscription expiration date</TableHead>
                 <TableHead className="text-center">Comments</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -166,6 +180,15 @@ export default function ManageMembersContent({ slug }: ManageMembersContentProps
                       </span>
                     </TableCell>
                     <TableCell className="text-description text-sm">{joinDate}</TableCell>
+                    <TableCell className="text-description text-sm">
+                      {member.subscriptionExpiration
+                        ? new Date(member.subscriptionExpiration).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })
+                        : "—"}
+                    </TableCell>
                     <TableCell className="text-center text-description text-sm">{member.commentsCount ?? 0}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -185,7 +208,7 @@ export default function ManageMembersContent({ slug }: ManageMembersContentProps
                               <Trash2 className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleRemoveMember(member.id)}
+                              onClick={() => handleEditMember(member)}
                               disabled={actionInProgress === member.id}
                               className={cn(
                                 "p-1.5 transition-colors",
@@ -207,6 +230,16 @@ export default function ManageMembersContent({ slug }: ManageMembersContentProps
             </TableBody>
           </Table>
         </section>
+      )}
+
+      {editMember && communityData && (
+        <EditMemberDialog
+          member={editMember}
+          communityId={communityData.id}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onMemberUpdated={handleMemberUpdated}
+        />
       )}
     </div>
   );

@@ -1,12 +1,12 @@
 "use client";
 
-import { usePages } from "@/context/PagesContext";
-import { useSection } from "@/context/SectionContext";
-import { useUserPortfolio } from "@/context/UserPortfolioContext";
+import { usePages } from "@/lib/context/PagesContext";
+import { useSection } from "@/lib/context/SectionContext";
+import { useUserPortfolio } from "@/lib/context/UserPortfolioContext";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Cloud, MonitorSmartphone, Smartphone, Check } from "lucide-react";
-import { Button } from "@/components/ui-tools/ui/button";
-import DialogStorage from "@/components/ui-tools/custom_ui/DialogStorage";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import DialogStorage from "@/components/ui/custom_ui/DialogStorage";
 import { sectionsVisualization } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -14,10 +14,11 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { useViewMode } from "@/hooks/useViewMode";
 import { usePublish } from "@/hooks/usePublish";
 import { DraggableSection } from "./components/DraggableSection";
-import ShareButton from "@/components/ui-tools/custom_ui/ShareButton";
-import { Spinner } from "@/components/ui-tools/ui/spinner";
-import { usePortfolio } from "@/context/PortfolioContext";
+import ShareButton from "@/components/ui/custom_ui/ShareButton";
+import { Spinner } from "@/components/ui/shadcn_ui/spinner";
+import { usePortfolio } from "@/lib/context/PortfolioContext";
 import DrawerEditor from "./DrawerEditor";
+import { toast, Toaster } from "sonner";
 
 export default function DisplayPage() {
   const { portfolioId, slug, asset } = usePortfolio();
@@ -40,35 +41,6 @@ export default function DisplayPage() {
   const { refreshPortfolioData } = useUserPortfolio();
   const isPublished = false; // TODO: Implement publish status tracking
 
-  // Log portfolio context data
-  useEffect(() => {
-    console.log("[DisplayPage] Portfolio Context Data:", {
-      portfolioId,
-      slug,
-      timestamp: new Date().toISOString(),
-    });
-  }, [portfolioId, slug]);
-
-  // Log pages context data
-  useEffect(() => {
-    console.log("[DisplayPage] Pages Context Data:", {
-      pages: pages.map((p) => ({ id: p.id, slug: p.slug })),
-      selectedPageId,
-      timestamp: new Date().toISOString(),
-    });
-  }, [pages, selectedPageId]);
-
-  // Log sections context data
-  useEffect(() => {
-    console.log("[DisplayPage] Sections Context Data:", {
-      sectionsCount: sections.length,
-      sections: sections.map((s) => ({ id: s.id, type: s.type })),
-      isSectionsLoading,
-      syncError,
-      timestamp: new Date().toISOString(),
-    });
-  }, [sections, isSectionsLoading, syncError]);
-
   const [view, setView] = useViewMode();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showSavedIndicator, setShowSavedIndicator] = useState(false);
@@ -88,41 +60,21 @@ export default function DisplayPage() {
     goToSignIn,
   } = usePublish(portfolioId, selectedPageId, sections, refreshPortfolioData);
 
-  // Log portfolio refresh trigger
   useEffect(() => {
-    console.log("[DisplayPage] Refreshing portfolio data...", {
-      portfolioId,
-      timestamp: new Date().toISOString(),
-    });
     refreshPortfolioData();
-  }, [refreshPortfolioData]);
+  }, []);
 
-  // Auto-save every 5 seconds if there are pending changes
   useEffect(() => {
-    console.log("[DisplayPage] Auto-save state:", {
-      hasPendingChanges,
-      isSectionsLoading,
-      timestamp: new Date().toISOString(),
-    });
-
     if (!hasPendingChanges || isSectionsLoading) {
-      if (autoSaveIntervalRef.current) {
-        clearInterval(autoSaveIntervalRef.current);
-        autoSaveIntervalRef.current = null;
-      }
+      clearInterval(autoSaveIntervalRef.current as any);
+      autoSaveIntervalRef.current = null;
       return;
     }
 
     if (!autoSaveIntervalRef.current) {
       autoSaveIntervalRef.current = setInterval(async () => {
         try {
-          console.log("[DisplayPage] Auto-saving sections...", {
-            timestamp: new Date().toISOString(),
-          });
           await savePendingChanges();
-          console.log("[DisplayPage] Auto-save completed", {
-            timestamp: new Date().toISOString(),
-          });
           setShowSavedIndicator(true);
           setTimeout(() => setShowSavedIndicator(false), 2000);
         } catch (err) {
@@ -132,10 +84,8 @@ export default function DisplayPage() {
     }
 
     return () => {
-      if (autoSaveIntervalRef.current) {
-        clearInterval(autoSaveIntervalRef.current);
-        autoSaveIntervalRef.current = null;
-      }
+      clearInterval(autoSaveIntervalRef.current as any);
+      autoSaveIntervalRef.current = null;
     };
   }, [hasPendingChanges, isSectionsLoading, savePendingChanges]);
 
@@ -161,23 +111,18 @@ export default function DisplayPage() {
 
   // When a section is selected from the sidebar, ensure it's visible by scrolling the display container.
   useEffect(() => {
-    if (!selectedSectionId) return;
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    if (!selectedSectionId || !scrollContainerRef.current) return;
 
-    // Wait for DOM updates (sortable reflows etc.) before querying the element
     requestAnimationFrame(() => {
-      const el = container.querySelector(`[data-section-id="${selectedSectionId}"]`) as HTMLElement | null;
-      console.debug("[DisplayPage] scrollTo selectedSectionId", { selectedSectionId, found: !!el });
+      const el = scrollContainerRef.current?.querySelector(`[data-section-id="${selectedSectionId}"]`) as HTMLElement | null;
       if (!el) return;
-
       try {
         el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-      } catch (err) {
-        // Fallback: compute offset relative to container
-        const containerRect = container.getBoundingClientRect();
-        const elRect = el.getBoundingClientRect();
-        if (elRect.top < containerRect.top || elRect.bottom > containerRect.bottom) {
+      } catch {
+        const container = scrollContainerRef.current!;
+        const { top: containerTop, bottom: containerBottom } = container.getBoundingClientRect();
+        const { top: elTop, bottom: elBottom } = el.getBoundingClientRect();
+        if (elTop < containerTop || elBottom > containerBottom) {
           const offset = el.offsetTop - container.clientHeight / 2 + el.clientHeight / 2;
           container.scrollTo({ top: Math.max(0, offset), behavior: "smooth" });
         }
@@ -185,8 +130,34 @@ export default function DisplayPage() {
     });
   }, [selectedSectionId]);
 
+  const handleSaveShortcut = useCallback(
+    (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        if (!isSectionsLoading && hasPendingChanges) {
+          toast.success("Changes saved!");
+          savePendingChanges();
+        }
+      }
+    },
+    [isSectionsLoading, hasPendingChanges, savePendingChanges],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleSaveShortcut);
+    return () => {
+      window.removeEventListener("keydown", handleSaveShortcut);
+    };
+  }, [handleSaveShortcut]);
+
   return (
     <div className="h-full min-h-0 flex flex-col gap-4 xl:p-5 p-2 bg-card-bg">
+      <Toaster
+        toastOptions={{
+          style: { background: "var(--color-card-bg)", border: "var(--color-border)", color: "var(--color-title)" },
+        }}
+      />
+
       {/* AppBar */}
       <div className="hidden xl:flex justify-between items-center">
         <div className="space-x-2">
@@ -200,23 +171,19 @@ export default function DisplayPage() {
         <div className="flex items-center gap-3">
           {(publishError || syncError) && <div className="text-sm text-red-600">{publishError || syncError}</div>}
 
-          {/* Auto-save status indicator */}
           <div className="text-sm text-gray-500">
-            {isSectionsLoading && !showSavedIndicator ? (
-              <div className="flex items-center gap-1">
-                <Spinner className="size-4" />
-                Saving...
-              </div>
-            ) : showSavedIndicator ? (
-              <div className="flex items-center gap-1 text-description">
-                <Check className="size-4" />
-                Saved
-              </div>
-            ) : hasPendingChanges ? (
-              <div className="flex items-center gap-1">
-                <Spinner className="size-4" />
-                Saving...
-              </div>
+            {isSectionsLoading || hasPendingChanges ? (
+              showSavedIndicator ? (
+                <div className="flex items-center gap-1 text-description">
+                  <Check className="size-4" />
+                  Saved
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <Spinner className="size-4" />
+                  Saving...
+                </div>
+              )
             ) : lastSavedAt ? (
               <span>All changes saved</span>
             ) : null}
@@ -298,28 +265,25 @@ export default function DisplayPage() {
             if (!headerDef) return null;
 
             const headerInst = sections.find((s) => s.type === "header");
-            const baseConfig = headerInst ? headerInst.config : headerDef.defaultConfig;
             const cfg = {
               ...(headerDef.defaultConfig as any),
-              ...(baseConfig as any),
+              ...(headerInst?.config as any),
               portfolioId,
               pages: pages.map((p) => ({ id: p.id, title: p.slug, slug: p.slug })),
             };
-
-            const isActive = cfg?.active !== false;
-            if (!isActive) return null;
+            if (cfg?.active === false) return null;
 
             return (
               <div
-                className=""
                 onClick={(e) => {
                   const target = e.target as HTMLElement;
                   const link = target.closest("a");
-                  if (link && link.getAttribute("href")?.startsWith("?page=")) {
-                    e.preventDefault();
-                    const pageId = link.getAttribute("href")?.split("=")[1];
-                    if (pageId) setSelectedPageId(pageId);
-                  }
+                  if (!link) return;
+                  const href = link.getAttribute("href");
+                  if (!href?.startsWith("?page=")) return;
+                  e.preventDefault();
+                  const pageId = href.split("=")[1];
+                  if (pageId) setSelectedPageId(pageId);
                 }}
               >
                 <headerDef.Design config={cfg} view={view} isPreview={true} asset={asset} />
@@ -329,6 +293,7 @@ export default function DisplayPage() {
           {sections.filter((s) => s.type !== "header").length === 0 && (
             <div className="text-sm text-description text-center py-10">Add sections from the sidebar to preview them.</div>
           )}
+
           <div
             ref={scrollContainerRef}
             className={`flex-1 overflow-auto mx-auto first:mt-10 last:mb-10  ${

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { usePages } from "@/context/PagesContext";
-import { isHome } from "@/context/hooks/studio-utils";
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from "@/components/ui-tools/ui/sidebar";
-import { Button } from "@/components/ui-tools/ui/button";
-import { Input } from "@/components/ui-tools/ui/input";
+import { usePages } from "@/lib/context/PagesContext";
+import { isHome } from "@/lib/context/hooks/studio-utils";
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from "@/components/ui/shadcn_ui/sidebar";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { Input } from "@/components/ui/shadcn_ui/input";
 import { Plus, FileText, Pencil, Check, X, Trash2, GripVertical, Home } from "lucide-react";
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
-} from "@/components/ui-tools/ui/dialog";
+} from "@/components/ui/shadcn_ui/dialog";
 
 function PageRow({
   page,

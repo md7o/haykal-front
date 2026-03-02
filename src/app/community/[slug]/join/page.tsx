@@ -2,11 +2,12 @@
 
 import { use, useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createMembership, getMembershipsByUser } from "@/api/community-api/membership-endpoints";
-import { useCommunityData } from "@/context/CommunityContext";
-import { Alert, AlertDescription } from "@/components/ui-tools/ui/alert";
-import { Spinner } from "@/components/ui-tools/ui/spinner";
+
+import { useCommunityData } from "@/lib/context/CommunityContext";
+import { Alert, AlertDescription } from "@/components/ui/shadcn_ui/alert";
+import { Spinner } from "@/components/ui/shadcn_ui/spinner";
 import CommunityUserCard from "@/components/pages/community/CommunityUserCard";
+import { createMembership, getMembershipsByUser } from "@/lib/api/community-api/membership-endpoints";
 
 function normalizeCommunityTitle(slug: string) {
   const cleaned = slug.replace(/[-_]+/g, " ").trim();
@@ -52,7 +53,7 @@ export default function JoinPage({ params }: { params: Promise<{ slug: string }>
   const description = communityData?.description ?? null;
   const typeLabel = communityData?.type ?? "other";
 
-  const handleJoin = async () => {
+  const handleJoin = async (subscriptionExpiration: Date | null = null) => {
     setJoinError(null);
 
     if (!communityData?.id) {
@@ -62,7 +63,7 @@ export default function JoinPage({ params }: { params: Promise<{ slug: string }>
 
     try {
       setIsJoining(true);
-      await createMembership(communityData.id, "member");
+      await createMembership(communityData.id, "member", subscriptionExpiration);
       setJoinSuccess(true);
       setDialogOpen(false);
       setTimeout(() => router.push(`/community/${slug}/feed`), 500);
@@ -111,7 +112,7 @@ export default function JoinPage({ params }: { params: Promise<{ slug: string }>
             title={title}
             description={description}
             type={typeLabel}
-            onJoin={handleJoin}
+            onJoinWithDate={handleJoin}
             isJoining={isJoining}
             joinDisabled={isJoining}
             open={dialogOpen}

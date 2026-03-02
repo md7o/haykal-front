@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createComment, listComments, type commentType } from "@/api/community-api/userActivity-endpoints/comments-endpoints";
-import { getCommentAuthor, formatRelative } from "@/lib/comment-helpers";
-import { Button } from "@/components/ui-tools/ui/button";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui-tools/ui/drawer";
+import { commentType, createComment, listComments } from "@/lib/api/community-api/userActivity-endpoints/comments-endpoints";
+import { getCommentAuthor, formatRelative } from "@/lib/helpers/comment-helpers";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/shadcn_ui/drawer";
 import { Send } from "lucide-react";
 
 interface CommentsDrawerProps {
@@ -68,9 +68,9 @@ export default function CommentsDrawer({ postId, isOpen, onOpenChange }: Comment
 
   return (
     <Drawer open={isOpen} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[80vh] flex flex-col md:items-center bg-card-bg ">
+      <DrawerContent className="max-h-[80vh] flex flex-col md:items-center bg-card-main ">
         <DrawerHeader className="mb-5">
-          <div className="h-1 w-12 bg-card-border/30 rounded-full mx-auto mb-2" />
+          <div className="h-1 w-12 bg-accent/30 rounded-full mx-auto mb-2" />
           <DrawerTitle>
             Comments <span className="bg-accent px-2 rounded-full text-white">{comments.length}</span>
           </DrawerTitle>
@@ -90,12 +90,12 @@ export default function CommentsDrawer({ postId, isOpen, onOpenChange }: Comment
 
                 return (
                   <div key={comment.id} className="px-5">
-                    <div className="flex items-start gap-3 py-3">
+                    <div className="flex items-start gap-3 py-3 ">
                       <div className="flex-shrink-0 ">
                         {author.avatar ? (
-                          <img src={author.avatar} alt={author.name} className="h-10 w-10 rounded-full object-cover" />
+                          <img src={author.avatar} alt={author.name} className="h-10 w-10 rounded-full  object-cover" />
                         ) : (
-                          <div className="h-10 w-10 rounded-full bg-card-border/30 flex items-center justify-center text-xs font-medium text-title">
+                          <div className="h-10 w-10 rounded-full bg-card-border/30 flex items-center justify-center text-xs font-medium bg-card-bg text-title">
                             {author.initials}
                           </div>
                         )}
@@ -128,7 +128,7 @@ export default function CommentsDrawer({ postId, isOpen, onOpenChange }: Comment
             onChange={(e) => setCommentContent(e.target.value)}
             placeholder="Add a comment..."
             rows={1}
-            className="w-full h-14 p-3 bg-card-main rounded-strong text-sm focus-visible:outline-none resize-none"
+            className="w-full h-14 p-3 bg-card-bg rounded-strong text-sm focus-visible:outline-none resize-none"
           />
           <Button
             variant="fill"

@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-tools/ui/card";
-import { FormField } from "@/components/ui-tools/ui/form-field";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/shadcn_ui/card";
+import { FormField } from "@/components/ui/shadcn_ui/form-field";
 import { Type, AlignLeft } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
-import { Textarea } from "@/components/ui-tools/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/shadcn_ui/select";
+import { Textarea } from "@/components/ui/shadcn_ui/textarea";
 import { blockFormStyles } from "../blockFormStyles";
 
 export interface TextBlockConfig {

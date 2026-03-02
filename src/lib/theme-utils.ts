@@ -1,5 +1,5 @@
 import { COLOR_COMBINATIONS, FONT_OPTIONS } from "@/lib/theme-constants";
-import type { Asset, ColorTheme, FontTheme } from "@/types/asset";
+import type { Asset, ColorTheme, FontTheme } from "@/lib/types/asset";
 
 const DEFAULT_COLOR: ColorTheme = "BLUE";
 const DEFAULT_FONT: FontTheme = "SANS_SERIF";

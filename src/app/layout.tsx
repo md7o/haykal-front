@@ -3,8 +3,8 @@ import { Montserrat, Lobster, Inconsolata, Caveat } from "next/font/google";
 import "./globals.css";
 import { AOSInit } from "@/styles/Aos";
 import { AuthInitializer } from "@/components/auth/AuthInitializer";
-import { UserPortfolioProvider } from "@/context/UserPortfolioContext";
-import { UserProvider } from "@/context/UserContext";
+import { UserPortfolioProvider } from "@/lib/context/UserPortfolioContext";
+import { UserProvider } from "@/lib/context/UserContext";
 import RootLayoutClient from "@/components/RootLayoutClient";
 
 const montserrat = Montserrat({

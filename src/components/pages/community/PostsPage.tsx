@@ -1,28 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMembershipsByUser } from "@/api/community-api/membership-endpoints";
-import {
-  getCommunityItemsByMembership,
-  CommunityItemType,
-  CommunityItemTypeEnum,
-  deleteCommunityItem,
-} from "@/api/community-api/community-items-endpoints";
-import { toggleLike } from "@/api/community-api/userActivity-endpoints/likes-endpoints";
-import { Input } from "@/components/ui-tools/ui/input";
+import { Input } from "@/components/ui/shadcn_ui/input";
 import { useSearch } from "@/hooks/useSearch";
 import CommentsDrawer from "./options-resources/post-resource/CommentsDrawer";
 import { PostCreateDialog } from "@/components/pages/community/options-resources/post-resource/PostCreateDialog";
 import { PostsListSection } from "@/components/pages/community/options-resources/post-resource/PostsListSection";
 import { Search } from "lucide-react";
-import PagesDialog from "@/components/ui-tools/custom_ui/DialogStorage";
-import LoadingScreen from "@/components/ui-tools/custom_ui/LoadingScreen";
-import { useCommunityData } from "@/context/CommunityContext";
+import PagesDialog from "@/components/ui/custom_ui/DialogStorage";
+import LoadingScreen from "@/components/ui/custom_ui/LoadingScreen";
+import { useCommunityData } from "@/lib/context/CommunityContext";
+import {
+  CommunityItemType,
+  CommunityItemTypeEnum,
+  deleteCommunityItem,
+  getCommunityItemsByCommunity,
+} from "@/lib/api/community-api/community-items-endpoints";
+import { getMembershipsByUser } from "@/lib/api/community-api/membership-endpoints";
+import { toggleLike } from "@/lib/api/community-api/userActivity-endpoints/likes-endpoints";
 
 export default function PostsPage() {
   const { communityData } = useCommunityData();
   const [isOwner, setIsOwner] = useState(false);
   const [ownerMembershipId, setOwnerMembershipId] = useState<string | null>(null);
+  const [userMembershipId, setUserMembershipId] = useState<string | null>(null);
 
   const [posts, setPosts] = useState<CommunityItemType[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
@@ -44,9 +45,9 @@ export default function PostsPage() {
   });
 
   const refreshPosts = async () => {
-    if (!communityData?.id || !ownerMembershipId) return;
+    if (!communityData?.id) return;
     try {
-      setPosts(await getCommunityItemsByMembership(ownerMembershipId, communityData.id, CommunityItemTypeEnum.POST));
+      setPosts(await getCommunityItemsByCommunity(communityData.id, CommunityItemTypeEnum.POST));
     } catch (err) {
       console.error("Failed to load community items", err);
     }
@@ -56,11 +57,21 @@ export default function PostsPage() {
     let alive = true;
     (async () => {
       try {
-        const owner = (await getMembershipsByUser()).find((m) => m.role === "owner");
-        console.log("Owner membership:", owner);
-        if (!alive || !owner) return;
-        setIsOwner(true);
-        setOwnerMembershipId(owner.id);
+        const memberships = await getMembershipsByUser();
+        if (!alive) return;
+
+        // Get user's membership in this community (any role)
+        const userMembership = memberships.find((m) => m.role === "member" || m.role === "owner");
+        if (userMembership) {
+          setUserMembershipId(userMembership.id);
+        }
+
+        // Check if user is an owner
+        const owner = memberships.find((m) => m.role === "owner");
+        if (owner) {
+          setIsOwner(true);
+          setOwnerMembershipId(owner.id);
+        }
       } catch (err) {
         console.error("Failed to load memberships", err);
       }
@@ -71,12 +82,12 @@ export default function PostsPage() {
   }, []);
 
   useEffect(() => {
-    if (!communityData?.id || !ownerMembershipId) return;
+    if (!communityData?.id || !userMembershipId) return;
     let alive = true;
     (async () => {
       try {
         setPostsLoading(true);
-        const data = await getCommunityItemsByMembership(ownerMembershipId, communityData.id, CommunityItemTypeEnum.POST);
+        const data = await getCommunityItemsByCommunity(communityData.id, CommunityItemTypeEnum.POST);
         if (!alive) return;
         setPosts(data);
       } catch (err) {
@@ -88,7 +99,7 @@ export default function PostsPage() {
     return () => {
       alive = false;
     };
-  }, [communityData?.id, ownerMembershipId]);
+  }, [communityData?.id, userMembershipId]);
 
   const handlePostCreated = (newPost: CommunityItemType) => {
     setPosts((prev) => [newPost, ...prev]);
@@ -145,12 +156,25 @@ export default function PostsPage() {
     setPoppedId(postId);
     window.setTimeout(() => setPoppedId((x) => (x === postId ? null : x)), 250);
 
+    // Optimistic update
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === postId ? { ...p, isActive: !p.isActive, likesCount: p.isActive ? p.likesCount - 1 : p.likesCount + 1 } : p,
+      ),
+    );
+
     setToggling((s) => ({ ...s, [postId]: true }));
     try {
       await toggleLike(postId);
       await refreshPosts();
     } catch (err) {
       console.error("Failed to toggle like", err);
+      // Revert optimistic update on failure
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId ? { ...p, isActive: !p.isActive, likesCount: p.isActive ? p.likesCount - 1 : p.likesCount + 1 } : p,
+        ),
+      );
     } finally {
       setToggling((s) => ({ ...s, [postId]: false }));
     }

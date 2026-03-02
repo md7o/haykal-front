@@ -1,9 +1,9 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useCallback, useEffect, useMemo } from "react";
-import { usePortfolio } from "@/context/PortfolioContext";
-import { useUserPortfolio } from "@/context/UserPortfolioContext";
-import { useAuthStore } from "@/store/authStore";
+import { usePortfolio } from "@/lib/context/PortfolioContext";
+import { useUserPortfolio } from "@/lib/context/UserPortfolioContext";
+import { useAuthStore } from "@/lib/store/authStore";
 import {
   Page,
   getPages,
@@ -12,7 +12,7 @@ import {
   removePage,
   reorderPages as reorderPagesApi,
 } from "@/api/portfolios-api/pages-endpoints";
-import { findPage, isHome } from "@/context/hooks/studio-utils";
+import { findPage, isHome } from "@/lib/context/hooks/studio-utils";
 
 /**
  * PagesContext: Manages pages state and operations

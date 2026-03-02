@@ -9,7 +9,7 @@ import { Edit3, GripVertical, Trash2 } from "lucide-react";
 const STYLES = {
   icon: { size: "w-4 h-4", color: "text-description" },
   button: { padding: "p-1.5", border: "rounded" },
-  section: { border: "border-2 border-dashed py-3" },
+  section: { border: "border-2 border-dashed py-12" },
   selectedBorder: "border-accent/60",
   unselectedBorder: "border-card-border/20",
   hoverBorder: "border-accent/30",

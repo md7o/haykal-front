@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Button } from "@/components/ui-tools/ui/button";
+import { Button } from "@/components/ui/shadcn_ui/button";
 
 export interface ServiceItem {
   id: string;

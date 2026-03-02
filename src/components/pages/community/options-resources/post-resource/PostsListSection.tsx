@@ -1,18 +1,8 @@
 "use client";
 
-import { EllipsisVertical, Heart, MessageCircle } from "lucide-react";
+import { Heart, MessageCircle } from "lucide-react";
 import { CommunityCardSkeleton } from "@/components/pages/community/shared/CommunityCard";
-import type { CommunityItemType } from "@/api/community-api/community-items-endpoints";
-import { Button } from "@/components/ui-tools/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/components/ui-tools/ui/dropdown-menu";
+import type { CommunityItemType } from "@/lib/api/community-api/community-items-endpoints";
 
 interface PostsListSectionProps {
   posts: CommunityItemType[];
@@ -90,24 +80,6 @@ export const PostsListSection = ({
                   year: "numeric",
                 })}
               </time>
-              {/* <Button variant="transparent" size="icon" onClick={() => {}} aria-label="Open full editor">
-                <EllipsisVertical />
-              </Button> */}
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="transparent" size="icon" onClick={() => {}} aria-label="Open full editor">
-                    <EllipsisVertical />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-48" align="start">
-                  <DropdownMenuGroup>
-                    {isOwner && onEdit && <DropdownMenuItem onClick={() => onEdit(post)}>Edit</DropdownMenuItem>}
-                    {isOwner && onDelete && <DropdownMenuItem onClick={() => onDelete(post.id)}>Delete</DropdownMenuItem>}
-                    <DropdownMenuItem>Post Report</DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
 
             {/* Right footer side */}

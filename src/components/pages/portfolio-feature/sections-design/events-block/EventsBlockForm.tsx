@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-tools/ui/card";
-import { FormField } from "@/components/ui-tools/ui/form-field";
-import { Label } from "@/components/ui-tools/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/shadcn_ui/card";
+import { FormField } from "@/components/ui/shadcn_ui/form-field";
+import { Label } from "@/components/ui/shadcn_ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/shadcn_ui/select";
 import { Image as ImageIcon, Text, Link as LinkIcon, DicesIcon, Clock } from "lucide-react";
 import { blockFormStyles } from "../blockFormStyles";
 

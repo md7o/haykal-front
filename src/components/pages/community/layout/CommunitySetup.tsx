@@ -1,33 +1,29 @@
 "use client";
 
-import {
-  createCommunityData,
-  getAllCommunityData,
-  communityDataType,
-  COMMUNITY_TYPES,
-  CommunityType,
-} from "@/api/community-api/communityData-endpoints";
+import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Presentation } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
-import { useAuthStore } from "@/store/authStore";
 import {
   Dialog,
-  DialogTrigger,
+  DialogClose,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
-} from "@/components/ui-tools/ui/dialog";
-import { Button } from "@/components/ui-tools/ui/button";
-import { Input } from "@/components/ui-tools/ui/input";
-import { Label } from "@/components/ui-tools/ui/label";
-import AlertStatus from "@/components/ui-tools/custom_ui/AlertStatues";
-import { createMembership } from "@/api/community-api/membership-endpoints";
-import { useRouter } from "next/navigation";
-import { Textarea } from "@/components/ui-tools/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/shadcn_ui/dialog";
+import { Input } from "@/components/ui/shadcn_ui/input";
+import { Label } from "@/components/ui/shadcn_ui/label";
+import { Textarea } from "@/components/ui/shadcn_ui/textarea";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/shadcn_ui/select";
+import { COMMUNITY_TYPES, createCommunityData, getAllCommunityData } from "@/lib/api/community-api/communityData-endpoints";
+import { communityDataType } from "@/lib/api/community-api/communityData-endpoints";
+import { useAuthStore } from "@/lib/store/authStore";
+import { createMembership } from "@/lib/api/community-api/membership-endpoints";
+import { CommunityType } from "@/lib/types/community";
+import AlertsStatu from "@/components/ui/custom_ui/AlertsStatu";
 
 export default function CommunitySetup() {
   const [communitySlug, setCommunitySlug] = useState("");
@@ -194,7 +190,7 @@ export default function CommunitySetup() {
       </div>
 
       {showSuccess && (
-        <AlertStatus
+        <AlertsStatu
           variant="success"
           title="Community created"
           isVisible={showSuccess}

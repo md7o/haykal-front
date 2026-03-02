@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui-tools/ui/button";
+import { Button } from "@/components/ui/shadcn_ui/button";
 
 export interface EventsConfig {
   imageSrc: string;

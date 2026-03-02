@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Sidebar, SidebarContent } from "@/components/ui-tools/ui/sidebar";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui-tools/ui/tabs";
-import { useSection } from "@/context/SectionContext";
+import { Sidebar, SidebarContent } from "@/components/ui/shadcn_ui/sidebar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/shadcn_ui/tabs";
+import { useSection } from "@/lib/context/SectionContext";
 import DrawerEditor from "./DrawerEditor";
 import SectionsSidebar from "./studio-sidebar/SectionsSidebar";
 import AssetsSidebar from "./studio-sidebar/AssetsSidebar";

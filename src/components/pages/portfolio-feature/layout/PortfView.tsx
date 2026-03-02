@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { api, publicApi } from "@/api/auth-api/auth-endpoints";
 import { getPortfolioByIDorSlug, type Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
+import { recordPortfolioVisit } from "@/components/ui/custom_ui/ActivityDialog";
 import type { Page } from "@/api/portfolios-api/pages-endpoints";
 import type { Section } from "@/api/portfolios-api/sections-endpoints";
 import { sectionsVisualization } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
-import { inheritHeaderConfig, isHome, mapSections } from "@/context/hooks/studio-utils";
-import { Spinner } from "@/components/ui-tools/ui/spinner";
+import { inheritHeaderConfig, isHome, mapSections } from "@/lib/context/hooks/studio-utils";
+import { Spinner } from "@/components/ui/shadcn_ui/spinner";
 import { applyAssetsToDom } from "@/lib/theme-utils";
 
 type PublicPage = Page & { title?: string | null; sections?: unknown | null };
@@ -65,6 +66,7 @@ export default function PortfView({ idOrSlug }: { idOrSlug: string }) {
       }
 
       setPortfolio(fetchedPortfolio);
+      recordPortfolioVisit({ id: fetchedPortfolio.id, slug: fetchedPortfolio.slug });
 
       try {
         const rawPages = await fetchPublicPages(fetchedPortfolio.id || idOrSlug);
@@ -162,7 +164,7 @@ export default function PortfView({ idOrSlug }: { idOrSlug: string }) {
         {nonHeaderSections.length === 0 ? (
           <div className="text-sm text-[--color-description] text-center py-10">No sections to display.</div>
         ) : (
-          <div className="w-full space-y-6">
+          <div className="w-full space-y-20 first:mt-20 last:mb-20">
             {nonHeaderSections.map((sec) => {
               const def = sectionsVisualization[sec.type];
               if (!def) {

@@ -3,15 +3,15 @@
 import { CommunityCard, CommunityCardSkeleton } from "@/components/pages/community/shared/CommunityCard";
 import { TimeCounterCard } from "./TimeCounterCard";
 import { CalendarDays, MapPin, Link as LinkIcon, CalendarClock, MoreVertical } from "lucide-react";
-import { Button } from "@/components/ui-tools/ui/button";
+import { Button } from "@/components/ui/shadcn_ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui-tools/ui/dropdown-menu";
-import type { CommunityItemType } from "@/api/community-api/community-items-endpoints";
+} from "@/components/ui/shadcn_ui/dropdown-menu";
+import type { CommunityItemType } from "@/lib/api/community-api/community-items-endpoints";
 
 interface EventsListSectionProps {
   items: CommunityItemType[];

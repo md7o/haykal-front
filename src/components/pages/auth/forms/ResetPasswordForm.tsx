@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui-tools/ui/button";
-import { FormField } from "@/components/ui-tools/ui/form-field";
-import { resetPassword } from "@/api/auth-api/auth-endpoints";
-import { useRecoveryPassword } from "@/context/RecoveryPasswordContext";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { FormField } from "@/components/ui/shadcn_ui/form-field";
+import { resetPassword } from "@/lib/api/auth-api/auth-endpoints";
+import { useRecoveryPassword } from "@/lib/context/RecoveryPasswordContext";
+import { getErrorMessage } from "@/lib/helpers/error-handler";
 
 export default function ResetPasswordForm() {
   const router = useRouter();
@@ -43,7 +44,8 @@ export default function ResetPasswordForm() {
       setCode(""); // Clear code after successful reset
       setTimeout(() => router.push("/login"), 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to reset password");
+      const { message } = getErrorMessage(err);
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -76,7 +78,7 @@ export default function ResetPasswordForm() {
             }
             touched={!!error || confirmPassword.length > 0}
           />
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-bg-error">{error}</p>}
           <Button type="submit" disabled={isSubmitting || !password || !confirmPassword} size="huge">
             {isSubmitting ? "Resetting..." : "Reset Password"}
           </Button>

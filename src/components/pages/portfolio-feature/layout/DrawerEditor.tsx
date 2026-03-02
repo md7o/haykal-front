@@ -1,7 +1,7 @@
 // This page is the drawer for edit customize section
 
-import { Sheet, SheetContent, SheetClose, SheetTitle } from "@/components/ui-tools/ui/sheet";
-import { useSection } from "@/context/SectionContext";
+import { Sheet, SheetContent, SheetClose, SheetTitle } from "@/components/ui/shadcn_ui/sheet";
+import { useSection } from "@/lib/context/SectionContext";
 import { sectionsVisualization } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 
 interface DrawerEditorProps {
@@ -15,17 +15,22 @@ export default function DrawerEditor({ open, setOpen }: DrawerEditorProps) {
   const section = sections.find((s) => s.id === selectedSectionId) || null;
   const def = section ? sectionsVisualization[section.type] : null;
 
+  // Ensure form always has full config with defaults merged in
+  const fullConfig = section && def ? { ...(def.defaultConfig as Record<string, unknown>), ...(section.config || {}) } : null;
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent side="left" className="overflow-y-auto w-2xl">
+      <SheetContent side="left" className="overflow-y-auto w-2xl" onClick={(e) => e.stopPropagation()}>
         <SheetTitle className="sr-only">Section Editor</SheetTitle>
-        {!section && <div className="p-6 text-sm text-description">Select a section to edit.</div>}
+        {!section && (
+          <div className="p-6 text-sm text-description bg-card-bg rounded-lg border border-border">Select a section to edit.</div>
+        )}
         {section && def && (
           <div className="flex flex-col xl:flex-row gap-6">
             {def.Form ? (
-              <div className={isSectionsLoading ? "opacity-50 pointer-events-none" : ""}>
+              <div key={section.id} className={isSectionsLoading ? "opacity-50 pointer-events-none" : ""}>
                 <def.Form
-                  config={section.config as Record<string, unknown>}
+                  config={fullConfig as Record<string, unknown>}
                   onChange={(p) => updateSectionConfig(section.id, p as Record<string, unknown>)}
                 />
               </div>

@@ -238,7 +238,7 @@ className = "hover:bg-[--color-secondary] transition-colors";
 
 ### 10. Forms and Inputs
 
-- (Critical one) Use shadcn/ui form components from `src/components/ui-tools/ui/`.
+- (Critical one) Use shadcn/ui form components from `src/components/ui/shadcn_ui/`.
 - Apply theme colors via Tailwind classes.
 - Keep labels clean and aligned.
 - No borders; use `bg-[--color-card-bg]` for input backgrounds.

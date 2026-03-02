@@ -6,10 +6,10 @@ import {
   updateCommunityItem,
   CommunityItemTypeEnum,
   type CommunityItemType,
-} from "@/api/community-api/community-items-endpoints";
-import { Button } from "@/components/ui-tools/ui/button";
-import { Input } from "@/components/ui-tools/ui/input";
-import { Textarea } from "@/components/ui-tools/ui/textarea";
+} from "@/lib/api/community-api/community-items-endpoints";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { Input } from "@/components/ui/shadcn_ui/input";
+import { Textarea } from "@/components/ui/shadcn_ui/textarea";
 import {
   Dialog,
   DialogTrigger,
@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
-} from "@/components/ui-tools/ui/dialog";
+} from "@/components/ui/shadcn_ui/dialog";
 import { Plus, UploadCloud, X, Loader2, Image as ImageIcon } from "lucide-react";
 
 interface PostCreateDialogProps {

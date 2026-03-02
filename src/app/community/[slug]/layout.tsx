@@ -2,12 +2,12 @@
 
 import { ReactNode, useState, use, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui-tools/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/shadcn_ui/sidebar";
 import CommunitySidebar, { CommunityNavKey } from "@/components/pages/community/layout/CommunitySidebar";
 import SettingsDialog from "@/components/pages/community/options-resources/SettingsDialog";
-import { CommunityProvider, useCommunityData } from "@/context/CommunityContext";
-import { useAuthStore } from "@/store/authStore";
-import { getMembershipsByUser } from "@/api/community-api/membership-endpoints";
+import { CommunityProvider, useCommunityData } from "@/lib/context/CommunityContext";
+import { useAuthStore } from "@/lib/store/authStore";
+import { getMembershipsByUser } from "@/lib/api/community-api/membership-endpoints";
 
 interface CommunityLayoutProps {
   children: ReactNode;

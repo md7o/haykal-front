@@ -12,7 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui-tools/ui/sidebar";
+} from "@/components/ui/shadcn_ui/sidebar";
 
 export type CommunityNavKey = "feed" | "posts" | "resources" | "events" | "communication" | "settings" | "manage-members";
 

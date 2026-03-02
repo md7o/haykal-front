@@ -1,5 +1,5 @@
-import ResponseAi from "@/components/pages/ai-studio/responses/ResponseAi";
-import AiLayout from "@/components/pages/ai-studio/shared/LayoutAi";
+import ResponseAi from "@/components/pages/ai-studio/chat-output/ResponseAi";
+import AiLayout from "@/components/pages/ai-studio/LayoutAi";
 
 export default async function ResponsePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

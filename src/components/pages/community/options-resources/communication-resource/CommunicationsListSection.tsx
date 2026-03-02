@@ -1,18 +1,18 @@
 "use client";
 
-import { CommunityItemType } from "@/api/community-api/community-items-endpoints";
+import { CommunityItemType } from "@/lib/api/community-api/community-items-endpoints";
 import { CommunityCard, CommunityCardSkeleton } from "@/components/pages/community/shared/CommunityCard";
 import { COMMUNICATION_TYPES } from "./CommunicationCreateDialog";
 import { SocialIcon } from "react-social-icons";
 import { ExternalLink, MoreVertical } from "lucide-react";
-import { Button } from "@/components/ui-tools/ui/button";
+import { Button } from "@/components/ui/shadcn_ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui-tools/ui/dropdown-menu";
+} from "@/components/ui/shadcn_ui/dropdown-menu";
 
 interface CommunicationsListSectionProps {
   communications: CommunityItemType[];

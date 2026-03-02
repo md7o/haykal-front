@@ -1,12 +1,12 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from "react";
-import { useAuthStore } from "@/store/authStore";
-import { useUserPortfolio } from "@/context/UserPortfolioContext";
-import { fetchFullPortfolio } from "@/lib/portfolio-helpers";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useUserPortfolio } from "@/lib/context/UserPortfolioContext";
+import { fetchFullPortfolio } from "@/lib/helpers/portfolio-helpers";
 import { getAssetByPortfolioId } from "@/api/portfolios-api/assets-endpoints";
 import { applyAssetsToDom } from "@/lib/theme-utils";
-import type { Asset } from "@/types/asset";
+import type { Asset } from "@/lib/types/asset";
 
 /**
  * PortfolioContext: Manages portfolio-level metadata

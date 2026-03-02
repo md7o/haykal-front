@@ -1,16 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui-tools/ui/button";
+import { Button } from "@/components/ui/shadcn_ui/button";
 import Header from "@/components/layouts/Header";
 
 export default function HeroSection() {
-  const router = useRouter();
-
   return (
     <>
       <div
-        className="relative min-h-screen bg-cover bg-center "
+        className="relative min-h-screen bg-cover bg-center pt-20"
         style={{
           backgroundImage: 'url("/assets/images/ArtBackground.jpg")',
         }}

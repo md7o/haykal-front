@@ -7,20 +7,20 @@ import {
   getCommunityDataById,
   updateCommunityData,
   deleteCommunityData,
-  CommunityType,
   COMMUNITY_TYPES,
-} from "@/api/community-api/communityData-endpoints";
-import { Copy, QrCode, Link as LinkIcon, Edit2, Save, Trash2 } from "lucide-react";
+} from "@/lib/api/community-api/communityData-endpoints";
+import { Copy, QrCode, Link as LinkIcon, Save, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui-tools/ui/dialog";
-import { Button } from "@/components/ui-tools/ui/button";
-import { Input } from "@/components/ui-tools/ui/input";
-import { Label } from "@/components/ui-tools/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui-tools/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui-tools/ui/tabs";
-import AlertStatus from "@/components/ui-tools/custom_ui/AlertStatues";
-import { Textarea } from "@/components/ui-tools/ui/textarea";
-import LoadingScreen from "@/components/ui-tools/custom_ui/LoadingScreen";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/shadcn_ui/dialog";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { Input } from "@/components/ui/shadcn_ui/input";
+import { Label } from "@/components/ui/shadcn_ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/shadcn_ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/shadcn_ui/tabs";
+import AlertStatus from "@/components/ui/custom_ui/AlertsStatu";
+import { Textarea } from "@/components/ui/shadcn_ui/textarea";
+import LoadingScreen from "@/components/ui/custom_ui/LoadingScreen";
+import { CommunityType } from "@/lib/types/community";
 
 interface SettingsDialogProps {
   communityId: string;

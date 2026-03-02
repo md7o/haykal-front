@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui-tools/ui/button";
+import { Button } from "@/components/ui/shadcn_ui/button";
 import Image from "next/image";
 
 export interface HeroConfig {

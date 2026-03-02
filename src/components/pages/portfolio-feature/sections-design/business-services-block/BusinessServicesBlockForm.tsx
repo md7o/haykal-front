@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-tools/ui/card";
-import { FormField } from "@/components/ui-tools/ui/form-field";
-import { Button } from "@/components/ui-tools/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/shadcn_ui/card";
+import { FormField } from "@/components/ui/shadcn_ui/form-field";
+import { Button } from "@/components/ui/shadcn_ui/button";
 import { Grid3X3, Plus } from "lucide-react";
 import { blockFormStyles } from "../blockFormStyles";
 

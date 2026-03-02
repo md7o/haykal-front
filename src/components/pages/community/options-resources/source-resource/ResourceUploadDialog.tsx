@@ -1,7 +1,7 @@
 "use client";
 
-import { Input } from "@/components/ui-tools/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
+import { Input } from "@/components/ui/shadcn_ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/shadcn_ui/select";
 import {
   Dialog,
   DialogClose,
@@ -10,12 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui-tools/ui/dialog";
-import { Button } from "@/components/ui-tools/ui/button";
+} from "@/components/ui/shadcn_ui/dialog";
+import { Button } from "@/components/ui/shadcn_ui/button";
 import { Plus, UploadCloud, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useResourceUpload } from "./resourcesHooks";
-import { updateCommunityItem, type CommunityItemType } from "@/api/community-api/community-items-endpoints";
+import { updateCommunityItem, type CommunityItemType } from "@/lib/api/community-api/community-items-endpoints";
 
 interface ResourceUploadDialogProps {
   isOwner: boolean;

@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui-tools/ui/card";
-import { Button } from "@/components/ui-tools/ui/button";
+import { Card, CardContent } from "@/components/ui/shadcn_ui/card";
+import { Button } from "@/components/ui/shadcn_ui/button";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -9,7 +9,6 @@ import {
   List,
   Star,
   MapPin,
-  Code,
   Users,
   QrCode,
   ShieldCheck,

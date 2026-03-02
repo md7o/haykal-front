@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui-tools/ui/skeleton";
+import { Skeleton } from "@/components/ui/shadcn_ui/skeleton";
 
 export function CommunityCard({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (

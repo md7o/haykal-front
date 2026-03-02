@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
-import { getMembershipsByUser } from "@/api/community-api/membership-endpoints";
+import { getMembershipsByUser } from "@/lib/api/community-api/membership-endpoints";
 import {
   CommunityItemTypeEnum,
   createCommunityItem,
   type CommunityItemType,
-} from "@/api/community-api/community-items-endpoints";
-import { uploadAsset } from "@/api/portfolios-api/sections-endpoints";
+} from "@/lib/api/community-api/community-items-endpoints";
+import { uploadFile } from "@/lib/api/upload-endpoints";
 
 // ============ useResourceUpload Hook ============
 export interface UseResourceUploadState {
@@ -88,7 +88,7 @@ export const useResourceUpload = () => {
 
       if (state.uploadKind === "file" && state.uploadFile) {
         try {
-          const uploadedAsset = await uploadAsset(state.uploadFile);
+          const uploadedAsset = await uploadFile(state.uploadFile);
           fileUrl = uploadedAsset.url;
           fileName = uploadedAsset.filename;
           fileType = uploadedAsset.mimetype;

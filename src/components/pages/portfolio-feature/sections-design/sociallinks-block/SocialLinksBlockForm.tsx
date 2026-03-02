@@ -1,9 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-tools/ui/card";
-import { Button } from "@/components/ui-tools/ui/button";
-import { Input } from "@/components/ui-tools/ui/input";
-import { Label } from "@/components/ui-tools/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/shadcn_ui/card";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { Input } from "@/components/ui/shadcn_ui/input";
+import { Label } from "@/components/ui/shadcn_ui/label";
 import { Plus, Trash2, DicesIcon, Link } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui-tools/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/shadcn_ui/select";
 import { blockFormStyles } from "../blockFormStyles";
 
 export interface SocialLinksConfig {

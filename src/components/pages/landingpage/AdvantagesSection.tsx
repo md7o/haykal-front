@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui-tools/ui/card";
+import { Card, CardContent } from "@/components/ui/shadcn_ui/card";
 import {
   Smartphone,
   RefreshCw,
@@ -99,33 +99,33 @@ const cards: CardData[] = [
 export default function AdvantagesSection() {
   return (
     <section>
-      <h3 data-aos="fade-up" data-aos-delay={120} className="text-4xl font-bold text-center mb-5">
-        Why Us ?
+      <h3 data-aos="fade-up" data-aos-delay={120} className="text-3xl font-semibold text-center mb-4">
+        Why Us?
       </h3>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 p-6 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 p-4 max-w-4xl mx-auto">
         {cards.map((c, idx) => {
           const TopIcon = c.topIcon;
           return (
             <Card
               key={c.id}
               data-aos="fade-up"
-              data-aos-delay={idx * 100}
-              className={`p-6 ${c.bgClass} ${c.textColor ?? "text-foreground"}`}
+              data-aos-delay={idx * 80}
+              className={`p-4 ${c.bgClass} ${c.textColor ?? "text-foreground"}`}
             >
-              <div className="flex flex-col items-start gap-4">
-                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-white/20">
-                  <TopIcon className={` ${c.textColor ? "text-white" : "text-foreground"}`} size={35} />
+              <div className="flex flex-col items-start gap-3">
+                <div className="flex items-center justify-center w-11 h-11 rounded-md bg-white/20">
+                  <TopIcon className={` ${c.textColor ? "text-white" : "text-foreground"}`} size={28} />
                 </div>
 
-                <h3 className={`text-2xl font-semibold ${c.textColor ?? "text-title"}`}>{c.title}</h3>
+                <h3 className={`text-xl font-semibold ${c.textColor ?? "text-title"}`}>{c.title}</h3>
 
-                <ol className="list-none space-y-3 mt-2 w-full">
+                <ol className="list-none space-y-2 mt-1 w-full">
                   {c.items.map((it, i) => {
                     const Icon = it.icon;
                     return (
-                      <li key={i} className="flex items-start gap-3">
-                        <Icon className={`w-5 h-5 mt-1 ${c.textColor ? "text-white/90" : "text-foreground/70"}`} />
-                        <span className={`${c.textColor ?? "text-description"}`}>{it.text}</span>
+                      <li key={i} className="flex items-start gap-2">
+                        <Icon className={`w-4 h-4 mt-1 ${c.textColor ? "text-white/90" : "text-foreground/70"}`} />
+                        <span className={`${c.textColor ?? "text-description"} text-sm`}>{it.text}</span>
                       </li>
                     );
                   })}

@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui-tools/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/shadcn_ui/sidebar";
 import CommunitySidebar, { CommunityNavKey } from "./CommunitySidebar";
 
 interface CommunityLayoutProps {

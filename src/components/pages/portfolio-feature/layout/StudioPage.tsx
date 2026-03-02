@@ -1,12 +1,12 @@
 "use client";
 
-import { SidebarProvider, SidebarInset } from "@/components/ui-tools/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/shadcn_ui/sidebar";
 import DisplayPage from "./DisplayPage";
-import { PagesProvider } from "@/context/PagesContext";
-import { SectionProvider } from "@/context/SectionContext";
+import { PagesProvider } from "@/lib/context/PagesContext";
+import { SectionProvider } from "@/lib/context/SectionContext";
 import StudioSidebar from "./StudioSidebar";
 import { usePageRouting } from "@/hooks/usePageRouting";
-import { PortfolioProvider } from "@/context/PortfolioContext";
+import { PortfolioProvider } from "@/lib/context/PortfolioContext";
 
 function StudioContent() {
   usePageRouting();

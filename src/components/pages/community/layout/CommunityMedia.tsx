@@ -4,22 +4,21 @@ import { JSX, useState, useEffect } from "react";
 
 import CommunityLayout from "./CommunityLayout";
 import { CommunityNavKey } from "./CommunitySidebar";
-import AccountPage from "../AccountPage";
-import EventsPage from "../EventsPage";
-import FeedPage from "../FeedPage";
+import EventsPage from "../pages/EventsPage";
+import FeedPage from "../pages/FeedPage";
 import PostsPage from "../PostsPage";
-import ResourcesPage from "../ResourcesPage";
+import ResourcesPage from "../pages/ResourcesPage";
 import SettingsDialog from "../options-resources/SettingsDialog";
-import { getCommunityDataBySlug } from "@/api/community-api/communityData-endpoints";
-import type { communityDataType } from "@/api/community-api/communityData-endpoints";
-import CommunicationPage from "../CommunicationPage";
+import { getCommunityDataBySlug } from "@/lib/api/community-api/communityData-endpoints";
+import { communityDataType } from "@/lib/api/community-api/communityData-endpoints";
+import CommunicationPage from "../pages/CommunicationPage";
 
 interface CommunityMediaProps {
   slug: string;
 }
 
 export default function CommunityMedia({ slug }: CommunityMediaProps) {
-  const [activeSection, setActiveSection] = useState<CommunityNavKey>("feed");
+  const [activeSection] = useState<CommunityNavKey>("feed");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [communityData, setCommunityData] = useState<communityDataType | null>(null);
   const communityTitle = slug ? `Community: ${slug}` : "Community";

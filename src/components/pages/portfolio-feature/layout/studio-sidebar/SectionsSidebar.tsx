@@ -14,15 +14,16 @@ import {
   FileBadge,
   CalendarCheck,
   BriefcaseBusiness,
+  Home,
 } from "lucide-react";
-import { useSection } from "@/context/SectionContext";
+import { useSection } from "@/lib/context/SectionContext";
 import { SectionType } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
-import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui-tools/ui/sidebar";
+import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/shadcn_ui/sidebar";
 import { DndContext, PointerSensor, useSensors, useSensor, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
-import { Button } from "@/components/ui-tools/ui/button";
+import { Button } from "@/components/ui/shadcn_ui/button";
 
 const ICON_MAP: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   hero: Star,
@@ -173,26 +174,9 @@ export default function SectionsSidebar({ onEdit, onSelectToggle, selectedSectio
             <div className="group p-3 rounded-lg bg-card-bg">
               <div className="flex items-center ">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-accent">
-                  <Layout className="w-4 h-4 text-white" />
+                  <Home className="w-4 h-4 text-white" />
                 </div>
                 <span className="flex-1 text-sm font-medium text-title truncate px-3">Site Header</span>
-
-                <Button
-                  variant="transparent"
-                  size="icon"
-                  onClick={() => {
-                    if (header) {
-                      onEdit(header.id);
-                    } else {
-                      addSection("header");
-                    }
-                  }}
-                  disabled={isSectionsLoading}
-                  className="cursor-pointer transition-colors mx-0 px-0"
-                  aria-label="Open full editor"
-                >
-                  <Edit3 className="w-3.5 h-3.5 text-description transition-colors" />
-                </Button>
               </div>
             </div>
           </div>

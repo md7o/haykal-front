@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { forgotPassword } from "@/api/auth-api/auth-endpoints";
-import { useRecoveryPassword } from "@/context/RecoveryPasswordContext";
+
+import { useRecoveryPassword } from "@/lib/context/RecoveryPasswordContext";
 import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui-tools/ui/button";
-import { FormField } from "@/components/ui-tools/ui/form-field";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { FormField } from "@/components/ui/shadcn_ui/form-field";
 import { useRouter } from "next/navigation";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui-tools/ui/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/shadcn_ui/input-otp";
+import { forgotPassword } from "@/lib/api/auth-api/auth-endpoints";
+import { getErrorMessage } from "@/lib/helpers/error-handler";
 
 export default function ForgotPasswordForm() {
   function getResendTimerText(timer: number) {
@@ -67,17 +69,8 @@ export default function ForgotPasswordForm() {
       setStep("otp");
       setResendTimer(90);
     } catch (err: unknown) {
-      // Narrow unknown to find useful messages/status
-      const axiosStatus = (err as { response?: { status?: unknown } }).response?.status;
-      if (axiosStatus === 404) {
-        setError("No account found with this email address.");
-      } else if (axiosStatus === 429) {
-        setError("Too many requests. Please wait before trying again.");
-      } else if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Failed to send reset code. Please try again later.");
-      }
+      const { message } = getErrorMessage(err);
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -96,11 +89,8 @@ export default function ForgotPasswordForm() {
       setResendTimer(90);
       window.localStorage.setItem("reset-otp-timer", JSON.stringify({ expiresAt: Date.now() + 90 * 1000 }));
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Failed to resend code");
-      }
+      const { message } = getErrorMessage(err);
+      setError(message);
     }
   };
 

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import AiLayout from "@/components/pages/ai-studio/shared/LayoutAi";
-import { questionsData } from "@/components/pages/ai-studio/shared/questions-config";
-import AiMessages from "@/components/pages/ai-studio/questions/MessagesAi";
-import AiInput from "@/components/pages/ai-studio/questions/InputAi";
-import { createAiIdea } from "@/api/ai-api/idea-endpoints";
+import { questionsData } from "@/components/pages/ai-studio/components/questions-config";
+import AiMessages from "@/components/pages/ai-studio/chat-input/MessagesAi";
+import AiInput from "@/components/pages/ai-studio/chat-input/ChatBox";
+import { createAiIdea } from "@/lib/api/ai-api/idea-endpoints";
 import { useRouter } from "next/navigation";
+import AiLayout from "@/components/pages/ai-studio/LayoutAi";
 
 interface Message {
   id: string;
@@ -78,7 +78,6 @@ export default function QuestionPage() {
       setCurrentIdeaId(result.id);
 
       router.push(`/ai-response/${result.id}`);
-      alert("Success! Your idea has been saved and is ready for AI analysis.");
     } catch (error) {
       console.error("Failed to save idea:", error);
       alert("Failed to save your idea. Please try again.");

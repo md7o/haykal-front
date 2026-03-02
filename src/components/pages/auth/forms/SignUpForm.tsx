@@ -5,14 +5,15 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui-tools/ui/button";
-import { FormField } from "@/components/ui-tools/ui/form-field";
-import { PasswordStrengthIndicator } from "@/components/ui-tools/ui/password-strength";
+import { Button } from "@/components/ui/shadcn_ui/button";
+import { FormField } from "@/components/ui/shadcn_ui/form-field";
+import { PasswordStrengthIndicator } from "@/components/ui/shadcn_ui/password-strength";
 import { signUpSchema, type SignUpFormData } from "@/lib/validations";
-import { signUp, verifySignUp } from "@/api/auth-api/auth-endpoints";
-import { useAuthStore } from "@/store/authStore";
+import { signUp, verifySignUp } from "@/lib/api/auth-api/auth-endpoints";
+import { useAuthStore } from "@/lib/store/authStore";
 import { useRouter } from "next/navigation";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui-tools/ui/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/shadcn_ui/input-otp";
+import { getErrorMessage } from "@/lib/helpers/error-handler";
 
 interface SignUpFormProps {
   onSuccess?: (email: string) => void;
@@ -83,7 +84,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
       setStep("otp");
       setResendTimer(90);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "An error occurred during registration. Please try again.";
+      const { message } = getErrorMessage(error);
       setSubmitError(message);
     } finally {
       setIsSubmitting(false);
@@ -102,7 +103,8 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
       if (timerRef.current) clearInterval(timerRef.current);
       setResendTimer(90);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Failed to resend code");
+      const { message } = getErrorMessage(err);
+      setSubmitError(message);
     }
   };
 
@@ -144,7 +146,8 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
       // 4. Redirect to home
       router.push("/");
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Verification failed");
+      const { message } = getErrorMessage(err);
+      setSubmitError(message);
     } finally {
       setVerifying(false);
     }
@@ -201,8 +204,8 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
 
             {/* Submit Error */}
             {submitError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600 flex items-center gap-2">
+              <div className="p-3 bg-error/50 rounded-soft">
+                <p className="text-sm  flex items-center gap-2">
                   <AlertCircle className="w-4 h-4" />
                   {submitError}
                 </p>
@@ -262,7 +265,7 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
                 <InputOTPSlot index={5} />
               </InputOTPGroup>
             </InputOTP>
-            {submitError && <p className="text-sm text-red-600">{submitError}</p>}
+            {submitError && <p className="text-sm text-error">{submitError}</p>}
             <Button onClick={handleVerify} disabled={otp.length !== 6 || verifying} size="huge">
               {verifying ? "Verifying..." : "Continue"}
             </Button>

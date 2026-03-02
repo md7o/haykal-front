@@ -4,10 +4,10 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/lib/store/authStore";
 import { updatePortfolio } from "@/api/portfolios-api/portfolio-endpoints";
 import { updatePage } from "@/api/portfolios-api/pages-endpoints";
-import { AnySectionInstance } from "@/types/sections";
+import { AnySectionInstance } from "@/lib/types/sections";
 
 interface UsePublishResult {
   isPublishing: boolean;

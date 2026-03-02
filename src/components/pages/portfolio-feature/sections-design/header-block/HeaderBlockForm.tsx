@@ -1,9 +1,9 @@
-import { FormField } from "@/components/ui-tools/ui/form-field";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-tools/ui/card";
-import { Input } from "@/components/ui-tools/ui/input";
-import { Label } from "@/components/ui-tools/ui/label";
+import { FormField } from "@/components/ui/shadcn_ui/form-field";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/shadcn_ui/card";
+import { Input } from "@/components/ui/shadcn_ui/input";
+import { Label } from "@/components/ui/shadcn_ui/label";
 import { Image as ImageIcon, Type } from "lucide-react";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui-tools/ui/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/shadcn_ui/select";
 import { blockFormStyles } from "../blockFormStyles";
 
 export interface HeaderConfig {
