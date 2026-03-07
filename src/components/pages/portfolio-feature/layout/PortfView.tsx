@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { api, publicApi } from "@/api/auth-api/auth-endpoints";
-import { getPortfolioByIDorSlug, type Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
+import { api, publicApi } from "@/lib/api/auth-api/auth-endpoints";
+import { getPortfolioByIDorSlug, type Portfolio } from "@/lib/api/portfolios-api/portfolio-endpoints";
 import { recordPortfolioVisit } from "@/components/ui/custom_ui/ActivityDialog";
-import type { Page } from "@/api/portfolios-api/pages-endpoints";
-import type { Section } from "@/api/portfolios-api/sections-endpoints";
+import type { Page } from "@/lib/api/portfolios-api/pages-endpoints";
+import type { Section } from "@/lib/api/portfolios-api/sections-endpoints";
 import { sectionsVisualization } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 import { inheritHeaderConfig, isHome, mapSections } from "@/lib/context/hooks/studio-utils";
 import { Spinner } from "@/components/ui/shadcn_ui/spinner";

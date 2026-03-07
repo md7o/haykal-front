@@ -118,14 +118,14 @@ export default function FeedPage() {
           style={{ backgroundImage: "url('/assets/images/ArtBackground.jpg')" }}
         >
           <div className="flex flex-col justify-center items-center rounded-base p-6 bg-cover bg-center h-70 backdrop-blur-[40px] backdrop-brightness-60">
-            <h1 className="text-4xl font-bold text-white">Welcome to {communityName}</h1>
-            <p className="text-xl text-white/90 mt-2">{communityDescription}</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-white text-center">Welcome to {communityName}</h1>
+            <p className="text-lg md:text-xl text-white/90 mt-2 text-center">{communityDescription}</p>
           </div>
         </div>
       </section>
 
       {/* Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <section className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         {sections.map(({ key, label, items, icon }) => (
           <div key={key} className="bg-card-bg rounded-base p-5">
             <div className="flex items-start justify-between gap-3 mb-2">

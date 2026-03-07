@@ -23,7 +23,7 @@ export default function DrawerEditor({ open, setOpen }: DrawerEditorProps) {
       <SheetContent side="left" className="overflow-y-auto w-2xl" onClick={(e) => e.stopPropagation()}>
         <SheetTitle className="sr-only">Section Editor</SheetTitle>
         {!section && (
-          <div className="p-6 text-sm text-description bg-card-bg rounded-lg border border-border">Select a section to edit.</div>
+          <div className="p-6 text-sm text-description rounded-lg border border-border">Select a section to edit.</div>
         )}
         {section && def && (
           <div className="flex flex-col xl:flex-row gap-6">

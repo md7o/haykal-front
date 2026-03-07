@@ -147,7 +147,7 @@ export default function EventsPage() {
     <div className="flex flex-col gap-6">
       {showDeleteLoading && <LoadingScreen />}
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-title">Events</h1>
           <p className="text-sm text-description mt-1">Upcoming meetups, workshops, and announcements.</p>

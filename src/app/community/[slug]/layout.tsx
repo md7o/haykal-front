@@ -2,12 +2,13 @@
 
 import { ReactNode, useState, use, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/shadcn_ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/shadcn_ui/sidebar";
 import CommunitySidebar, { CommunityNavKey } from "@/components/pages/community/layout/CommunitySidebar";
 import SettingsDialog from "@/components/pages/community/options-resources/SettingsDialog";
 import { CommunityProvider, useCommunityData } from "@/lib/context/CommunityContext";
 import { useAuthStore } from "@/lib/store/authStore";
 import { getMembershipsByUser } from "@/lib/api/community-api/membership-endpoints";
+import CommunityBNB from "@/components/pages/community/layout/CommunityBNB";
 
 interface CommunityLayoutProps {
   children: ReactNode;
@@ -70,9 +71,6 @@ function CommunityLayoutContent({ children, slug }: { children: ReactNode; slug:
         const memberships = await getMembershipsByUser();
         const currentCommunityMembership = memberships.find((m) => m.communityId === communityData.id);
         const isOwnerStatus = currentCommunityMembership?.role === "owner" || false;
-        console.log(
-          `[Owner Check] User: ${user.userId}, Community: ${communityData.id}, Role: ${currentCommunityMembership?.role}, isOwner: ${isOwnerStatus}`,
-        );
         setIsOwner(isOwnerStatus);
       } catch (err) {
         console.error("Failed to check owner status:", err);
@@ -107,20 +105,19 @@ function CommunityLayoutContent({ children, slug }: { children: ReactNode; slug:
           onSettingsOpen={() => setIsSettingsOpen(true)}
           isOwner={isOwner}
         />
-        <SidebarInset className="flex-1 bg-card-bg">
-          <div className="flex h-full flex-col gap-4 p-4 md:p-6">
-            <div className="md:hidden">
-              <SidebarTrigger className="bg-card-main  rounded-base shadow-sm text-title" />
-            </div>
+        <SidebarInset className="flex-1 bg-card-bg flex flex-col min-h-screen">
+          <div className="flex flex-col flex-1 gap-4 p-4 md:p-6">
             <main
-              className={`bg-card-main rounded-base shadow-sm flex-1 ${getActiveSection() === "manage-members" ? "p-0" : "p-6"}`}
+              className={`bg-card-main rounded-base shadow-sm flex-1 mb-4 ${getActiveSection() === "manage-members" ? "p-0" : "p-6"}`}
             >
               {children}
             </main>
           </div>
+          <div className="mt-12 md:hidden">
+            <CommunityBNB slug={slug} />
+          </div>
         </SidebarInset>
       </div>
-
       {communityData && (
         <SettingsDialog
           communityId={communityData.id}

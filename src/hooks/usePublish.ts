@@ -1,12 +1,8 @@
-/**
- * Studio publish logic hook
- */
-
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/authStore";
-import { updatePortfolio } from "@/api/portfolios-api/portfolio-endpoints";
-import { updatePage } from "@/api/portfolios-api/pages-endpoints";
+import { updatePortfolio } from "@/lib/api/portfolios-api/portfolio-endpoints";
+import { updatePage } from "@/lib/api/portfolios-api/pages-endpoints";
 import { AnySectionInstance } from "@/lib/types/sections";
 
 interface UsePublishResult {
@@ -64,17 +60,6 @@ export function usePublish(
           setIsPublishing(false);
           setIsAuthDialogOpen(true);
           return;
-        }
-
-        const sectionsPayload = sections.map((s) => ({
-          id: s.id,
-          name: s.name,
-          type: s.type,
-          config: s.config,
-        }));
-
-        if (selectedPageId) {
-          await updatePage(portfolioId, selectedPageId, { sections: sectionsPayload });
         }
 
         const updatePayload: { status: "PUBLISHED"; slug?: string } = { status: "PUBLISHED" };

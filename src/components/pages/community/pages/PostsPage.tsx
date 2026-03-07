@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/shadcn_ui/input";
 import { useSearch } from "@/hooks/useSearch";
-import CommentsDrawer from "./options-resources/post-resource/CommentsDrawer";
+import CommentsDrawer from "../options-resources/post-resource/CommentsDrawer";
 import { PostCreateDialog } from "@/components/pages/community/options-resources/post-resource/PostCreateDialog";
 import { PostsListSection } from "@/components/pages/community/options-resources/post-resource/PostsListSection";
 import { Search } from "lucide-react";
@@ -183,7 +183,7 @@ export default function PostsPage() {
   return (
     <div className="flex flex-col gap-6 ">
       {showDeleteLoading && <LoadingScreen />}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <div>
           <h1 className="text-2xl font-semibold text-title">Posts</h1>
           <p className="text-sm text-description mt-1">Community discussions and updates.</p>

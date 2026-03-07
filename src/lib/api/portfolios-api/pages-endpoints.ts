@@ -2,8 +2,6 @@ import axios from "axios";
 import { checkStatus, ensureId, toError } from "../api-utils";
 import { api } from "../auth-api/auth-endpoints";
 
-const PATH_BASE = "/portfolio";
-
 export type Page = {
   id: string;
   portfolioId: string;

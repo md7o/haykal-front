@@ -17,10 +17,10 @@ import { Button } from "@/components/ui/shadcn_ui/button";
 import { Input } from "@/components/ui/shadcn_ui/input";
 import { Label } from "@/components/ui/shadcn_ui/label";
 import AlertStatus from "@/components/ui/custom_ui/AlertsStatu";
-import { createPortfolio, getAllPortfolios, Portfolio } from "@/api/portfolios-api/portfolio-endpoints";
+import { createPortfolio, getAllPortfolios, Portfolio } from "@/lib/api/portfolios-api/portfolio-endpoints";
 import { useRouter } from "next/navigation";
 import { useUserPortfolio } from "@/lib/context/UserPortfolioContext";
-import { createPage } from "@/api/portfolios-api/pages-endpoints";
+import { createPage } from "@/lib/api/portfolios-api/pages-endpoints";
 
 export default function PortfSetup() {
   const [portfolioSlug, setPortfolioSlug] = useState("");

@@ -144,7 +144,7 @@ export default function ResourcesPage() {
   return (
     <div className="flex flex-col gap-6">
       {showDeleteLoading && <LoadingScreen />}
-      <div className="flex justify-between items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-soft bg-accent/10 flex items-center justify-center">
             <BookOpen className="w-5 h-5 text-accent" />

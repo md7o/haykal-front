@@ -127,7 +127,7 @@ export default function CommunicationPage() {
   return (
     <div className="flex flex-col gap-6">
       {showDeleteLoading && <LoadingScreen />}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <div>
           <h1 className="text-2xl font-semibold text-title">Communication</h1>
           <p className="text-sm text-description mt-1">Social links and ways to connect with community members.</p>

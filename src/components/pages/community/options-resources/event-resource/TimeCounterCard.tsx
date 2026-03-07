@@ -53,16 +53,19 @@ export const TimeCounterCard = ({ events }: TimeCounterCardProps) => {
     );
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Clock className="text-accent" size={20} />
-        <p className="text-description text-sm">Countdown</p>
+        <p className="text-description text-sm font-medium">Next Event Countdown</p>
       </div>
-      <div className="flex items-center gap-5">
+      <div className="grid grid-cols-4 sm:grid-cols-4 gap-3 sm:gap-4">
         {Object.entries(countdown).map(([label, value]) => (
-          <div key={label} className="w-20 bg-card-main rounded-base p-1 flex flex-col items-center justify-center">
-            <p className="text-2xl font-bold text-accent">{String(value).padStart(2, "0")}</p>
-            <p className="text-description text-xs mt-2 uppercase tracking-wider">{label}</p>
+          <div
+            key={label}
+            className="bg-card-main rounded-soft p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-shadow"
+          >
+            <p className="text-2xl sm:text-3xl font-bold text-accent">{String(value).padStart(2, "0")}</p>
+            <p className="text-description text-xs sm:text-sm mt-2 uppercase tracking-wide font-semibold">{label}</p>
           </div>
         ))}
       </div>

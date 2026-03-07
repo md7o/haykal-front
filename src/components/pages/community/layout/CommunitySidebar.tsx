@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LucideIcon, MessageSquare, BookOpen, CalendarDays, BarChartHorizontal, Settings, User, Users } from "lucide-react";
+import { LucideIcon, MessageSquare, BookOpen, CalendarDays, BarChartHorizontal, Settings, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/shadcn_ui/sidebar";
 
 export type CommunityNavKey = "feed" | "posts" | "resources" | "events" | "communication" | "settings" | "manage-members";
@@ -46,6 +47,7 @@ export default function CommunitySidebar({
   isOwner = false,
 }: CommunitySidebarProps) {
   const router = useRouter();
+  const { setOpenMobile } = useSidebar();
 
   const displayTitle = title.replace(/^Community:\s*/i, "");
 
@@ -62,6 +64,7 @@ export default function CommunitySidebar({
     } else {
       router.push(`/community/${slug}/${item.id}`);
     }
+    setOpenMobile(false);
   };
 
   const renderMenuItem = (item: MenuItem) => {

@@ -11,7 +11,7 @@ import { DndContext, PointerSensor, useSensor, useSensors, closestCenter, DragEn
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { Page } from "@/api/portfolios-api/pages-endpoints";
+import { Page } from "@/lib/api/portfolios-api/pages-endpoints";
 import {
   Dialog,
   DialogTrigger,
