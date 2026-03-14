@@ -135,7 +135,12 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
       useAuthStore
         .getState()
         .setAuth(
-          { userId: verifyResponse.userId, email: verifyResponse.email, username: verifyResponse.username },
+          {
+            userId: verifyResponse.userId,
+            email: verifyResponse.email,
+            username: verifyResponse.username,
+            role: verifyResponse.role,
+          },
           verifyResponse.accessToken,
           verifyResponse.accessTokenExpiry,
         );

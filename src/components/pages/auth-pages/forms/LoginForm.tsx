@@ -43,7 +43,7 @@ export default function LoginForm() {
       useAuthStore
         .getState()
         .setAuth(
-          { userId: response.userId, email: response.email, username: response.username },
+          { userId: response.userId, email: response.email, username: response.username, role: response.role },
           response.accessToken,
           response.accessTokenExpiry,
         );

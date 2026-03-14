@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/shadcn_ui/sidebar";
 import { usePortfolio } from "@/lib/context/PortfolioContext";
-import { COLOR_COMBINATIONS, FONT_OPTIONS } from "@/lib/theme-constants";
+import { COLOR_COMBINATIONS, FONT_OPTIONS } from "@/lib/theme/theme-constants";
 import { createAsset, updateAsset } from "@/lib/api/portfolios-api/assets-endpoints";
 import type { ColorTheme, FontTheme } from "@/lib/types/asset";
 import { Button } from "@/components/ui/shadcn_ui/button";

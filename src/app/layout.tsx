@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Montserrat, Lobster, Inconsolata, Caveat } from "next/font/google";
 import "./globals.css";
-import { AOSInit } from "@/styles/Aos";
+import { AOSInit } from "@/components/layouts/Aos";
 import { AuthInitializer } from "@/components/auth/AuthInitializer";
 import { UserPortfolioProvider } from "@/lib/context/UserPortfolioContext";
 import { UserProvider } from "@/lib/context/UserContext";
-import RootLayoutClient from "@/components/RootLayoutClient";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -52,9 +51,7 @@ export default function RootLayout({
       >
         <AuthInitializer />
         <UserProvider>
-          <UserPortfolioProvider>
-            <RootLayoutClient>{children}</RootLayoutClient>
-          </UserPortfolioProvider>
+          <UserPortfolioProvider>{children}</UserPortfolioProvider>
         </UserProvider>
       </body>
     </html>

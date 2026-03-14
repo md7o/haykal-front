@@ -7,8 +7,9 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "@/lib/store/authStore";
 import { useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/shadcn_ui/select";
-import { Rocket, User2 } from "lucide-react";
+import { Rocket, User2, LayoutDashboard } from "lucide-react";
 import ActivityDialog from "../ui/custom_ui/ActivityDialog";
+import { UserRole } from "@/lib/api/user-api/user-endpoints";
 
 export default function Navbar() {
   const user = useAuthStore((state) => state.user);
@@ -35,6 +36,19 @@ export default function Navbar() {
       setIsLoggingOut(false);
     }
   };
+
+  const handleSelectChange = (value: string) => {
+    if (value === "logout") {
+      handleLogout();
+    } else if (value === "dashboard") {
+      router.push("/dashboard/users");
+    } else if (value === "activity") {
+      setIsActivityOpen(true);
+    }
+  };
+
+  // Check if user is admin
+  const isAdmin = user?.role === UserRole.Admin;
 
   return (
     <header className="fixed top-0 left-0 w-screen pt-4 px-4 md:px-6 z-50 bg-background/95 backdrop-blur-sm">
@@ -64,18 +78,26 @@ export default function Navbar() {
             </div>
           ) : user ? (
             <div className="flex justify-center items-center gap-5">
-              <Button variant={"outline"} onClick={() => setIsActivityOpen(true)} className="md:flex hidden">
-                <Rocket /> Activity
-              </Button>
-              <Select onValueChange={(value) => value === "logout" && handleLogout()}>
+              {isAdmin && (
+                <Link href="/dashboard/users">
+                  <Button variant={"outline"} className="md:flex hidden">
+                    <LayoutDashboard /> Dashboard
+                  </Button>
+                </Link>
+              )}
+              {/* Activity button removed - handled in mobile menu via Select */}
+              <Select onValueChange={handleSelectChange}>
                 <SelectTrigger className="w-auto px-3 py-1 font-bold bg-transparent text-sm rounded-soft focus:outline-none hover:bg-black/50 transition-all duration-200">
                   <User2 /> {user.username}
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="logout">
-                    <Button variant={"outline"} onClick={() => setIsActivityOpen(true)} className=" md:hidden px-0">
-                      <Rocket /> Activity
-                    </Button>
+                  {isAdmin && (
+                    <SelectItem value="dashboard" className="md:hidden">
+                      <LayoutDashboard /> Dashboard
+                    </SelectItem>
+                  )}
+                  <SelectItem value="activity" className="md:hidden">
+                    <Rocket /> Activity
                   </SelectItem>
                   <SelectItem value="logout" className="px-4 py-2 bg-transparent cursor-pointer">
                     {isLoggingOut ? "Logging out…" : "Logout"}

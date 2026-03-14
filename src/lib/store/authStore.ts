@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { AuthUser } from "@/lib/types/auth";
-import { checkAuthStatus, refreshAccessToken } from "@/lib/api/auth-api/auth-endpoints";
+import { checkAuthStatus, refreshAccessToken, logout } from "@/lib/api/auth-api/auth-endpoints";
 
 interface AuthState {
   user: AuthUser | null;
@@ -94,6 +94,15 @@ export const useAuthStore = create<AuthState>()(
             const isValid = isTokenValid();
 
             if (isValid) {
+              // Refresh user data to populate role and other fields
+              try {
+                const { isAuthenticated, user: backendUser } = await checkAuthStatus();
+                if (isAuthenticated && backendUser) {
+                  set({ user: backendUser });
+                }
+              } catch {
+                // Continue with persisted user if refresh fails
+              }
               scheduleTokenRefresh();
               set({ isLoading: false, isInitialized: true });
               return;
@@ -103,6 +112,15 @@ export const useAuthStore = create<AuthState>()(
             try {
               const { accessToken, accessTokenExpiry } = await refreshAccessToken();
               set({ accessToken, accessTokenExpiry });
+              // Refresh user data after token refresh
+              try {
+                const { isAuthenticated, user: backendUser } = await checkAuthStatus();
+                if (isAuthenticated && backendUser) {
+                  set({ user: backendUser });
+                }
+              } catch {
+                // Continue with current user if refresh fails
+              }
               scheduleTokenRefresh();
               set({ isLoading: false, isInitialized: true });
               return;
@@ -116,6 +134,15 @@ export const useAuthStore = create<AuthState>()(
             try {
               const { accessToken, accessTokenExpiry } = await refreshAccessToken();
               set({ accessToken, accessTokenExpiry });
+              // Refresh user data after token refresh
+              try {
+                const { isAuthenticated, user: backendUser } = await checkAuthStatus();
+                if (isAuthenticated && backendUser) {
+                  set({ user: backendUser });
+                }
+              } catch {
+                // Continue with current user if refresh fails
+              }
               scheduleTokenRefresh();
               set({ isLoading: false, isInitialized: true });
               return;
@@ -161,5 +188,5 @@ export const useAuthStore = create<AuthState>()(
   ),
 );
 function logoutRequest() {
-  throw new Error("Function not implemented.");
+  return logout();
 }

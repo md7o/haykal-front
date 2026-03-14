@@ -4,7 +4,7 @@ import { createContext, useContext, useState, ReactNode, useEffect, useMemo } fr
 import { useAuthStore } from "@/lib/store/authStore";
 import { useUserPortfolio } from "@/lib/context/UserPortfolioContext";
 import { fetchFullPortfolio } from "@/lib/helpers/portfolio-helpers";
-import { applyAssetsToDom } from "@/lib/theme-utils";
+import { applyAssetsToDom } from "@/lib/theme/theme-utils";
 import type { Asset } from "@/lib/types/asset";
 import { getAssetByPortfolioId } from "../api/portfolios-api/assets-endpoints";
 

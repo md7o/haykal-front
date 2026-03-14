@@ -1,13 +1,13 @@
+import axios from "axios";
 import { checkStatus, ensureId, toError } from "../api-utils";
 import { api } from "../auth-api/auth-endpoints";
 
 export enum UserRole {
-  Admin = "admin",
-  User = "user",
-  Moderator = "moderator",
+  Admin = "Admin",
+  User = "User",
 }
 
-export type userType = {
+export interface UserType {
   id: string;
   username: string;
   email: string;
@@ -16,21 +16,28 @@ export type userType = {
   bannedReason?: string;
   createdAt: string;
   updatedAt: string;
-};
+}
 
-export type CreateUserDto = {
+export interface CreateUserDto {
   username: string;
   email: string;
   password: string;
-};
+}
 
-export type UpdateUserDto = Partial<Pick<CreateUserDto, "username" | "email">>;
+export interface UpdateUserDto {
+  username?: string;
+  email?: string;
+  password?: string;
+  role?: UserRole;
+  isBanned?: boolean;
+  bannedReason?: string;
+}
 
 const USER_BASE = "/user";
 
-export const getUsers = async (): Promise<userType[]> => {
+export const getUsers = async (): Promise<UserType[]> => {
   try {
-    const res = await api.get<userType[]>(`${USER_BASE}`);
+    const res = await api.get<UserType[]>(`${USER_BASE}`);
     checkStatus(res.status);
     return res.data;
   } catch (err) {
@@ -38,10 +45,10 @@ export const getUsers = async (): Promise<userType[]> => {
   }
 };
 
-export const getUserById = async (userId: string): Promise<userType> => {
+export const getUserById = async (userId: string): Promise<UserType> => {
   ensureId(userId);
   try {
-    const res = await api.get<userType>(`${USER_BASE}/${userId}`);
+    const res = await api.get<UserType>(`${USER_BASE}/${userId}`);
     checkStatus(res.status);
     return res.data;
   } catch (err) {
@@ -49,9 +56,9 @@ export const getUserById = async (userId: string): Promise<userType> => {
   }
 };
 
-export const createUser = async (dto: CreateUserDto): Promise<userType> => {
+export const createUser = async (dto: CreateUserDto): Promise<UserType> => {
   try {
-    const res = await api.post<userType>(`${USER_BASE}`, dto);
+    const res = await api.post<UserType>(`${USER_BASE}`, dto);
     checkStatus(res.status, [200, 201]);
     return res.data;
   } catch (err) {
@@ -59,10 +66,10 @@ export const createUser = async (dto: CreateUserDto): Promise<userType> => {
   }
 };
 
-export const updateUser = async (userId: string, data: UpdateUserDto): Promise<userType> => {
+export const updateUser = async (userId: string, data: UpdateUserDto): Promise<UserType> => {
   ensureId(userId);
   try {
-    const res = await api.put<userType>(`${USER_BASE}/${userId}`, data);
+    const res = await api.patch<UserType>(`${USER_BASE}/${userId}`, data);
     checkStatus(res.status);
     return res.data;
   } catch (err) {
@@ -81,34 +88,34 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
   }
 };
 
-export const getCurrentUser = async (): Promise<userType> => {
+export const getCurrentUser = async (): Promise<UserType | null> => {
   try {
-    const res = await api.get<userType>(`${USER_BASE}/me`);
+    const res = await api.get<UserType>(`${USER_BASE}/me`);
     checkStatus(res.status);
     return res.data;
   } catch (err) {
-    throw toError(err);
-  }
-};
+    // If 401, return null (not authenticated)
+    if (axios.isAxiosError(err) && err.response?.status === 401) {
+      return null;
+    }
 
-export const banUser = async (userId: string, reason?: string): Promise<userType> => {
-  ensureId(userId);
-  try {
-    const res = await api.post<userType>(`${USER_BASE}/${userId}/ban`, { reason });
-    checkStatus(res.status);
-    return res.data;
-  } catch (err) {
-    throw toError(err);
-  }
-};
-
-export const unbanUser = async (userId: string): Promise<userType> => {
-  ensureId(userId);
-  try {
-    const res = await api.post<userType>(`${USER_BASE}/${userId}/unban`);
-    checkStatus(res.status);
-    return res.data;
-  } catch (err) {
-    throw toError(err);
+    // Fallback to /auth/me endpoint if /user/me fails with other errors
+    try {
+      const res = await api.get<{ userId: string; email: string; username: string; role: string }>("/auth/me");
+      return {
+        id: res.data.userId,
+        username: res.data.username,
+        email: res.data.email,
+        role: res.data.role as UserRole,
+        isBanned: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    } catch (fallbackErr) {
+      if (axios.isAxiosError(fallbackErr) && fallbackErr.response?.status === 401) {
+        return null;
+      }
+      throw toError(fallbackErr);
+    }
   }
 };

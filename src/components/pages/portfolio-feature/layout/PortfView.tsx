@@ -10,7 +10,7 @@ import type { Section } from "@/lib/api/portfolios-api/sections-endpoints";
 import { sectionsVisualization } from "@/components/pages/portfolio-feature/sections-design/sectionsVisualization";
 import { inheritHeaderConfig, isHome, mapSections } from "@/lib/context/hooks/studio-utils";
 import { Spinner } from "@/components/ui/shadcn_ui/spinner";
-import { applyAssetsToDom } from "@/lib/theme-utils";
+import { applyAssetsToDom } from "@/lib/theme/theme-utils";
 
 type PublicPage = Page & { title?: string | null; sections?: unknown | null };
 

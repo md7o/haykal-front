@@ -107,10 +107,10 @@ export const logout = async (): Promise<void> => {
 
 export const checkAuthStatus = async (): Promise<AuthStatusResponse> => {
   try {
-    const { userId, username, email } = await api
+    const { userId, username, email, role } = await api
       .get<{ userId: string; email: string; username: string; role: string }>("/auth/me")
       .then((r) => r.data);
-    return { isAuthenticated: true, user: { userId, username, email } };
+    return { isAuthenticated: true, user: { userId, username, email, role } };
   } catch {
     return { isAuthenticated: false };
   }

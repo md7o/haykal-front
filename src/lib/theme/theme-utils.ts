@@ -1,4 +1,4 @@
-import { COLOR_COMBINATIONS, FONT_OPTIONS } from "@/lib/theme-constants";
+import { COLOR_COMBINATIONS, FONT_OPTIONS } from "@/lib/theme/theme-constants";
 import type { Asset, ColorTheme, FontTheme } from "@/lib/types/asset";
 
 const DEFAULT_COLOR: ColorTheme = "BLUE";
