@@ -74,7 +74,7 @@ export const useResourceUpload = () => {
 
     try {
       const memberships = await getMembershipsByUser();
-      const currentMembership = memberships.find((m) => m.role === "owner") || memberships[0];
+      const currentMembership = memberships.find((m) => m.communityId === communityId);
 
       if (!currentMembership) {
         console.error("No membership found for current user");

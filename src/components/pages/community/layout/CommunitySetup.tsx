@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Presentation } from "lucide-react";
+import { Plus, Presentation, Crown, Users } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -18,10 +18,10 @@ import { Label } from "@/components/ui/shadcn_ui/label";
 import { Textarea } from "@/components/ui/shadcn_ui/textarea";
 import { Button } from "@/components/ui/shadcn_ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/shadcn_ui/select";
-import { COMMUNITY_TYPES, createCommunityData, getAllCommunityData } from "@/lib/api/community-api/communityData-endpoints";
+import { COMMUNITY_TYPES, createCommunityData, getCommunityDataById } from "@/lib/api/community-api/communityData-endpoints";
 import { communityDataType } from "@/lib/api/community-api/communityData-endpoints";
 import { useAuthStore } from "@/lib/store/authStore";
-import { createMembership } from "@/lib/api/community-api/membership-endpoints";
+import { createMembership, getMembershipsByUser, membershipType } from "@/lib/api/community-api/membership-endpoints";
 import { CommunityType } from "@/lib/types/community";
 import AlertsStatu from "@/components/ui/custom_ui/AlertsStatu";
 
@@ -31,7 +31,8 @@ export default function CommunitySetup() {
   const [communityType, setCommunityType] = useState<CommunityType>("other");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [existingCommunities, setExistingCommunities] = useState<communityDataType[]>([]);
+  const [userCommunities, setUserCommunities] = useState<(communityDataType & { role: "member" | "owner" })[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
 
@@ -39,6 +40,12 @@ export default function CommunitySetup() {
     const value = communitySlug.trim();
     return value ? value : "your-community";
   }, [communitySlug]);
+
+  const isMissingCommunityError = (error: unknown) => {
+    if (!(error instanceof Error)) return false;
+    const message = error.message.toLowerCase();
+    return message.includes("status 404") || message.includes("not found");
+  };
 
   const handleCreateCommunity = async () => {
     const state = useAuthStore.getState();
@@ -86,16 +93,53 @@ export default function CommunitySetup() {
   }, [showSuccess]);
 
   useEffect(() => {
-    const fetchCommunities = async () => {
+    const fetchUserCommunities = async () => {
+      const state = useAuthStore.getState();
+
+      // Only fetch if user is authenticated
+      if (!state.accessToken) {
+        setUserCommunities([]);
+        return;
+      }
+
       try {
-        const communities = await getAllCommunityData();
-        setExistingCommunities(communities);
+        setIsLoading(true);
+
+        // 1. Get user's memberships
+        const memberships = await getMembershipsByUser();
+
+        // 2. Fetch community data for each membership
+        const communitiesWithRoles = await Promise.all(
+          memberships.map(async (membership: membershipType) => {
+            try {
+              const community = await getCommunityDataById(membership.communityId);
+              return {
+                ...community,
+                role: membership.role,
+              };
+            } catch (error) {
+              // Stale memberships can reference communities that were deleted; skip them quietly.
+              if (!isMissingCommunityError(error)) {
+                console.error(`Error fetching community ${membership.communityId}:`, error);
+              }
+              return null;
+            }
+          }),
+        );
+
+        // Filter out any null entries and sort by role (owners first)
+        const validCommunities = communitiesWithRoles.filter((c) => c !== null).sort((a, b) => (a?.role === "owner" ? -1 : 1));
+
+        setUserCommunities(validCommunities);
       } catch (error) {
-        console.error("Error fetching communities:", error);
+        console.error("Error fetching user communities:", error);
+        setUserCommunities([]);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchCommunities();
+    fetchUserCommunities();
   }, []);
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-6 bg-card-main">
@@ -176,12 +220,25 @@ export default function CommunitySetup() {
         </Dialog>
 
         <div className="flex flex-wrap justify-center gap-4">
-          {existingCommunities.map((community) => (
+          {userCommunities.map((community) => (
             <div
               key={community.id}
               onClick={() => router.push(`/community/${community.slug}`)}
-              className="group w-60 h-70 cursor-pointer flex flex-col justify-center items-center gap-2 bg-accent rounded-soft hover:scale-105 duration-200 transition-all shadow-md hover:shadow-lg"
+              className="group relative w-60 h-70 cursor-pointer flex flex-col justify-center items-center gap-2 bg-accent rounded-soft hover:scale-105 duration-200 transition-all shadow-md hover:shadow-lg"
             >
+              <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                {community.role === "owner" ? (
+                  <>
+                    <Crown className="w-4 h-4 text-white" />
+                    <span className="text-xs text-white font-semibold">Owner</span>
+                  </>
+                ) : (
+                  <>
+                    <Users className="w-4 h-4 text-white" />
+                    <span className="text-xs text-white font-semibold">Member</span>
+                  </>
+                )}
+              </div>
               <Presentation className="group-hover:scale-120 duration-300" size={40} />
               <span className="text-white text-lg font-semibold text-center px-3 line-clamp-2 capitalize">{community.slug}</span>
             </div>

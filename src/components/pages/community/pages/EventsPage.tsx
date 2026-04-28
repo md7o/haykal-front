@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getMembershipsByUser } from "@/lib/api/community-api/membership-endpoints";
+import { useMembership } from "@/hooks/useMembership";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/shadcn_ui/tabs";
 import { EventCreateDialog } from "@/components/pages/community/options-resources/event-resource/EventCreateDialog";
 import { EventsListSection } from "@/components/pages/community/options-resources/event-resource/EventsListSection";
@@ -12,7 +12,6 @@ import {
   CommunityItemType,
   CommunityItemTypeEnum,
   deleteCommunityItem,
-  getCommunityItems,
   getCommunityItemsByCommunity,
 } from "@/lib/api/community-api/community-items-endpoints";
 
@@ -20,8 +19,7 @@ type TabKey = "upcoming" | "past";
 
 export default function EventsPage() {
   const { communityData } = useCommunityData();
-  const [isOwner, setIsOwner] = useState(false);
-  const [ownerMembershipId, setOwnerMembershipId] = useState<string | null>(null);
+  const { isOwner, ownerMembershipId } = useMembership(communityData?.id);
   const [events, setEvents] = useState<CommunityItemType[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<TabKey>("upcoming");
@@ -33,24 +31,6 @@ export default function EventsPage() {
   const [showDeleteLoading, setShowDeleteLoading] = useState(false);
   const [editEvent, setEditEvent] = useState<CommunityItemType | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-
-  // Load owner membership
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const owner = (await getMembershipsByUser()).find((m) => m.role === "owner");
-        if (!alive || !owner) return;
-        setIsOwner(true);
-        setOwnerMembershipId(owner.id);
-      } catch (err) {
-        console.error("Failed to load memberships", err);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   // Load events
   useEffect(() => {
@@ -106,9 +86,11 @@ export default function EventsPage() {
 
     await new Promise((r) => setTimeout(r, 1500));
 
-    // Refresh events
+    // Refresh events for current community only
     try {
-      setEvents(await getCommunityItems(CommunityItemTypeEnum.EVENT));
+      if (communityData?.id) {
+        setEvents(await getCommunityItemsByCommunity(communityData.id, CommunityItemTypeEnum.EVENT));
+      }
     } catch (err) {
       console.error("Failed to refresh events", err);
     }

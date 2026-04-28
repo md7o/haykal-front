@@ -22,7 +22,7 @@ import {
   type communityDataType,
 } from "@/lib/api/community-api/communityData-endpoints";
 import {
-  getCommunityItems,
+  getCommunityItemsByCommunity,
   updateCommunityItem,
   deleteCommunityItem,
   type CommunityItemType,
@@ -76,9 +76,16 @@ export default function CommunityDashboard() {
         );
         setMemberships(enriched);
 
-        // Fetch all posts across the platform
-        const allPosts = await getCommunityItems();
-        setPosts(allPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+        // Fetch posts for communities this user belongs to only
+        const communityIds = [...new Set(enriched.map((m) => m.communityId))];
+        const postResults = await Promise.allSettled(
+          communityIds.map((communityId) => getCommunityItemsByCommunity(communityId, CommunityItemTypeEnum.POST)),
+        );
+        const scopedPosts = postResults
+          .filter((result): result is PromiseFulfilledResult<CommunityItemType[]> => result.status === "fulfilled")
+          .flatMap((result) => result.value);
+
+        setPosts(scopedPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
       } catch {
         // silent
       } finally {

@@ -176,7 +176,7 @@ export default function SettingsDialog({ communityId, slug, onSettingsUpdate, op
       setTimeout(() => {
         setShowRedirectLoading(true);
         setIsOpen(false);
-        router.push("/community/setup");
+        router.push("/");
       }, 1500);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to delete community";
@@ -216,7 +216,7 @@ export default function SettingsDialog({ communityId, slug, onSettingsUpdate, op
           </DialogTrigger>
         )}
 
-        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto px-6 py-5">
+        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto px-6 py-5 bg-card-main">
           <DialogHeader className="pb-4">
             <DialogTitle className="text-lg text-title">Community Settings</DialogTitle>
           </DialogHeader>

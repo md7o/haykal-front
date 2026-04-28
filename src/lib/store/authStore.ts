@@ -169,7 +169,7 @@ export const useAuthStore = create<AuthState>()(
 
       logoutUser: async () => {
         try {
-          logoutRequest();
+          await logout();
         } finally {
           get().logout();
         }
@@ -187,6 +187,5 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
-function logoutRequest() {
-  return logout();
-}
+
+export const useCurrentUser = () => useAuthStore((s) => s.user);

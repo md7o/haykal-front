@@ -29,7 +29,7 @@ import {
   deleteCommunityItem,
   getCommunityItemsByCommunity,
 } from "@/lib/api/community-api/community-items-endpoints";
-import { getMembershipsByUser } from "@/lib/api/community-api/membership-endpoints";
+import { useMembership } from "@/hooks/useMembership";
 
 function formatBytes(sizeBytes?: number) {
   if (!sizeBytes || sizeBytes <= 0) return "—";
@@ -55,7 +55,7 @@ async function fetchResources(communityId: string): Promise<CommunityItemType[]>
 
 export default function ResourcesPage() {
   const { communityData } = useCommunityData();
-  const [isOwner, setIsOwner] = useState(false);
+  const { isOwner } = useMembership(communityData?.id);
   const [resources, setResources] = useState<CommunityItemType[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState<string>("all");
@@ -78,23 +78,6 @@ export default function ResourcesPage() {
   const visible = useResourceFiltering(searchResults, category);
 
   const categories = ["all", "files", "links"];
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const owner = (await getMembershipsByUser()).find((m) => m.role === "owner");
-        if (!alive) return;
-        setIsOwner(!!owner);
-      } catch {
-        if (!alive) return;
-        setIsOwner(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   const refresh = async () => {
     if (!communityData?.id) return;

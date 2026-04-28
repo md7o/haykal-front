@@ -1,21 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  getCommunityItemsByCommunity,
-  CommunityItemTypeEnum,
-  CommunityItemType,
-} from "@/lib/api/community-api/community-items-endpoints";
-import { useCommunityData } from "@/lib/context/CommunityContext";
 import { CalendarClock, FolderOpen, MessageCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/shadcn_ui/button";
-
-type FeedData = {
-  posts: CommunityItemType[];
-  events: CommunityItemType[];
-  resources: CommunityItemType[];
-};
+import { useCommunityData } from "@/lib/context/CommunityContext";
+import { useFeedData } from "@/hooks/useFeedData";
+import type { CommunityItemType } from "@/lib/api/community-api/community-items-endpoints";
 
 const PreviewList = ({ items, emptyText }: { items: CommunityItemType[]; emptyText: string }) =>
   items.length === 0 ? (
@@ -39,66 +29,12 @@ const PreviewList = ({ items, emptyText }: { items: CommunityItemType[]; emptyTe
   );
 
 export default function FeedPage() {
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<FeedData>({ posts: [], events: [], resources: [] });
   const { communityData } = useCommunityData();
+  const { data, isLoading } = useFeedData(communityData?.id);
   const router = useRouter();
 
-  const CACHE_KEY = "feedPageCache";
-  const CACHE_TTL = 30 * 60 * 1000;
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      if (!communityData?.id) {
-        setLoading(false);
-        return;
-      }
-      try {
-        const now = Date.now();
-        const cached = sessionStorage.getItem(CACHE_KEY);
-        const parsed = cached ? JSON.parse(cached) : null;
-
-        if (parsed && now - parsed.timestamp < CACHE_TTL) {
-          if (!alive) return;
-          setData(parsed.data);
-          setLoading(false);
-          return;
-        }
-
-        setLoading(true);
-        const [posts, events, resources] = await Promise.all([
-          getCommunityItemsByCommunity(communityData.id, CommunityItemTypeEnum.POST),
-          getCommunityItemsByCommunity(communityData.id, CommunityItemTypeEnum.EVENT),
-          getCommunityItemsByCommunity(communityData.id, CommunityItemTypeEnum.RESOURCE),
-        ]);
-
-        if (!alive) return;
-
-        const getLatest3 = (items: CommunityItemType[]) =>
-          [...items].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 3);
-
-        const newData = {
-          posts: getLatest3(posts),
-          events: getLatest3(events),
-          resources: getLatest3(resources),
-        };
-
-        setData(newData);
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data: newData, timestamp: now }));
-      } catch {
-        if (!alive) return;
-        setData({ posts: [], events: [], resources: [] });
-      } finally {
-        if (!alive) return;
-        setLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [communityData?.id]);
+  const communityName = communityData?.slug || "the community";
+  const communityDescription = communityData?.description || "Welcome to the community feed page.";
 
   const sections = [
     { key: "posts", label: "Posts", items: data.posts, icon: <MessageCircle /> },
@@ -106,21 +42,16 @@ export default function FeedPage() {
     { key: "resources", label: "Resources", items: data.resources, icon: <FolderOpen /> },
   ];
 
-  const communityName = communityData?.slug || "the community";
-  const communityDescription = communityData?.description || "Welcome to the community feed page.";
-
   return (
     <div className="flex flex-col gap-6">
       {/* Hero */}
       <section className="rounded-base overflow-hidden">
         <div
-          className="h-70 bg-cover bg-center backdrop-blur-[40px] backdrop-brightness-60"
+          className="h-70 bg-cover bg-center backdrop-blur-[40px] backdrop-brightness-60 flex flex-col justify-center items-center rounded-base p-6"
           style={{ backgroundImage: "url('/assets/images/ArtBackground.jpg')" }}
         >
-          <div className="flex flex-col justify-center items-center rounded-base p-6 bg-cover bg-center h-70 backdrop-blur-[40px] backdrop-brightness-60">
-            <h1 className="text-3xl md:text-4xl font-bold text-white text-center">Welcome to {communityName}</h1>
-            <p className="text-lg md:text-xl text-white/90 mt-2 text-center">{communityDescription}</p>
-          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-white text-center">Welcome to {communityName}</h1>
+          <p className="text-lg md:text-xl text-white/90 mt-2 text-center">{communityDescription}</p>
         </div>
       </section>
 
@@ -141,7 +72,7 @@ export default function FeedPage() {
               </Button>
             </div>
             <div className="mt-4">
-              {loading ? (
+              {isLoading ? (
                 <p className="text-description text-sm">Loading…</p>
               ) : (
                 <PreviewList items={items} emptyText={`No ${label.toLowerCase()} yet.`} />

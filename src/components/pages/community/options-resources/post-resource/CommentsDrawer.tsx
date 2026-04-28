@@ -5,6 +5,7 @@ import { commentType, createComment, listComments } from "@/lib/api/community-ap
 import { getCommentAuthor, formatRelative } from "@/lib/helpers/comment-helpers";
 import { Button } from "@/components/ui/shadcn_ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/shadcn_ui/drawer";
+import { Textarea } from "@/components/ui/shadcn_ui/textarea";
 import { Send } from "lucide-react";
 
 interface CommentsDrawerProps {
@@ -49,16 +50,10 @@ export default function CommentsDrawer({ postId, isOpen, onOpenChange }: Comment
     if (!trimmed) return;
 
     setSubmitting(true);
-
     try {
-      // Create comment on server and append the returned record
       const created = await createComment(postId, trimmed);
       setComments((prev) => [...prev, created]);
       setCommentContent("");
-      // Refresh comments list without full page reload
-      // ensure loading indicator appears immediately
-      setCommentsLoading(true);
-      await loadComments();
     } catch (err) {
       console.error("Failed to add comment", err);
     } finally {
@@ -123,12 +118,12 @@ export default function CommentsDrawer({ postId, isOpen, onOpenChange }: Comment
 
         {/* Comment Input */}
         <div className="py-6 px-5 md:w-[40rem] w-full flex items-center gap-2">
-          <textarea
+          <Textarea
             value={commentContent}
             onChange={(e) => setCommentContent(e.target.value)}
             placeholder="Add a comment..."
             rows={1}
-            className="w-full h-14 p-3 bg-card-bg rounded-strong text-sm focus-visible:outline-none resize-none"
+            className="h-14 resize-none bg-card-bg rounded-strong text-sm"
           />
           <Button
             variant="fill"

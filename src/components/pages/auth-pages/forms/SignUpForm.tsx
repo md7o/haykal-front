@@ -59,6 +59,13 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
     };
   }, [step, resendTimer]);
 
+  // Auto-submit verification when all 6 digits are entered
+  useEffect(() => {
+    if (otp.length === 6 && !verifying) {
+      handleVerify();
+    }
+  }, [otp]);
+
   const {
     register,
     handleSubmit,
@@ -132,18 +139,16 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
       const verifyResponse = await verifySignUp(emailForOtp, otp);
 
       // 2. Update auth store with verified user data
-      useAuthStore
-        .getState()
-        .setAuth(
-          {
-            userId: verifyResponse.userId,
-            email: verifyResponse.email,
-            username: verifyResponse.username,
-            role: verifyResponse.role,
-          },
-          verifyResponse.accessToken,
-          verifyResponse.accessTokenExpiry,
-        );
+      useAuthStore.getState().setAuth(
+        {
+          userId: verifyResponse.userId,
+          email: verifyResponse.email,
+          username: verifyResponse.username,
+          role: verifyResponse.role,
+        },
+        verifyResponse.accessToken,
+        verifyResponse.accessTokenExpiry,
+      );
 
       // 3. Optional success callback
       onSuccess?.(emailForOtp);
@@ -256,8 +261,8 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
         </>
       ) : (
         <div className="space-y-6 w-full max-w-sm mx-auto">
-          <p className="text-sm text-muted-foreground">We sent a 6-digit code to {emailForOtp}. Enter it below to continue.</p>
-          <div className="w-full flex flex-col items-center justify-center gap-4">
+          <p className="text-description text-center">We sent a 6-digit code to {emailForOtp}. Enter it below to continue.</p>
+          <div className="w-full flex flex-col items-center justify-center gap-3">
             <InputOTP maxLength={6} value={otp} onChange={setOtp}>
               <InputOTPGroup>
                 <InputOTPSlot index={0} />
@@ -270,18 +275,15 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
                 <InputOTPSlot index={5} />
               </InputOTPGroup>
             </InputOTP>
-            {submitError && <p className="text-sm text-error">{submitError}</p>}
-            <Button onClick={handleVerify} disabled={otp.length !== 6 || verifying} size="huge">
-              {verifying ? "Verifying..." : "Continue"}
-            </Button>
-            <Button
-              type="button"
-              onClick={handleResend}
-              className={`w-full text-sm ${resendTimer > 0 ? "text-gray-400" : "text-accent hover:underline cursor-pointer"}`}
-              disabled={resendTimer > 0}
-            >
-              {getResendTimerText(resendTimer)}
-            </Button>
+            <div className="py-5 space-y-3">
+              {submitError && <p className="text-sm text-error">{submitError}</p>}
+              <Button onClick={handleVerify} disabled={otp.length !== 6 || verifying} size="huge">
+                {verifying ? "Verifying..." : "Continue"}
+              </Button>
+              <Button variant={"grayFill"} size={"huge"} type="button" onClick={handleResend} disabled={resendTimer > 0}>
+                {getResendTimerText(resendTimer)}
+              </Button>
+            </div>
           </div>
         </div>
       )}

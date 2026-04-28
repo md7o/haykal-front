@@ -10,25 +10,26 @@ import { Search } from "lucide-react";
 import PagesDialog from "@/components/ui/custom_ui/DialogStorage";
 import LoadingScreen from "@/components/ui/custom_ui/LoadingScreen";
 import { useCommunityData } from "@/lib/context/CommunityContext";
-import {
-  CommunityItemType,
-  CommunityItemTypeEnum,
-  deleteCommunityItem,
-  getCommunityItemsByCommunity,
-} from "@/lib/api/community-api/community-items-endpoints";
-import { getMembershipsByUser } from "@/lib/api/community-api/membership-endpoints";
-import { toggleLike } from "@/lib/api/community-api/userActivity-endpoints/likes-endpoints";
+import { usePosts } from "@/hooks/usePosts";
+import { useMembership } from "@/hooks/useMembership";
+import type { CommunityItemType } from "@/lib/api/community-api/community-items-endpoints";
 
 export default function PostsPage() {
   const { communityData } = useCommunityData();
-  const [isOwner, setIsOwner] = useState(false);
-  const [ownerMembershipId, setOwnerMembershipId] = useState<string | null>(null);
-  const [userMembershipId, setUserMembershipId] = useState<string | null>(null);
+  const { isOwner, ownerMembershipId } = useMembership(communityData?.id);
+  const {
+    posts,
+    isLoading: postsLoading,
+    toggling,
+    poppedId,
+    load,
+    handleToggleLike,
+    handleDeletePost,
+    addPost,
+    updatePost,
+  } = usePosts(communityData?.id);
 
-  const [posts, setPosts] = useState<CommunityItemType[]>([]);
-  const [postsLoading, setPostsLoading] = useState(false);
-  const [toggling, setToggling] = useState<Record<string, boolean>>({});
-  const [poppedId, setPoppedId] = useState<string | null>(null);
+  const { query, setQuery, results: filteredPosts } = useSearch(posts, { searchableFields: ["title", "content"] });
 
   const [commentsDrawerOpen, setCommentsDrawerOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
@@ -36,152 +37,38 @@ export default function PostsPage() {
   const [editPost, setEditPost] = useState<CommunityItemType | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  const {
-    query,
-    setQuery,
-    results: filteredPosts,
-  } = useSearch(posts, {
-    searchableFields: ["title", "content"],
-  });
-
-  const refreshPosts = async () => {
-    if (!communityData?.id) return;
-    try {
-      setPosts(await getCommunityItemsByCommunity(communityData.id, CommunityItemTypeEnum.POST));
-    } catch (err) {
-      console.error("Failed to load community items", err);
-    }
-  };
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [postIdToDelete, setPostIdToDelete] = useState<string | null>(null);
+  const [showDeleteLoading, setShowDeleteLoading] = useState(false);
 
   useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const memberships = await getMembershipsByUser();
-        if (!alive) return;
-
-        // Get user's membership in this community (any role)
-        const userMembership = memberships.find((m) => m.role === "member" || m.role === "owner");
-        if (userMembership) {
-          setUserMembershipId(userMembership.id);
-        }
-
-        // Check if user is an owner
-        const owner = memberships.find((m) => m.role === "owner");
-        if (owner) {
-          setIsOwner(true);
-          setOwnerMembershipId(owner.id);
-        }
-      } catch (err) {
-        console.error("Failed to load memberships", err);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!communityData?.id || !userMembershipId) return;
-    let alive = true;
-    (async () => {
-      try {
-        setPostsLoading(true);
-        const data = await getCommunityItemsByCommunity(communityData.id, CommunityItemTypeEnum.POST);
-        if (!alive) return;
-        setPosts(data);
-      } catch (err) {
-        console.error("Failed to load community items", err);
-      } finally {
-        setPostsLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [communityData?.id, userMembershipId]);
-
-  const handlePostCreated = (newPost: CommunityItemType) => {
-    setPosts((prev) => [newPost, ...prev]);
-  };
-
-  const handlePostUpdated = (updatedPost: CommunityItemType) => {
-    setPosts((prev) => prev.map((post) => (post.id === updatedPost.id ? updatedPost : post)));
-    setEditPost(null);
-  };
+    load();
+  }, [load]);
 
   const handleEditPost = (post: CommunityItemType) => {
     setEditPost(post);
     setEditDialogOpen(true);
   };
 
-  // Deletion/confirmation state
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [postIdToDelete, setPostIdToDelete] = useState<string | null>(null);
-  const [showDeleteLoading, setShowDeleteLoading] = useState(false);
-
-  const handleDeletePost = (postId: string) => {
+  const openDeleteDialog = (postId: string) => {
     setPostIdToDelete(postId);
     setDeleteDialogOpen(true);
   };
 
   const confirmDelete = async () => {
     if (!postIdToDelete) return;
-
-    // Close dialog and show full-screen loading
     setDeleteDialogOpen(false);
     setShowDeleteLoading(true);
-
-    // Keep spinner visible for a short duration for UX
-    await new Promise((r) => setTimeout(r, 1000));
-
-    // Optimistically remove from UI
-    setPosts((prev) => prev.filter((post) => post.id !== postIdToDelete));
-
     try {
-      await deleteCommunityItem(postIdToDelete);
-    } catch (err) {
-      console.error("Failed to delete post", err);
-    }
-
-    // Refresh posts and hide spinner
-    await refreshPosts();
-    setShowDeleteLoading(false);
-    setPostIdToDelete(null);
-  };
-
-  const handleToggleLike = async (postId: string) => {
-    if (toggling[postId]) return;
-
-    setPoppedId(postId);
-    window.setTimeout(() => setPoppedId((x) => (x === postId ? null : x)), 250);
-
-    // Optimistic update
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId ? { ...p, isActive: !p.isActive, likesCount: p.isActive ? p.likesCount - 1 : p.likesCount + 1 } : p,
-      ),
-    );
-
-    setToggling((s) => ({ ...s, [postId]: true }));
-    try {
-      await toggleLike(postId);
-      await refreshPosts();
-    } catch (err) {
-      console.error("Failed to toggle like", err);
-      // Revert optimistic update on failure
-      setPosts((prev) =>
-        prev.map((p) =>
-          p.id === postId ? { ...p, isActive: !p.isActive, likesCount: p.isActive ? p.likesCount - 1 : p.likesCount + 1 } : p,
-        ),
-      );
+      await handleDeletePost(postIdToDelete);
     } finally {
-      setToggling((s) => ({ ...s, [postId]: false }));
+      setShowDeleteLoading(false);
+      setPostIdToDelete(null);
     }
   };
 
   return (
-    <div className="flex flex-col gap-6 ">
+    <div className="flex flex-col gap-6">
       {showDeleteLoading && <LoadingScreen />}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <div>
@@ -192,7 +79,7 @@ export default function PostsPage() {
           isOwner={isOwner}
           ownerMembershipId={ownerMembershipId}
           communityId={communityData?.id || ""}
-          onPostCreated={handlePostCreated}
+          onPostCreated={addPost}
         />
       </div>
 
@@ -220,7 +107,7 @@ export default function PostsPage() {
             toggling={toggling}
             poppedId={poppedId}
             onEdit={handleEditPost}
-            onDelete={handleDeletePost}
+            onDelete={openDeleteDialog}
           />
         ) : posts.length === 0 ? (
           <p className="text-description">{isOwner ? "No posts yet. Create one!" : "No posts yet."}</p>
@@ -239,7 +126,7 @@ export default function PostsPage() {
             toggling={toggling}
             poppedId={poppedId}
             onEdit={handleEditPost}
-            onDelete={handleDeletePost}
+            onDelete={openDeleteDialog}
           />
         )}
       </div>
@@ -252,9 +139,12 @@ export default function PostsPage() {
         isOwner={isOwner}
         ownerMembershipId={ownerMembershipId}
         communityId={communityData?.id || ""}
-        onPostCreated={handlePostCreated}
+        onPostCreated={addPost}
         editPost={editPost}
-        onPostUpdated={handlePostUpdated}
+        onPostUpdated={(updated) => {
+          updatePost(updated);
+          setEditPost(null);
+        }}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
       />
@@ -266,9 +156,7 @@ export default function PostsPage() {
         cancelLabel="Cancel"
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        onConfirm={async () => {
-          await confirmDelete();
-        }}
+        onConfirm={confirmDelete}
       />
     </div>
   );

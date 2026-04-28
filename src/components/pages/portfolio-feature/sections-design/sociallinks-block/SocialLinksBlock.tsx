@@ -3,42 +3,39 @@ import { Youtube, Instagram, Facebook, Twitter, Linkedin, Github, Link } from "l
 type SocialLinksConfig = {
   socialLinks: string[];
   color?: string;
-  blockstyle?: "grid-style" | "card-style" | "icon-style" | "transparent-style";
+  blockstyle?: "grid-style" | "card-style" | "icon-style";
 };
 
 function detectPlatformIcon(url?: string) {
-  if (!url) return Link;
+  if (!url) return { icon: Link, isRecognized: false };
   const u = url.toLowerCase();
-  if (u.includes("youtube") || u.includes("youtu.be")) return Youtube;
-  if (u.includes("instagram")) return Instagram;
-  if (u.includes("facebook")) return Facebook;
-  if (u.includes("twitter")) return Twitter;
-  if (u.includes("github")) return Github;
-  if (u.includes("linkedin")) return Linkedin;
-  // return link with text
-  if (u.includes(Link.name.toLowerCase())) return Link;
-  return Link;
+  if (u.includes("youtube") || u.includes("youtu.be")) return { icon: Youtube, isRecognized: true };
+  if (u.includes("instagram")) return { icon: Instagram, isRecognized: true };
+  if (u.includes("facebook")) return { icon: Facebook, isRecognized: true };
+  if (u.includes("twitter")) return { icon: Twitter, isRecognized: true };
+  if (u.includes("github")) return { icon: Github, isRecognized: true };
+  if (u.includes("linkedin")) return { icon: Linkedin, isRecognized: true };
+  // For any other URL or random value, return Link icon
+  return { icon: Link, isRecognized: false };
 }
 
 export default function SocialLinksBlock({
   config,
   view,
-  asset,
 }: {
   config: SocialLinksConfig & { socialLinks?: string[] };
   view?: "desktop";
-  asset?: unknown;
 }) {
   const links = config.socialLinks || [];
 
   let content: React.ReactNode = null;
   const iconClass = `${view === "desktop" ? "w-8 h-8" : "w-6 h-6"}`;
 
-  if (config.blockstyle === "icon-style" || config.blockstyle === "transparent-style") {
+  if (config.blockstyle === "icon-style") {
     content = (
       <div className="flex items-center justify-center gap-4">
         {links.map((url, i) => {
-          const Icon = detectPlatformIcon(url);
+          const { icon: Icon } = detectPlatformIcon(url);
           return (
             <a
               key={i}
@@ -59,7 +56,7 @@ export default function SocialLinksBlock({
     content = (
       <div className="flex flex-col items-center gap-4">
         {links.map((url, i) => {
-          const Icon = detectPlatformIcon(url);
+          const { icon: Icon, isRecognized } = detectPlatformIcon(url);
           return (
             <a
               key={i}
@@ -72,7 +69,7 @@ export default function SocialLinksBlock({
               <span
                 className={`${view === "desktop" ? "text-lg font-semibold" : "text-sm font-medium"} [font-family:var(--portf-font)]`}
               >
-                {url
+                {isRecognized && url
                   ? url
                       .replace(/^https?:\/\//, "")
                       .replace(/www\./, "")
@@ -107,7 +104,7 @@ export default function SocialLinksBlock({
     content = (
       <div className={`mx-auto grid place-items-center gap-4 ${gridColsClass} ${view === "desktop" ? maxWidthClass : ""}`}>
         {links.map((url, i) => {
-          const Icon = detectPlatformIcon(url);
+          const { icon: Icon, isRecognized } = detectPlatformIcon(url);
           return (
             <a
               key={i}
@@ -125,7 +122,7 @@ export default function SocialLinksBlock({
                   view === "desktop" ? "xl:text-lg xl:font-semibold  text-sm font-medium" : "text-sm font-medium"
                 } break-words text-center font-portf-font`}
               >
-                {url
+                {isRecognized && url
                   ? url
                       .replace(/^https?:\/\//, "")
                       .replace(/www\./, "")

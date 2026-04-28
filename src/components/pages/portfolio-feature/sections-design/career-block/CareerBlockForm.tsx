@@ -11,7 +11,6 @@ export interface SocialLinksConfig {
   backgroundImage?: string;
   color?: string;
   careerType?: "experience-career" | "education-career";
-  background?: "with-background" | "without-background";
   title?: string;
   facilityName?: string;
   location?: string;
@@ -75,7 +74,7 @@ export default function CareerBlockForm({ config, onChange }: Props) {
                 onChange={(e) => onChange({ title: e.target.value })}
                 placeholder="Developer, Bachelor of IT"
                 id="hero-heading"
-                maxLength={40}
+                maxLength={30}
               />
               <FormField
                 label="Facility name"
@@ -83,7 +82,7 @@ export default function CareerBlockForm({ config, onChange }: Props) {
                 onChange={(e) => onChange({ facilityName: e.target.value })}
                 placeholder="University or Company Name"
                 id="hero-heading"
-                maxLength={40}
+                maxLength={25}
               />
               <FormField
                 label="Location"
@@ -91,7 +90,7 @@ export default function CareerBlockForm({ config, onChange }: Props) {
                 onChange={(e) => onChange({ location: e.target.value })}
                 placeholder="Country - City"
                 id="hero-heading"
-                maxLength={30}
+                maxLength={15}
               />
               <FormField
                 label="Date"
@@ -103,42 +102,15 @@ export default function CareerBlockForm({ config, onChange }: Props) {
               />
 
               <div>
-                <Label className="text-sm font-medium text-gray-700" htmlFor="career-note">
-                  Note
-                </Label>
+                <Label htmlFor="career-note">Note</Label>
                 <Textarea
                   id="career-note"
                   value={config.note || ""}
                   onChange={(e) => onChange({ note: e.target.value })}
                   placeholder="Details about the role, responsibilities or notes"
-                  className="
-                  "
+                  className="resize-none min-h-40"
                 />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex-row items-center gap-2">
-              <div className="flex items-center gap-2">
-                <DicesIcon className="w-4 h-4 text-accent" />
-                <CardTitle className="text-sm">Style</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Label className="text-sm text-gray-700">Background</Label>
-              <Select
-                value={config.background || "with-background"}
-                onValueChange={(v) => onChange({ background: v as "with-background" | "without-background" })}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="with-background">Yes</SelectItem>
-                  <SelectItem value="without-background">No</SelectItem>
-                </SelectContent>
-              </Select>
             </CardContent>
           </Card>
         </div>

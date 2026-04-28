@@ -70,9 +70,10 @@ export default function PortfSetup() {
 
   useEffect(() => {
     const fetchPortfolios = async () => {
+      if (!user?.userId) return;
       try {
         const portfolios = await getAllPortfolios();
-        setExistingPortfolios(portfolios);
+        setExistingPortfolios(portfolios.filter((p) => p.userId === user.userId));
       } catch (error) {
         console.error("Error fetching portfolios:", error);
       }
@@ -84,7 +85,7 @@ export default function PortfSetup() {
       const t = setTimeout(() => setShowSuccess(false), 3000);
       return () => clearTimeout(t);
     }
-  }, [showSuccess]);
+  }, [showSuccess, user?.userId]);
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-6 bg-card-main">
       <div className="text-center">

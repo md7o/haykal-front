@@ -9,7 +9,7 @@ import { blockFormStyles } from "../blockFormStyles";
 export interface SocialLinksConfig {
   socialLinks: string[];
   ctaLink?: string;
-  blockstyle?: "grid-style" | "card-style" | "icon-style" | "transparent-style";
+  blockstyle?: "grid-style" | "card-style" | "icon-style";
 }
 
 interface Props {
@@ -111,7 +111,6 @@ export default function SocialLinksForm({ config, onChange }: Props) {
                   <SelectItem value="grid-style">Grid Style</SelectItem>
                   <SelectItem value="card-style">Card Style</SelectItem>
                   <SelectItem value="icon-style">Icon Style</SelectItem>
-                  <SelectItem value="transparent-style">Transparent Style</SelectItem>
                 </SelectContent>
               </Select>
             </CardContent>

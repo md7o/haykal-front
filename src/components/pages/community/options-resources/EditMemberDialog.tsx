@@ -10,7 +10,7 @@ import { Spinner } from "@/components/ui/shadcn_ui/spinner";
 import { listComments, deleteComment, commentType } from "@/lib/api/community-api/userActivity-endpoints/comments-endpoints";
 import { updateMembership, membershipType } from "@/lib/api/community-api/membership-endpoints";
 import { cn } from "@/lib/utils";
-import { CommunityItemTypeEnum, getCommunityItems } from "@/lib/api/community-api/community-items-endpoints";
+import { CommunityItemTypeEnum, getCommunityItemsByCommunity } from "@/lib/api/community-api/community-items-endpoints";
 
 // ── Props ──────────────────────────────────────────────────────────────────
 interface EditMemberDialogProps {
@@ -22,7 +22,7 @@ interface EditMemberDialogProps {
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
-export default function EditMemberDialog({ member, open, onOpenChange, onMemberUpdated }: EditMemberDialogProps) {
+export default function EditMemberDialog({ member, communityId, open, onOpenChange, onMemberUpdated }: EditMemberDialogProps) {
   // Role tab
   const [selectedRole, setSelectedRole] = useState<"member" | "owner">(member.role);
   const [isSavingRole, setIsSavingRole] = useState(false);
@@ -58,7 +58,7 @@ export default function EditMemberDialog({ member, open, onOpenChange, onMemberU
   const fetchMemberComments = async () => {
     setIsLoadingComments(true);
     try {
-      const posts = await getCommunityItems(CommunityItemTypeEnum.POST);
+      const posts = await getCommunityItemsByCommunity(communityId, CommunityItemTypeEnum.POST);
       const allCommentArrays = await Promise.allSettled(posts.map((p) => listComments(p.id)));
       const allComments = allCommentArrays
         .filter((r): r is PromiseFulfilledResult<commentType[]> => r.status === "fulfilled")

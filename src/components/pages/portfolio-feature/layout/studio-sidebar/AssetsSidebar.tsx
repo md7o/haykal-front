@@ -1,41 +1,14 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { SidebarGroup, SidebarGroupLabel, SidebarGroupContent } from "@/components/ui/shadcn_ui/sidebar";
 import { usePortfolio } from "@/lib/context/PortfolioContext";
 import { COLOR_COMBINATIONS, FONT_OPTIONS } from "@/lib/theme/theme-constants";
-import { createAsset, updateAsset } from "@/lib/api/portfolios-api/assets-endpoints";
 import type { ColorTheme, FontTheme } from "@/lib/types/asset";
 import { Button } from "@/components/ui/shadcn_ui/button";
 
 export default function AssetsSidebar() {
-  const { portfolioId, asset, setAsset } = usePortfolio();
-  const [isSaving, setIsSaving] = useState(false);
-
-  const colorOptions = useMemo(() => COLOR_COMBINATIONS.map((c) => c.name), []);
-  const fontOptions = useMemo(() => FONT_OPTIONS.map((f) => f.label), []);
-
-  const colorValue = asset?.colorTheme ?? "BLUE";
-  const fontValue = asset?.fontTheme ?? "SANS_SERIF";
-
-  const saveAsset = useCallback(
-    async (payload: { colorTheme?: ColorTheme; fontTheme?: FontTheme }) => {
-      if (!portfolioId) return;
-      setIsSaving(true);
-      try {
-        if (asset?.id) {
-          const next = await updateAsset(asset.id, payload);
-          setAsset(next);
-        } else {
-          const next = await createAsset(portfolioId, payload);
-          setAsset(next);
-        }
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    [portfolioId, asset?.id, setAsset],
-  );
+  const { portfolioId, asset, updateAssetDraft, isAssetSaving } = usePortfolio();
 
   return (
     <SidebarGroup>
@@ -56,8 +29,8 @@ export default function AssetsSidebar() {
                       key={name}
                       aria-pressed={isSelected}
                       title={name}
-                      onClick={() => saveAsset({ colorTheme: name })}
-                      disabled={!portfolioId || isSaving}
+                      onClick={() => updateAssetDraft({ colorTheme: name })}
+                      disabled={!portfolioId || isAssetSaving}
                       className={`w-15 h-15 cursor-pointer rounded-full focus:outline-none transition-transform hover:scale-105 flex items-center justify-center ${
                         isSelected ? "ring-2 ring-accent" : ""
                       }`}
@@ -77,8 +50,8 @@ export default function AssetsSidebar() {
                       <Button
                         key={name}
                         variant={"grayFill"}
-                        onClick={() => saveAsset({ fontTheme: name })}
-                        disabled={!portfolioId || isSaving}
+                        onClick={() => updateAssetDraft({ fontTheme: name })}
+                        disabled={!portfolioId || isAssetSaving}
                         className={` hover:scale-[1.01] ${isSelected ? "ring-2 ring-accent" : ""}`}
                       >
                         <span className="text-xs text-description">{name}</span>

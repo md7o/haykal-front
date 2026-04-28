@@ -16,17 +16,7 @@ interface PostsListSectionProps {
   onDelete?: (postId: string) => void;
 }
 
-export const PostsListSection = ({
-  posts,
-  loading,
-  onLike,
-  onComment,
-  toggling,
-  poppedId,
-  isOwner,
-  onEdit,
-  onDelete,
-}: PostsListSectionProps) => {
+export const PostsListSection = ({ posts, loading, onLike, onComment, toggling, poppedId }: PostsListSectionProps) => {
   if (loading) {
     return (
       <div className="w-full max-w-2xl mx-auto space-y-6">

@@ -11,7 +11,7 @@ import { sectionsVisualization } from "@/components/pages/portfolio-feature/sect
 import { DndContext, PointerSensor, useSensor, useSensors, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { useViewMode } from "@/hooks/useViewMode";
+import { useViewMode, type ViewMode } from "@/hooks/useViewMode";
 import { usePublish } from "@/hooks/usePublish";
 import { DraggableSection } from "./components/DraggableSection";
 import ShareButton from "@/components/ui/custom_ui/ShareButton";
@@ -19,9 +19,51 @@ import { Spinner } from "@/components/ui/shadcn_ui/spinner";
 import { usePortfolio } from "@/lib/context/PortfolioContext";
 import DrawerEditor from "./DrawerEditor";
 import { toast, Toaster } from "sonner";
+import type { AnySectionInstance } from "@/lib/types/sections";
+import type { Page } from "@/lib/api/portfolios-api/pages-endpoints";
+import type { Asset } from "@/lib/types/asset";
+
+interface HeaderSectionProps {
+  sections: AnySectionInstance[];
+  pages: Page[];
+  portfolioId: string | null;
+  view: ViewMode;
+  asset: Asset | null;
+  onPageSelect: (id: string) => void;
+}
+
+function HeaderSection({ sections, pages, portfolioId, view, asset, onPageSelect }: HeaderSectionProps) {
+  const headerDef = sectionsVisualization["header"];
+  if (!headerDef) return null;
+
+  const headerInst = sections.find((s) => s.type === "header");
+  const cfg = {
+    ...(headerDef.defaultConfig as Record<string, unknown>),
+    ...(headerInst?.config as Record<string, unknown>),
+    portfolioId,
+    pages: pages.map((p) => ({ id: p.id, title: p.slug, slug: p.slug })),
+  };
+  if ((cfg as { active?: boolean }).active === false) return null;
+
+  return (
+    <div
+      onClick={(e) => {
+        const link = (e.target as HTMLElement).closest("a");
+        const href = link?.getAttribute("href");
+        if (!href?.startsWith("?page=")) return;
+        e.preventDefault();
+        const pageId = href.split("=")[1];
+        if (pageId) onPageSelect(pageId);
+      }}
+    >
+      <headerDef.Design config={cfg} view={view} isPreview asset={asset} />
+    </div>
+  );
+}
 
 export default function DisplayPage() {
-  const { portfolioId, slug, asset } = usePortfolio();
+  const { portfolioId, slug, asset, hasPendingAssetChanges, savePendingAssetChanges, isAssetSaving, assetSyncError } =
+    usePortfolio();
 
   const { pages, selectedPageId, setSelectedPageId } = usePages();
 
@@ -40,6 +82,9 @@ export default function DisplayPage() {
 
   const { refreshPortfolioData } = useUserPortfolio();
   const isPublished = false; // TODO: Implement publish status tracking
+
+  const hasAnyPendingChanges = hasPendingChanges || hasPendingAssetChanges;
+  const isAnySaving = isSectionsLoading || isAssetSaving;
 
   const [view, setView] = useViewMode();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -65,7 +110,7 @@ export default function DisplayPage() {
   }, []);
 
   useEffect(() => {
-    if (!hasPendingChanges || isSectionsLoading) {
+    if (!hasAnyPendingChanges || isAnySaving) {
       clearInterval(autoSaveIntervalRef.current as any);
       autoSaveIntervalRef.current = null;
       return;
@@ -74,7 +119,7 @@ export default function DisplayPage() {
     if (!autoSaveIntervalRef.current) {
       autoSaveIntervalRef.current = setInterval(async () => {
         try {
-          await savePendingChanges();
+          await Promise.all([savePendingChanges(), savePendingAssetChanges()]);
           setShowSavedIndicator(true);
           setTimeout(() => setShowSavedIndicator(false), 2000);
         } catch (err) {
@@ -87,7 +132,7 @@ export default function DisplayPage() {
       clearInterval(autoSaveIntervalRef.current as any);
       autoSaveIntervalRef.current = null;
     };
-  }, [hasPendingChanges, isSectionsLoading, savePendingChanges]);
+  }, [hasAnyPendingChanges, isAnySaving, savePendingChanges, savePendingAssetChanges]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -134,13 +179,13 @@ export default function DisplayPage() {
     (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
-        if (!isSectionsLoading && hasPendingChanges) {
+        if (!isAnySaving && hasAnyPendingChanges) {
           toast.success("Changes saved!");
-          savePendingChanges();
+          Promise.all([savePendingChanges(), savePendingAssetChanges()]);
         }
       }
     },
-    [isSectionsLoading, hasPendingChanges, savePendingChanges],
+    [isAnySaving, hasAnyPendingChanges, savePendingChanges, savePendingAssetChanges],
   );
 
   useEffect(() => {
@@ -169,10 +214,12 @@ export default function DisplayPage() {
           </Button>
         </div>
         <div className="flex items-center gap-3">
-          {(publishError || syncError) && <div className="text-sm text-red-600">{publishError || syncError}</div>}
+          {(publishError || syncError || assetSyncError) && (
+            <div className="text-sm text-red-600">{publishError || syncError || assetSyncError}</div>
+          )}
 
           <div className="text-sm text-gray-500">
-            {isSectionsLoading || hasPendingChanges ? (
+            {isAnySaving || hasAnyPendingChanges ? (
               showSavedIndicator ? (
                 <div className="flex items-center gap-1 text-description">
                   <Check className="size-4" />
@@ -189,8 +236,12 @@ export default function DisplayPage() {
             ) : null}
           </div>
 
-          <Button variant={"outline"} onClick={savePendingChanges} disabled={isSectionsLoading || !hasPendingChanges}>
-            {isSectionsLoading ? (
+          <Button
+            variant={"outline"}
+            onClick={() => Promise.all([savePendingChanges(), savePendingAssetChanges()])}
+            disabled={isAnySaving || !hasAnyPendingChanges}
+          >
+            {isAnySaving ? (
               <div className="flex justify-center items-center gap-2">
                 <Spinner className="mx-auto text-white size-5" />
                 <span>Saving...</span>
@@ -260,36 +311,14 @@ export default function DisplayPage() {
       >
         <div className="h-full flex flex-col min-h-0 ">
           {/* Header */}
-          {(() => {
-            const headerDef = sectionsVisualization["header"];
-            if (!headerDef) return null;
-
-            const headerInst = sections.find((s) => s.type === "header");
-            const cfg = {
-              ...(headerDef.defaultConfig as any),
-              ...(headerInst?.config as any),
-              portfolioId,
-              pages: pages.map((p) => ({ id: p.id, title: p.slug, slug: p.slug })),
-            };
-            if (cfg?.active === false) return null;
-
-            return (
-              <div
-                onClick={(e) => {
-                  const target = e.target as HTMLElement;
-                  const link = target.closest("a");
-                  if (!link) return;
-                  const href = link.getAttribute("href");
-                  if (!href?.startsWith("?page=")) return;
-                  e.preventDefault();
-                  const pageId = href.split("=")[1];
-                  if (pageId) setSelectedPageId(pageId);
-                }}
-              >
-                <headerDef.Design config={cfg} view={view} isPreview={true} asset={asset} />
-              </div>
-            );
-          })()}
+          <HeaderSection
+            sections={sections}
+            pages={pages}
+            portfolioId={portfolioId}
+            view={view}
+            asset={asset}
+            onPageSelect={setSelectedPageId}
+          />
           {sections.filter((s) => s.type !== "header").length === 0 && (
             <div className="text-sm text-description text-center py-10">Add sections from the sidebar to preview them.</div>
           )}

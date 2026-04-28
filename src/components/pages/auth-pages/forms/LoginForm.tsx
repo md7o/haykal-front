@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +10,7 @@ import { FormField } from "@/components/ui/shadcn_ui/form-field";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
 import { signIn } from "@/lib/api/auth-api/auth-endpoints";
 import { useAuthStore } from "@/lib/store/authStore";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getErrorMessage } from "@/lib/helpers/error-handler";
 
 export default function LoginForm() {
@@ -18,6 +18,17 @@ export default function LoginForm() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const redirectPath = searchParams.get("redirect") || "/";
+
+  useEffect(() => {
+    if (isInitialized && !isLoading && user) {
+      router.replace(redirectPath);
+    }
+  }, [isInitialized, isLoading, user, router, redirectPath]);
 
   const {
     register,
@@ -48,7 +59,7 @@ export default function LoginForm() {
           response.accessTokenExpiry,
         );
 
-      router.push("/");
+      router.push(redirectPath);
     } catch (error) {
       const { message } = getErrorMessage(error);
       setSubmitError(message);

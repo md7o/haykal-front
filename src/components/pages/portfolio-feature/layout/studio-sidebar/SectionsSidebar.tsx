@@ -23,7 +23,6 @@ import { DndContext, PointerSensor, useSensors, useSensor, closestCenter, DragEn
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
-import { Button } from "@/components/ui/shadcn_ui/button";
 
 const ICON_MAP: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   hero: Star,

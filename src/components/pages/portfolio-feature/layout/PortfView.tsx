@@ -11,6 +11,7 @@ import { sectionsVisualization } from "@/components/pages/portfolio-feature/sect
 import { inheritHeaderConfig, isHome, mapSections } from "@/lib/context/hooks/studio-utils";
 import { Spinner } from "@/components/ui/shadcn_ui/spinner";
 import { applyAssetsToDom } from "@/lib/theme/theme-utils";
+import { getAssetByPortfolioId } from "@/lib/api/portfolios-api/assets-endpoints";
 
 type PublicPage = Page & { title?: string | null; sections?: unknown | null };
 
@@ -65,7 +66,13 @@ export default function PortfView({ idOrSlug }: { idOrSlug: string }) {
         return;
       }
 
-      setPortfolio(fetchedPortfolio);
+      const hydratedAsset = fetchedPortfolio.asset ?? (await getAssetByPortfolioId(fetchedPortfolio.id));
+      const hydratedPortfolio: Portfolio = {
+        ...fetchedPortfolio,
+        asset: hydratedAsset,
+      };
+
+      setPortfolio(hydratedPortfolio);
       recordPortfolioVisit({ id: fetchedPortfolio.id, slug: fetchedPortfolio.slug });
 
       try {
@@ -162,14 +169,14 @@ export default function PortfView({ idOrSlug }: { idOrSlug: string }) {
 
       <main className="w-full">
         {nonHeaderSections.length === 0 ? (
-          <div className="text-sm text-[--color-description] text-center py-10">No sections to display.</div>
+          <div className="text-sm text-description text-center py-10">No sections to display.</div>
         ) : (
-          <div className="w-full space-y-20 first:mt-20 last:mb-20">
+          <div className="w-full space-y-20 first:mt-20">
             {nonHeaderSections.map((sec) => {
               const def = sectionsVisualization[sec.type];
               if (!def) {
                 return (
-                  <div key={sec.id} className="text-sm text-[--color-description] text-center py-4">
+                  <div key={sec.id} className="text-sm text-description text-center py-4">
                     Unknown section type: {sec.type}
                   </div>
                 );

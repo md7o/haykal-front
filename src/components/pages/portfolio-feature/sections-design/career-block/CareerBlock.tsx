@@ -8,13 +8,11 @@ type SocialLinksConfig = {
   location?: string;
   date?: string;
   note?: string;
-  background?: "with-background" | "without-background";
 };
 
 export default function CareerBlock({
   config,
   view,
-  asset,
 }: {
   config: SocialLinksConfig & { socialLinks?: string[] };
   view?: "desktop";
@@ -26,7 +24,7 @@ export default function CareerBlock({
         {config.careerType === "education-career" ? (
           <div className="flex items-center gap-2 mb-5">
             <GraduationCap size={30} className="text-accent" />
-            <h2 className="text-2xl font-bold">Educations</h2>
+            <h2 className="text-2xl font-bold text-portf-text-dark">Educations</h2>
           </div>
         ) : (
           <div className="flex items-center gap-2 mb-5">
@@ -34,7 +32,7 @@ export default function CareerBlock({
             <h2 className="text-2xl font-bold text-portf-text-dark">Experiences</h2>
           </div>
         )}
-        <div className={`${config.background !== "without-background" ? "rounded-base bg-portf-primary p-6" : ""}`}>
+        <div className="rounded-base bg-portf-primary p-6">
           {config.title && <h2 className="text-2xl font-semibold mb-2 font-portf-font text-portf-text-light">{config.title}</h2>}
 
           {(() => {

@@ -1,10 +1,10 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback, useEffect, useMemo } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import { usePortfolio } from "@/lib/context/PortfolioContext";
 import { useUserPortfolio } from "@/lib/context/UserPortfolioContext";
 import { useAuthStore } from "@/lib/store/authStore";
-import { getPages, createPage, updatePage, removePage } from "@/lib/api/portfolios-api/pages-endpoints";
+import { getPages, createPage, updatePage, removePage, reorderPages } from "@/lib/api/portfolios-api/pages-endpoints";
 import { Page } from "@/lib/api/portfolios-api/pages-endpoints";
 import { findPage, isHome } from "@/lib/context/hooks/studio-utils";
 
@@ -34,7 +34,13 @@ export function PagesProvider({ children }: { children: ReactNode }) {
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const [pages, setPages] = useState<Page[]>([]);
   const [selectedPageId, _setSelectedPageId] = useState<string | null>(null);
+  const selectedPageIdRef = useRef(selectedPageId);
   const [isPagesLoading, setIsPagesLoading] = useState(false);
+
+  // Keep ref in sync so fetchPages can read the latest value without it being a dep
+  useEffect(() => {
+    selectedPageIdRef.current = selectedPageId;
+  }, [selectedPageId]);
 
   // Normalize page selection
   const setSelectedPageId = useCallback(
@@ -67,10 +73,8 @@ export function PagesProvider({ children }: { children: ReactNode }) {
         const fetchedPages = await getPages(portfolioId);
         setPages(fetchedPages);
 
-        // Auto-select home page or first page if nothing selected or current selection invalid
-        // But try to preserve selection if possible (e.g. from URL or previous state)
         const home = fetchedPages.find(isHome);
-        const currentSelected = fetchedPages.find((p) => p.id === selectedPageId);
+        const currentSelected = fetchedPages.find((p) => p.id === selectedPageIdRef.current);
 
         if (!currentSelected) {
           _setSelectedPageId(home?.id ?? fetchedPages[0]?.id ?? null);
@@ -180,7 +184,7 @@ export function PagesProvider({ children }: { children: ReactNode }) {
       setPages(reordered);
 
       try {
-        await reorderPagesApi(portfolioId, pageIds);
+        await reorderPages(portfolioId, pageIds);
       } catch (err) {
         setPages(originalPages);
         throw err;
@@ -210,7 +214,4 @@ export function usePages() {
   const context = useContext(PagesContext);
   if (!context) throw new Error("usePages must be inside PagesProvider");
   return context;
-}
-function reorderPagesApi(portfolioId: string, pageIds: string[]) {
-  throw new Error("Function not implemented.");
 }

@@ -1,24 +1,28 @@
 import type { Metadata } from "next";
-import { Montserrat, Lobster, Inconsolata, Caveat } from "next/font/google";
+import { Montserrat, Lemonada, Caveat, Rubik, Cairo } from "next/font/google";
 import "./globals.css";
 import { AOSInit } from "@/components/layouts/Aos";
 import { AuthInitializer } from "@/components/auth/AuthInitializer";
 import { UserPortfolioProvider } from "@/lib/context/UserPortfolioContext";
-import { UserProvider } from "@/lib/context/UserContext";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
 });
 
-const lobster = Lobster({
-  variable: "--font-lobster",
+const rubik = Rubik({
+  variable: "--font-rubik",
   subsets: ["latin"],
   weight: ["400"],
 });
 
-const inconsolata = Inconsolata({
-  variable: "--font-inconsolata",
+const cairo = Cairo({
+  variable: "--font-cairo",
+  subsets: ["latin"],
+  weight: ["400", "600"],
+});
+const lemonada = Lemonada({
+  variable: "--font-lemonada",
   subsets: ["latin"],
   weight: ["400", "600"],
 });
@@ -44,15 +48,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
-      <AOSInit />
       <body
-        className={`${montserrat.variable} ${lobster.variable} ${inconsolata.variable} ${caveat.variable}`}
+        className={`${montserrat.variable} ${rubik.variable} ${lemonada.variable} ${cairo.variable} ${caveat.variable}`}
         suppressHydrationWarning
       >
+        <AOSInit />
         <AuthInitializer />
-        <UserProvider>
-          <UserPortfolioProvider>{children}</UserPortfolioProvider>
-        </UserProvider>
+        <UserPortfolioProvider>{children}</UserPortfolioProvider>
       </body>
     </html>
   );

@@ -11,7 +11,7 @@ const STYLES = {
   button: { padding: "p-1.5", border: "rounded" },
   section: { border: "border-2 border-dashed py-12" },
   selectedBorder: "border-accent/60",
-  unselectedBorder: "border-card-border/20",
+  unselectedBorder: "border-black/10",
   hoverBorder: "border-accent/30",
 } as const;
 
@@ -60,7 +60,7 @@ export function DraggableSection({ id, isSelected, onSelect, onEdit, onRemove, c
       className={`relative ${STYLES.section.border} ${
         isSelected
           ? `${STYLES.selectedBorder} shadow-sm`
-          : `${STYLES.unselectedBorder} hover:${STYLES.hoverBorder} transition-colors`
+          : `${STYLES.unselectedBorder} hover:${STYLES.hoverBorder} cursor-pointer hover:opacity-80 transition-all duration-100`
       } ${isDragging ? "cursor-grabbing" : ""}`}
     >
       {isSelected && (
